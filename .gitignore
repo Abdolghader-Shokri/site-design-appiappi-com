@@ -1,0 +1,104 @@
+# =========================================================
+# WordPress core (this repo tracks only custom theme/plugin code)
+# =========================================================
+/wp-admin/
+/wp-includes/
+/wp-*.php
+!/wp-config-sample.php
+/xmlrpc.php
+/index.php
+/license.txt
+/readme.html
+/wp-content/plugins/*
+!/wp-content/plugins/.gitkeep
+/wp-content/mu-plugins/*
+!/wp-content/mu-plugins/.gitkeep
+/wp-content/themes/*
+!/wp-content/themes/.gitkeep
+# Keep the custom company theme once it exists, e.g.:
+# !/wp-content/themes/company-theme/
+
+/wp-content/upgrade/
+/wp-content/uploads/
+/wp-content/cache/
+/wp-content/backup*/
+/wp-content/backups/
+/wp-content/wflogs/
+/wp-content/ai1wm-backups/
+/wp-content/languages/
+/wp-content/blogs.dir/
+/wp-content/mysql.sql
+/wp-content/debug.log
+
+# =========================================================
+# Environment / secrets
+# =========================================================
+.env
+.env.*
+!.env.example
+wp-config.php
+*.pem
+*.key
+*.cert
+secrets.json
+
+# =========================================================
+# Dependencies
+# =========================================================
+/node_modules/
+/vendor/
+npm-debug.log*
+yarn-error.log*
+package-lock.json.bak
+
+# =========================================================
+# Build output
+# =========================================================
+/dist/
+/build/
+*.min.css.map
+*.min.js.map
+
+# =========================================================
+# Database dumps / backups
+# =========================================================
+*.sql
+*.sql.gz
+*.sql.zip
+*.tar
+*.tar.gz
+*.zip
+!/wp-content/themes/**/*.zip
+
+# =========================================================
+# Local dev tooling (Local, DevKinsta, Docker, etc.)
+# =========================================================
+.local/
+.docker/
+docker-compose.override.yml
+*.local.yml
+
+# =========================================================
+# OS / editor cruft
+# =========================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# =========================================================
+# Logs
+# =========================================================
+*.log
+error_log
+debug.log
+
+# =========================================================
+# Project working files (not part of the deliverable)
+# =========================================================
+/.tmp/
+/tmp/
