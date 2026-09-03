@@ -275,6 +275,33 @@ changes):
   /languages/
 ```
 
+## Companion Plugin Architecture
+
+Decided directly by the user (superseding the original "decide in Phase 2"
+placeholder): the **theme** owns only the permanent shell — header, footer,
+nav menu, theme setup/registration, design system, base page layout. Every
+**dynamic content section** ships as its own **companion plugin** instead
+of living inside the theme, so its content can later be placed anywhere
+(via shortcode) rather than being locked to one spot in one template.
+
+| Component | Plugin slug | Data model | Shortcode |
+|---|---|---|---|
+| Hero Slideshow | `appiappi-hero-slider` | CPT `appiappi_slide` (headline, subheadline, image, CTA text/url, order) | `[appiappi_hero_slider]` |
+| Pricing Plans | `appiappi-pricing-plans` | CPT `appiappi_plan` (price, period, note, color, icon, featured flag, badge, CTA, features, order) | `[appiappi_pricing]` |
+| Template / Design Showcase | `appiappi-template-showcase` | CPT `appiappi_template` + taxonomy `appiappi_template_category` (price, vendor, source/demo URLs, rating, style) | `[appiappi_templates]` |
+
+Rules for every companion plugin:
+- Self-contained folder under `wp-content/plugins/<slug>/`, own plugin header, **no third-party dependency** (native meta boxes, not ACF) — keeps with "avoid unnecessary plugins."
+- Exposes both a shortcode and a plain PHP render function, so the theme can call it directly.
+- Theme checks `function_exists()` / `shortcode_exists()` before calling a plugin, and falls back to its own placeholder data/markup if the plugin isn't installed — the site must never break without the plugins active.
+- Default placement mirrors today's homepage position; the point of the shortcode is that the business owner can later move or duplicate that content elsewhere without a code change.
+
+**Build order** (user-specified, one approved step at a time): theme visual
+rebuild → Pricing Plans plugin → Template Showcase plugin → Hero Slideshow
+plugin → package theme + all plugins as separate installable zips, for
+installing on a fresh WordPress site on real hosting at the end of the
+project.
+
 ## No Hard-Coded Business Data
 
 Never hard-code (outside intentionally static technical elements): prices,

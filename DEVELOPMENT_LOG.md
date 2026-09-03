@@ -76,6 +76,40 @@ styles were dequeued in `inc/setup.php` to avoid shipping unused CSS on
 every page load. Revisit if/when block patterns or the block editor's
 frontend styling are intentionally adopted.
 
+## 2026-09-03 — Theme + companion plugins, not one monolithic theme
+
+The user rejected the first Phase 1 visual pass as not matching the
+Photoshop reference closely enough, and separately asked for a structural
+change: the theme should hold only the permanent shell (header, footer,
+nav, setup), while each dynamic content block (hero, pricing, template
+showcase) becomes its own **installable plugin** with a shortcode, so its
+output can be placed anywhere later — not just its current homepage slot.
+Adopted this as the standing architecture (see MASTER_PROMPT.md §
+Companion Plugin Architecture) rather than treating it as a one-off
+request, since it affects how every future dynamic section gets built:
+theme templates should call through a shortcode/function-exists check with
+a graceful fallback to today's placeholder data, not assume the plugin
+exists. Sequencing (theme visuals first, one plugin at a time after
+approval, package everything at the end) is the user's explicit
+requirement, tracked in MASTER_PROMPT.md § Development Workflow Rules.
+
+## 2026-09-03 — Homepage template sidebar ships now, filtering doesn't
+
+Confirmed with the user (via AskUserQuestion during planning) that the
+homepage's "Featured Website Designs" section should get the full
+sidebar + filter visual treatment now, matching the reference exactly,
+rather than deferring that whole section to a simpler teaser. Built the
+sidebar (search, categories, style checkboxes) as real markup driven by
+two new placeholder-data functions
+(`appiappi_get_template_categories()`, `appiappi_get_template_styles()`
+in `inc/template-tags.php`), but deliberately did **not** wire up any
+client-side filtering — that's real functionality that belongs to the
+future Template Showcase plugin's actual query logic, and faking it now
+(e.g. with JS that filters the 3 placeholder cards) would create a false
+impression of a finished feature. Documented the gap explicitly in
+PROJECT_MASTER.md § 21 and in a code comment at the top of
+`templates-preview.php`.
+
 ## 2026-09-03 — Client Login reserved as a header link, portal not built
 
 The header includes a "Client Login" link to `/account/` as a secondary

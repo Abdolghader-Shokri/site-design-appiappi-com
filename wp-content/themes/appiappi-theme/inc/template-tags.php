@@ -33,7 +33,14 @@ function appiappi_icon( $name, $class = '' ) {
 		'phone'      => '<rect x="7" y="2" width="10" height="20" rx="2"></rect><line x1="11" y1="18" x2="13" y2="18"></line>',
 		'mail'       => '<rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline>',
 		'map-pin'    => '<path d="M12 22s7-7.4 7-12a7 7 0 1 0-14 0c0 4.6 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle>',
-		'leaf'       => '<path d="M12 3c3.2 1.8 6.5 5 6.5 9.2A6.5 6.5 0 0 1 12 18.7a6.5 6.5 0 0 1-6.5-6.5C5.5 8 8.8 4.8 12 3z"></path><line x1="12" y1="12" x2="12" y2="21"></line>',
+		'leaf'       => '<path d="M12 2l1.3 5.8L18 5l-2 5 5 1-5 1.3 2 5-4.7-2.6L12 19l-1.3-4.3L6 17.3l2-5-5-1 5-1.3-2-5 4.7 2.8z" fill="currentColor" stroke="none"></path><line x1="12" y1="19" x2="12" y2="22"></line>',
+		'briefcase'  => '<rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="3" y1="13" x2="21" y2="13"></line>',
+		'home'       => '<path d="M4 11l8-7 8 7"></path><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"></path>',
+		'heart'      => '<path d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9z"></path>',
+		'shopping-bag' => '<path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path>',
+		'hammer'     => '<path d="M14 6l4 4-8 8-4-4 8-8z"></path><path d="M17 3l4 4-2 2-4-4 2-2z"></path><line x1="6" y1="18" x2="3" y2="21"></line>',
+		'scale'      => '<line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 7h14"></path><path d="M5 7l-3 6a3 3 0 0 0 6 0L5 7z"></path><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6z"></path>',
+		'grid'       => '<rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect>',
 		'menu'       => '<line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line>',
 		'close'      => '<line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>',
 		'search'     => '<circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line>',
@@ -52,7 +59,7 @@ function appiappi_icon( $name, $class = '' ) {
 	}
 
 	return sprintf(
-		'<svg class="icon %s" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">%s</svg>',
+		'<svg class="icon %s" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">%s</svg>',
 		esc_attr( $class ),
 		$icons[ $name ]
 	);
@@ -175,9 +182,11 @@ function appiappi_get_featured_templates() {
 		array(
 			'name'     => __( 'Construction Pro', 'appiappi' ),
 			'category' => __( 'Construction', 'appiappi' ),
+			'style'    => __( 'Bold', 'appiappi' ),
 			'desc'     => __( 'Bold, image-led design for builders and contractors.', 'appiappi' ),
 			'price'    => '$59',
 			'rating'   => '4.9',
+			'rating_count' => 128,
 			'image'    => '',
 			'demo_url'    => '#',
 			'details_url' => '#',
@@ -185,9 +194,11 @@ function appiappi_get_featured_templates() {
 		array(
 			'name'     => __( 'Justice Law', 'appiappi' ),
 			'category' => __( 'Legal', 'appiappi' ),
+			'style'    => __( 'Classic', 'appiappi' ),
 			'desc'     => __( 'Sharp, trustworthy design for law firms and consultants.', 'appiappi' ),
 			'price'    => '$69',
 			'rating'   => '4.8',
+			'rating_count' => 96,
 			'image'    => '',
 			'demo_url'    => '#',
 			'details_url' => '#',
@@ -195,13 +206,45 @@ function appiappi_get_featured_templates() {
 		array(
 			'name'     => __( 'Dental Clinic', 'appiappi' ),
 			'category' => __( 'Dental &amp; Medical', 'appiappi' ),
+			'style'    => __( 'Modern', 'appiappi' ),
 			'desc'     => __( 'Warm, clean design for clinics and healthcare practices.', 'appiappi' ),
 			'price'    => '$49',
 			'rating'   => '4.9',
+			'rating_count' => 87,
 			'image'    => '',
 			'demo_url'    => '#',
 			'details_url' => '#',
 		),
+	);
+}
+
+/**
+ * TODO(Phase 3): sidebar category list — presentational only until the
+ * Template Showcase plugin's `appiappi_template_category` taxonomy exists.
+ * Clicking a category does not yet filter results.
+ */
+function appiappi_get_template_categories() {
+	return array(
+		array( 'icon' => 'grid',          'label' => __( 'All Categories', 'appiappi' ), 'active' => true ),
+		array( 'icon' => 'hammer',        'label' => __( 'Construction & Contracting', 'appiappi' ) ),
+		array( 'icon' => 'scale',         'label' => __( 'Legal', 'appiappi' ) ),
+		array( 'icon' => 'heart',         'label' => __( 'Dental & Medical', 'appiappi' ) ),
+		array( 'icon' => 'home',          'label' => __( 'Real Estate', 'appiappi' ) ),
+		array( 'icon' => 'shopping-bag',  'label' => __( 'Restaurant & Retail', 'appiappi' ) ),
+		array( 'icon' => 'briefcase',     'label' => __( 'Professional Services', 'appiappi' ) ),
+	);
+}
+
+/**
+ * TODO(Phase 3): sidebar style checkboxes — presentational only, same
+ * caveat as appiappi_get_template_categories().
+ */
+function appiappi_get_template_styles() {
+	return array(
+		__( 'Modern', 'appiappi' ),
+		__( 'Minimal', 'appiappi' ),
+		__( 'Bold', 'appiappi' ),
+		__( 'Classic', 'appiappi' ),
 	);
 }
 

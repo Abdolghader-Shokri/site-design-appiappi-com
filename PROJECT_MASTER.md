@@ -45,9 +45,27 @@ Canadian SMBs in non-marketplace, non-heavy-ecommerce industries. See [MASTER_PR
 ## 5. WordPress / Theme Architecture
 
 Custom theme at `wp-content/themes/appiappi-theme/` (text domain `appiappi`,
-theme slug `appiappi-theme`). No plugins are required for the current
-homepage. Plugin architecture (contact form handling, spam protection, CPT
-registration) will be decided in Phase 2 — see [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md).
+theme slug `appiappi-theme`) provides the permanent shell only: header,
+footer, nav menu, theme setup/registration, design tokens, and the base
+homepage layout. **Dynamic content sections are being split out into
+companion plugins** — decided per the user's explicit direction, not yet
+built. See the Plugin Architecture Plan table below and
+[MASTER_PROMPT.md § Companion Plugin Architecture](MASTER_PROMPT.md#companion-plugin-architecture)
+for the full spec, and [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) for why.
+
+| Component | Plugin slug (not yet built) | Shortcode | Theme fallback today |
+|---|---|---|---|
+| Hero Slideshow | `appiappi-hero-slider` | `[appiappi_hero_slider]` | Static hero from `template-parts/sections/hero.php` |
+| Pricing Plans | `appiappi-pricing-plans` | `[appiappi_pricing]` | `appiappi_get_pricing_plans()` placeholder data |
+| Template / Design Showcase | `appiappi-template-showcase` | `[appiappi_templates]` | `appiappi_get_featured_templates()` + `appiappi_get_template_categories()` / `appiappi_get_template_styles()` placeholder data |
+
+Build order: theme visuals (this pass) → Pricing Plans plugin → Template
+Showcase plugin → Hero Slideshow plugin → package theme + all plugins as
+separate installable zips for a fresh WordPress install on real hosting.
+Each plugin will use native meta boxes (no ACF/third-party dependency) and
+expose both a shortcode and a plain PHP function; the theme will check
+`function_exists()`/`shortcode_exists()` before calling a plugin so it
+never breaks if a plugin isn't installed yet.
 
 `functions.php` only requires files from `/inc/` — it holds no hooks itself.
 Each `/inc/` file owns one concern (setup, enqueue, customizer, template
@@ -184,13 +202,18 @@ through it, so no markup changes are needed at that point. A dedicated
 
 ## 13. Template Library
 
-**Not yet a real system.** Phase 1 renders a 3-card "Featured Website
-Designs" teaser on the homepage from `appiappi_get_featured_templates()`,
-explicitly marked `TODO(Phase 3)`, feeding
-`template-parts/sections/templates-preview.php`. The full browsable
-library — search, category sidebar, filters, `/templates/` archive, template
-detail pages — is not built; it will use a **Website Template** CPT + a
-category taxonomy per [MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library).
+**Not yet a real system, but the homepage section now visually matches the
+full reference layout.** `template-parts/sections/templates-preview.php`
+renders a two-column layout: a sidebar card (search input, category list
+from `appiappi_get_template_categories()`, style checkboxes from
+`appiappi_get_template_styles()`) plus a 3-card grid from
+`appiappi_get_featured_templates()` — all in `inc/template-tags.php`,
+explicitly marked `TODO(Phase 3)`. **The sidebar is presentational only —
+no live filtering yet.** That real behaviour, plus the `/templates/`
+archive and template detail pages, belongs to the future
+**`appiappi-template-showcase`** plugin (Website Template CPT + a
+`appiappi_template_category` taxonomy) per [MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library)
+and § Companion Plugin Architecture.
 
 ## 14. Template Detail Pages / Portfolio / Case Studies / Blog / FAQ / Contact Forms / Lead Management
 
@@ -268,6 +291,7 @@ created, and the junction recreated manually.
 ## 21. Known Limitations
 
 - No CPTs — pricing and template-library content is hard-coded placeholder data behind a single function each (by design, see § 12–13), **not** meant to stay that way past Phase 2/3.
+- Template library sidebar (search box, category list, style checkboxes) is visual only — clicking a category or checking a style does not filter the grid; real filtering is future `appiappi-template-showcase` plugin functionality.
 - No admin Settings page — only Customizer options exist.
 - Hero image is a placeholder SVG illustration, not a real photograph — replace before launch.
 - No nav menu created in wp-admin yet — header/mobile nav render via `appiappi_nav_fallback()` with best-guess page slugs (`/templates/`, `/services/`, `/pricing/`, etc.) that don't exist as real pages yet.

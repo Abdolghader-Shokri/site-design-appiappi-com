@@ -142,6 +142,10 @@
 	gap: var(--space-4);
 }
 
+.icon-tile {
+	--tile-color: var(--color-primary);
+}
+
 .icon-tile__icon {
 	display: inline-flex;
 	align-items: center;
@@ -149,8 +153,8 @@
 	width: 48px;
 	height: 48px;
 	border-radius: var(--radius-md);
-	background: var(--color-primary-50);
-	color: var(--color-primary);
+	background: color-mix(in srgb, var(--tile-color) 14%, white);
+	color: var(--tile-color);
 	flex-shrink: 0;
 }
 
