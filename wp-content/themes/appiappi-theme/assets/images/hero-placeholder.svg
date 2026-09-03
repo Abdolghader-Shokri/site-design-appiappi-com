@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="heroPlaceholderTitle">
+	<title id="heroPlaceholderTitle">Canadian city skyline placeholder</title>
+	<defs>
+		<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="#16294a"/>
+			<stop offset="100%" stop-color="#0b1526"/>
+		</linearGradient>
+	</defs>
+	<rect width="800" height="600" fill="url(#sky)"/>
+
+	<!-- distant buildings -->
+	<g fill="#1c3155">
+		<rect x="0" y="360" width="60" height="240"/>
+		<rect x="70" y="320" width="50" height="280"/>
+		<rect x="700" y="340" width="55" height="260"/>
+		<rect x="760" y="300" width="40" height="300"/>
+	</g>
+
+	<!-- mid buildings -->
+	<g fill="#223a63">
+		<rect x="130" y="260" width="70" height="340"/>
+		<rect x="215" y="220" width="60" height="380"/>
+		<rect x="560" y="240" width="65" height="360"/>
+		<rect x="635" y="280" width="55" height="320"/>
+	</g>
+
+	<!-- foreground buildings -->
+	<g fill="#2b4a80">
+		<rect x="300" y="160" width="80" height="440"/>
+		<rect x="390" y="120" width="14" height="480"/>
+		<rect x="420" y="200" width="90" height="400"/>
+	</g>
+
+	<!-- tower with accent light -->
+	<g>
+		<rect x="440" y="60" width="16" height="540" fill="#2b4a80"/>
+		<circle cx="448" cy="52" r="10" fill="#1e5eff"/>
+	</g>
+
+	<!-- windows -->
+	<g fill="#f7b955" opacity="0.55">
+		<rect x="310" y="190" width="8" height="10"/>
+		<rect x="330" y="190" width="8" height="10"/>
+		<rect x="310" y="220" width="8" height="10"/>
+		<rect x="350" y="220" width="8" height="10"/>
+		<rect x="430" y="250" width="8" height="10"/>
+		<rect x="450" y="280" width="8" height="10"/>
+		<rect x="470" y="240" width="8" height="10"/>
+		<rect x="230" y="260" width="8" height="10"/>
+		<rect x="250" y="300" width="8" height="10"/>
+		<rect x="145" y="300" width="8" height="10"/>
+	</g>
+</svg>

@@ -1,0 +1,16 @@
+/*
+Theme Name: Appiappi
+Theme URI: https://appiappi.com
+Author: Appiappi
+Author URI: https://appiappi.com
+Description: Custom theme for Appiappi — managed website design, hosting, SEO and support for Canadian businesses.
+Version: 0.1.0
+Requires at least: 6.4
+Requires PHP: 8.0
+Text Domain: appiappi
+License: Proprietary
+
+This file intentionally holds only the WordPress theme header block.
+Stylesheets are modular and live in /assets/css/ — see inc/enqueue.php.
+Do not add rules below; add them to the appropriate file in /assets/css/.
+*/

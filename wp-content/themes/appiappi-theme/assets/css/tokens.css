@@ -1,0 +1,110 @@
+/**
+ * Design tokens — the single source of truth for colour, type, spacing,
+ * radius and shadow across the theme. Change values here, not in
+ * individual component files. Admin-editable brand colours (primary/
+ * secondary/accent) are overridden inline in wp_head by inc/customizer.php
+ * — see appiappi_customizer_css_vars().
+ */
+
+:root {
+	/* ---- Neutrals ---- */
+	--color-white: #ffffff;
+	--color-neutral-50: #f7f8fa;
+	--color-neutral-100: #eef1f5;
+	--color-neutral-200: #e2e6ec;
+	--color-neutral-300: #cbd2dc;
+	--color-neutral-400: #9aa3b2;
+	--color-neutral-600: #5b6472;
+	--color-neutral-800: #1f2733;
+	--color-neutral-900: #10151d;
+
+	/* ---- Brand ---- */
+	--color-navy-900: #0b1526;
+	--color-navy-800: #10203a;
+	--color-navy-700: #16294a;
+	--color-primary: #1e5eff;
+	--color-primary-dark: #1746c4;
+	--color-primary-50: #eaf0ff;
+	--color-maple: #d5222b;
+
+	/* ---- Plan accents (admin-editable per plan later; sane defaults now) ---- */
+	--color-plan-starter: #17a673;
+	--color-plan-business: #2563eb;
+	--color-plan-professional: #7c3aed;
+	--color-plan-growth: #f97316;
+
+	/* ---- Semantic ---- */
+	--color-success: #16a34a;
+	--color-warning: #f59e0b;
+	--color-danger: #dc2626;
+
+	/* ---- Surface / text aliases ---- */
+	--color-bg: var(--color-white);
+	--color-bg-subtle: var(--color-neutral-50);
+	--color-bg-dark: var(--color-navy-900);
+	--color-text: var(--color-neutral-800);
+	--color-text-muted: var(--color-neutral-600);
+	--color-text-on-dark: var(--color-white);
+	--color-text-on-dark-muted: var(--color-neutral-300);
+	--color-border: var(--color-neutral-200);
+
+	/* ---- Typography ---- */
+	--font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+	--fs-xs: 0.8125rem;   /* 13px */
+	--fs-sm: 0.9375rem;   /* 15px */
+	--fs-base: 1rem;      /* 16px */
+	--fs-lg: 1.125rem;    /* 18px */
+	--fs-xl: 1.375rem;    /* 22px */
+	--fs-2xl: 1.75rem;    /* 28px */
+	--fs-3xl: 2.125rem;   /* 34px */
+	--fs-4xl: 2.75rem;    /* 44px */
+	--fs-5xl: 3.375rem;   /* 54px */
+
+	--lh-tight: 1.15;
+	--lh-snug: 1.35;
+	--lh-normal: 1.6;
+
+	--fw-regular: 400;
+	--fw-medium: 500;
+	--fw-semibold: 600;
+	--fw-bold: 700;
+
+	/* ---- Spacing (4px base scale) ---- */
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-5: 1.25rem;
+	--space-6: 1.5rem;
+	--space-8: 2rem;
+	--space-10: 2.5rem;
+	--space-12: 3rem;
+	--space-16: 4rem;
+	--space-20: 5rem;
+	--space-24: 6rem;
+
+	/* ---- Radius ---- */
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 16px;
+	--radius-xl: 22px;
+	--radius-full: 999px;
+
+	/* ---- Shadow ---- */
+	--shadow-sm: 0 1px 2px rgba(16, 21, 29, 0.06);
+	--shadow-md: 0 8px 24px rgba(16, 21, 29, 0.08);
+	--shadow-lg: 0 20px 48px rgba(16, 21, 29, 0.14);
+
+	/* ---- Layout ---- */
+	--container-max: 1200px;
+	--container-pad: var(--space-5);
+	--header-height: 76px;
+	--transition-base: 180ms ease;
+}
+
+@media (min-width: 768px) {
+	:root {
+		--container-pad: var(--space-8);
+	}
+}
