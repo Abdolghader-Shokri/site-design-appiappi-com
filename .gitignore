@@ -15,8 +15,8 @@
 !/wp-content/mu-plugins/.gitkeep
 /wp-content/themes/*
 !/wp-content/themes/.gitkeep
-# Keep the custom company theme once it exists, e.g.:
-# !/wp-content/themes/company-theme/
+# Custom theme lives in this repo and is symlinked into the Local WP site:
+!/wp-content/themes/appiappi-theme/
 
 /wp-content/upgrade/
 /wp-content/uploads/
