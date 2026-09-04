@@ -12,6 +12,38 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-04 — Shared render function instead of duplicating card markup
+
+The Pricing Plans plugin needed to produce the exact same `.pricing-grid`
+HTML the theme was already rendering from placeholder data. Rather than
+duplicating that markup inside the plugin (drift risk — the two copies
+would inevitably diverge as the design changes) or moving the markup
+entirely into the plugin (which would violate "theme owns visuals, plugin
+owns data" and make the plugin theme-specific in an uglier way), the card
+loop was extracted into one function on the theme side —
+`appiappi_render_pricing_cards( array $plans )` in
+`inc/template-tags.php` — that takes a plain array shaped like the old
+placeholder's return value. Both the theme's own fallback and the
+plugin's `[appiappi_pricing]` shortcode build that same shape (one from a
+static array, one from `WP_Query` + post meta) and call the one function.
+This is the pattern to repeat for the Template Showcase and Hero
+Slideshow plugins: one theme-owned render function per section, fed by
+whichever data source is active.
+
+## 2026-09-04 — Plan colour/icon are curated selects, not free-form pickers
+
+The Pricing Plan meta box offers colour and icon as fixed dropdown lists
+(4 colours matching the design system's plan tokens; ~8 icons from the
+theme's existing icon set) rather than a raw color picker or free-text
+icon name field. A non-technical admin picking an arbitrary hex colour or
+mistyping an icon name could easily break the card's visual consistency
+with the rest of the site (or silently render no icon at all, since
+`appiappi_icon()` returns an empty string for an unknown name). Curated
+selects keep every plan visually consistent with the design system while
+still being editable without touching code — matches the project rule
+"don't expose dangerous technical settings to non-technical users" (
+MASTER_PROMPT.md § Global Design System / Customisation).
+
 ## 2026-09-03 — Local dev via directory junction, not symlink
 
 Attempted an NTFS symlink to connect the git repo's theme folder to the

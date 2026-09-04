@@ -256,3 +256,57 @@ function appiappi_get_template_styles() {
 function appiappi_get_google_rating() {
 	return null;
 }
+
+/**
+ * Shared pricing-card markup. Renders a `.pricing-grid` of cards from an
+ * array shaped like appiappi_get_pricing_plans()'s return value.
+ *
+ * This is the single source of truth for pricing-card HTML: the theme's
+ * own placeholder (template-parts/sections/pricing-preview.php) and the
+ * appiappi-pricing-plans plugin's [appiappi_pricing] shortcode both call
+ * this function with their own data, so the markup never has to be kept
+ * in sync in two places. See PROJECT_MASTER.md § Pricing System.
+ *
+ * @param array $plans Each item: id, icon, name, price, period, note,
+ *                      color (a CSS colour/var()), featured (bool),
+ *                      badge, features (array of strings), cta_text,
+ *                      cta_url.
+ */
+function appiappi_render_pricing_cards( array $plans ) {
+	if ( empty( $plans ) ) {
+		return '';
+	}
+
+	ob_start();
+	?>
+	<div class="pricing-grid">
+		<?php foreach ( $plans as $plan ) : ?>
+			<div class="pricing-card <?php echo ! empty( $plan['featured'] ) ? 'pricing-card--featured' : ''; ?>" style="--plan-color: <?php echo esc_attr( $plan['color'] ); ?>">
+				<?php if ( ! empty( $plan['badge'] ) ) : ?>
+					<span class="pricing-card__badge"><?php echo esc_html( $plan['badge'] ); ?></span>
+				<?php endif; ?>
+
+				<span class="pricing-card__icon"><?php echo appiappi_icon( $plan['icon'] ); ?></span>
+				<h3 class="pricing-card__name"><?php echo esc_html( $plan['name'] ); ?></h3>
+
+				<p class="pricing-card__price">
+					<span class="pricing-card__price-amount">$<?php echo esc_html( $plan['price'] ); ?></span>
+					<span class="pricing-card__price-period"><?php echo esc_html( $plan['period'] ); ?></span>
+				</p>
+				<p class="pricing-card__note"><?php echo esc_html( $plan['note'] ); ?></p>
+
+				<ul class="pricing-card__features">
+					<?php foreach ( $plan['features'] as $feature ) : ?>
+						<li><?php echo appiappi_icon( 'check' ); ?><span><?php echo wp_kses_post( $feature ); ?></span></li>
+					<?php endforeach; ?>
+				</ul>
+
+				<a href="<?php echo esc_url( $plan['cta_url'] ); ?>" class="btn <?php echo ! empty( $plan['featured'] ) ? 'btn-primary' : 'btn-secondary'; ?> btn-block">
+					<?php echo esc_html( $plan['cta_text'] ); ?>
+				</a>
+			</div>
+		<?php endforeach; ?>
+	</div>
+	<?php
+	return ob_get_clean();
+}

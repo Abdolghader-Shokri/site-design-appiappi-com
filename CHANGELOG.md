@@ -2,6 +2,27 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-04 — Pricing Plans companion plugin
+
+### Added
+- New plugin `wp-content/plugins/appiappi-pricing-plans/`: registers the `appiappi_plan` CPT (non-public, wp-admin only), a native "Plan Details" meta box (price, period, note, colour, icon, featured flag, badge, CTA text/url, one-feature-per-line textarea — no ACF dependency), and the `[appiappi_pricing]` shortcode.
+- Shared renderer `appiappi_render_pricing_cards( $plans )` added to the theme's `inc/template-tags.php` — the single source of pricing-card HTML, called by both the plugin's shortcode and the theme's own placeholder fallback.
+- `favicon.svg` (previous session) and this plugin are both junctioned into the Local site the same way as the theme, and tracked in `.gitignore` with an explicit exception.
+- Seeded the 4 launch plans (Starter/Business/Professional/Growth) as real `appiappi_plan` posts via a one-time `wp eval-file` script (not committed — dev setup, not app code), matching the values the old placeholder function used.
+
+### Changed
+- `template-parts/sections/pricing-preview.php` now calls `[appiappi_pricing]` via `shortcode_exists()` when the plugin is active, falling back to `appiappi_get_pricing_plans()` otherwise — same visible output either way.
+- `.gitignore`: un-ignored `wp-content/plugins/appiappi-pricing-plans/`.
+
+### Files Modified
+- `wp-content/plugins/appiappi-pricing-plans/**` (new)
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `template-parts/sections/pricing-preview.php`
+- `.gitignore`, `PROJECT_MASTER.md`, `MASTER_PROMPT.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- Verified via `wp eval 'echo do_shortcode("[appiappi_pricing]");'` and a full homepage text/structure check — output identical to the old placeholder-driven homepage, now backed by real, wp-admin-editable data.
+- Next step (pending user approval): Template Showcase plugin (`appiappi_template` CPT + category taxonomy).
+
 ## 2026-09-03 (theme rebuild)
 
 ### Added

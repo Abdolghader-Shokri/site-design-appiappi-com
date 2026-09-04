@@ -297,10 +297,12 @@ Rules for every companion plugin:
 - Default placement mirrors today's homepage position; the point of the shortcode is that the business owner can later move or duplicate that content elsewhere without a code change.
 
 **Build order** (user-specified, one approved step at a time): theme visual
-rebuild → Pricing Plans plugin → Template Showcase plugin → Hero Slideshow
-plugin → package theme + all plugins as separate installable zips, for
-installing on a fresh WordPress site on real hosting at the end of the
-project.
+rebuild (done) → **Pricing Plans plugin (done)** → Template Showcase plugin
+→ Hero Slideshow plugin → package theme + all plugins as separate
+installable zips, for installing on a fresh WordPress site on real hosting
+at the end of the project. See PROJECT_MASTER.md §5/§7/§12 for the
+as-built Pricing Plans details and the shared-render-function pattern to
+repeat for the other two plugins.
 
 ## No Hard-Coded Business Data
 

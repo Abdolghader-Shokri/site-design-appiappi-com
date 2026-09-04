@@ -11,6 +11,8 @@
 /readme.html
 /wp-content/plugins/*
 !/wp-content/plugins/.gitkeep
+# Companion plugins live in this repo and are junctioned into the Local WP site:
+!/wp-content/plugins/appiappi-pricing-plans/
 /wp-content/mu-plugins/*
 !/wp-content/mu-plugins/.gitkeep
 /wp-content/themes/*
