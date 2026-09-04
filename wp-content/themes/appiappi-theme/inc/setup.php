@@ -38,3 +38,19 @@ function appiappi_dequeue_core_assets() {
 	wp_dequeue_style( 'global-styles' );
 }
 add_action( 'wp_enqueue_scripts', 'appiappi_dequeue_core_assets', 20 );
+
+/**
+ * Theme favicon (the maple-leaf mark used in the logo, as an SVG).
+ * Skipped automatically if the admin sets a Site Icon in
+ * Appearance > Customize > Site Identity — that takes precedence.
+ */
+function appiappi_favicon() {
+	if ( has_site_icon() ) {
+		return;
+	}
+	printf(
+		'<link rel="icon" type="image/svg+xml" href="%s">' . "\n",
+		esc_url( get_template_directory_uri() . '/assets/images/favicon.svg' )
+	);
+}
+add_action( 'wp_head', 'appiappi_favicon', 1 );
