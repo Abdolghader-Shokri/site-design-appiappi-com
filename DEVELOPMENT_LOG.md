@@ -12,6 +12,37 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-04 — Style is a taxonomy, not a hardcoded select (unlike plan colour)
+
+For the Pricing Plans plugin, colour and icon were made curated dropdowns
+because a wrong choice there breaks visual consistency with the design
+system. For the Template Showcase plugin's "Style" field, the opposite
+call was made: it's a real flat taxonomy (`appiappi_template_style`), so
+the admin can add new styles (e.g. "Luxury", "Playful") from wp-admin
+without a code change, same as categories. The difference: style is pure
+descriptive metadata with no visual consequence if the admin invents a new
+value, whereas plan colour directly drives a CSS custom property — so the
+same "should this be curated or open?" question gets different answers
+depending on whether the field controls appearance or just classifies
+content. See PROJECT_MASTER.md §7 for both CPTs' field lists.
+
+## 2026-09-04 — Category filter via query string + shortcode attribute, no JS
+
+While building the Template Showcase shortcode, its `category` attribute
+(for narrowing results) turned out to compose almost for free with the
+sidebar links already in the shared render function: point each category
+link at `?appiappi_category=<slug>`, have the theme's
+`templates-preview.php` read that query string and interpolate it into
+the shortcode tag it builds (`[appiappi_templates category="…"]`), and the
+plugin's existing `tax_query` logic does the rest. This makes category
+filtering genuinely work (full page reload, no JavaScript) as a nearly-free
+side effect of the shortcode-attribute design, rather than staying purely
+presentational like the reference mockup's sidebar. The style checkboxes
+and search input were *not* wired up the same way — those need
+client-side/AJAX behaviour to feel right (checking a box shouldn't reload
+the page), which is real scope deliberately left for later rather than
+faked.
+
 ## 2026-09-04 — Shared render function instead of duplicating card markup
 
 The Pricing Plans plugin needed to produce the exact same `.pricing-grid`

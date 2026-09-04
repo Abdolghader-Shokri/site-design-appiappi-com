@@ -2,6 +2,27 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-04 — Template Showcase companion plugin
+
+### Added
+- New plugin `wp-content/plugins/appiappi-template-showcase/`: registers the `appiappi_template` CPT (native Featured Image as the design preview) and two taxonomies — `appiappi_template_category` (hierarchical, with a custom per-term `icon` field) and `appiappi_template_style` (flat) — plus a "Design Details" meta box (description, price, rating, rating count, demo/details URLs, and original vendor/source fields) and the `[appiappi_templates count="" category="" show_sidebar=""]` shortcode.
+- Shared renderer `appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar )` added to the theme's `inc/template-tags.php`, mirroring the Pricing Plans pattern — the single source of the sidebar+grid HTML, called by both the plugin's shortcode and the theme's placeholder fallback. Added a `$show_sidebar` toggle (with a `.templates-layout--no-sidebar` CSS variant) so a future shortcode instance elsewhere on the site can render just the grid.
+- Real category filtering: sidebar category links carry `?appiappi_category=<slug>`; the theme reads that and passes it to the shortcode's `category` attribute, which runs a real `tax_query`. No JavaScript involved — the style checkboxes and search box remain visual-only.
+- Seeded 6 categories (with icons), 4 styles, and 3 sample designs (Construction Pro / Justice Law / Dental Clinic) via a one-time `wp eval-file` script, matching the old placeholder content.
+
+### Changed
+- `template-parts/sections/templates-preview.php` now calls `[appiappi_templates]` via `shortcode_exists()` when the plugin is active (passing through the `?appiappi_category=` query string), falling back to placeholder data otherwise.
+- `.gitignore`: un-ignored `wp-content/plugins/appiappi-template-showcase/`.
+
+### Files Modified
+- `wp-content/plugins/appiappi-template-showcase/**` (new)
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `template-parts/sections/templates-preview.php`, `assets/css/home.css`
+- `.gitignore`, `PROJECT_MASTER.md`, `MASTER_PROMPT.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- Verified via direct shortcode render, a full homepage check, and a `?appiappi_category=legal` check (correctly narrowed to 1 result) — all matching expectations, no PHP errors logged.
+- Next step (pending user approval): Hero Slideshow plugin (`appiappi-hero-slider`), then packaging theme + all three plugins as installable zips.
+
 ## 2026-09-04 — Pricing Plans companion plugin
 
 ### Added

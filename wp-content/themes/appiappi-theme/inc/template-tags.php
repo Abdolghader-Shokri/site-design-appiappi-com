@@ -310,3 +310,120 @@ function appiappi_render_pricing_cards( array $plans ) {
 	<?php
 	return ob_get_clean();
 }
+
+/**
+ * Shared template-showcase markup (sidebar + grid). Same pattern as
+ * appiappi_render_pricing_cards(): the theme's own placeholder and the
+ * appiappi-template-showcase plugin's [appiappi_templates] shortcode
+ * both build a data array in this shape and render through this one
+ * function, so markup never drifts between the two.
+ *
+ * @param array $templates  Each item: name, category, style, desc,
+ *                           price, rating, rating_count, image (URL or
+ *                           empty), demo_url, details_url.
+ * @param array $categories Each item: icon, label, active (bool),
+ *                           optional url.
+ * @param array $styles       Array of style label strings.
+ * @param bool  $show_sidebar Whether to render the filter sidebar at all
+ *                             (a shortcode instance placed in a narrow
+ *                             spot can opt out and show just the grid).
+ */
+function appiappi_render_template_showcase( array $templates, array $categories, array $styles, $show_sidebar = true ) {
+	ob_start();
+	?>
+	<div class="templates-layout <?php echo $show_sidebar ? '' : 'templates-layout--no-sidebar'; ?>">
+		<?php if ( $show_sidebar ) : ?>
+		<aside class="templates-sidebar">
+			<div class="card templates-sidebar__card">
+				<div class="templates-sidebar__search">
+					<?php echo appiappi_icon( 'search' ); ?>
+					<input type="search" placeholder="<?php esc_attr_e( 'Search templates…', 'appiappi' ); ?>" aria-label="<?php esc_attr_e( 'Search templates', 'appiappi' ); ?>">
+				</div>
+
+				<?php if ( $categories ) : ?>
+					<div class="templates-sidebar__group">
+						<p class="templates-sidebar__title"><?php esc_html_e( 'Categories', 'appiappi' ); ?></p>
+						<ul class="templates-sidebar__categories">
+							<?php foreach ( $categories as $category ) : ?>
+								<li class="<?php echo ! empty( $category['active'] ) ? 'is-active' : ''; ?>">
+									<a href="<?php echo esc_url( $category['url'] ?? '#' ); ?>"><?php echo appiappi_icon( $category['icon'] ); ?><span><?php echo esc_html( $category['label'] ); ?></span></a>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( $styles ) : ?>
+					<div class="templates-sidebar__group">
+						<p class="templates-sidebar__title"><?php esc_html_e( 'Style', 'appiappi' ); ?></p>
+						<?php foreach ( $styles as $style ) : ?>
+							<label class="templates-sidebar__checkbox">
+								<input type="checkbox"> <?php echo esc_html( $style ); ?>
+							</label>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</aside>
+		<?php endif; ?>
+
+		<div class="templates-main">
+			<div class="templates-main__toolbar">
+				<p class="templates-main__count">
+					<?php
+					printf(
+						/* translators: %d number of designs shown */
+						esc_html( _n( 'Showing %d design', 'Showing %d designs', count( $templates ), 'appiappi' ) ),
+						count( $templates )
+					);
+					?>
+				</p>
+				<div class="templates-main__nav" aria-hidden="true">
+					<button type="button" tabindex="-1"><?php echo appiappi_icon( 'chevron-right', '' ); ?></button>
+				</div>
+			</div>
+
+			<?php if ( empty( $templates ) ) : ?>
+				<p><?php esc_html_e( 'No website designs published yet.', 'appiappi' ); ?></p>
+			<?php else : ?>
+				<div class="template-grid">
+					<?php foreach ( $templates as $template ) : ?>
+						<div class="card template-card">
+							<div class="template-card__media">
+								<?php if ( ! empty( $template['image'] ) ) : ?>
+									<img src="<?php echo esc_url( $template['image'] ); ?>" alt="<?php echo esc_attr( $template['name'] ); ?>" loading="lazy">
+								<?php endif; ?>
+								<span class="badge badge-dark template-card__category"><?php echo esc_html( $template['category'] ); ?></span>
+							</div>
+							<div class="template-card__body">
+								<h3 class="template-card__name"><?php echo esc_html( $template['name'] ); ?></h3>
+								<p class="template-card__desc"><?php echo esc_html( $template['desc'] ); ?></p>
+								<div class="template-card__meta">
+									<span class="template-card__price"><?php echo esc_html( $template['price'] ); ?></span>
+									<span class="template-card__rating">
+										<?php echo appiappi_icon( 'star' ); ?> <?php echo esc_html( $template['rating'] ); ?>
+										<?php if ( ! empty( $template['rating_count'] ) ) : ?>
+											(<?php echo esc_html( $template['rating_count'] ); ?>)
+										<?php endif; ?>
+									</span>
+								</div>
+								<div class="template-card__actions">
+									<a href="<?php echo esc_url( $template['details_url'] ); ?>" class="btn btn-secondary btn-sm"><?php esc_html_e( 'View Details', 'appiappi' ); ?></a>
+									<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-primary btn-sm"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
+								</div>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+
+			<div class="templates-preview__footer">
+				<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary">
+					<?php esc_html_e( 'Browse All Designs', 'appiappi' ); ?> <?php echo appiappi_icon( 'chevron-right' ); ?>
+				</a>
+			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+}

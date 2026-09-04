@@ -481,6 +481,10 @@
 		align-items: start;
 	}
 
+	.templates-layout--no-sidebar {
+		grid-template-columns: 1fr;
+	}
+
 	.templates-sidebar__card {
 		position: sticky;
 		top: calc(var(--header-height) + var(--space-4));
@@ -490,6 +494,10 @@
 @media (min-width: 1400px) {
 	.template-grid {
 		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.templates-layout--no-sidebar .template-grid {
+		grid-template-columns: repeat(4, 1fr);
 	}
 }
 

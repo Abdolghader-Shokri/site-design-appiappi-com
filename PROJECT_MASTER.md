@@ -55,12 +55,13 @@ for the full spec, and [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) for why.
 | Component | Plugin slug | Shortcode | Status |
 |---|---|---|---|
 | Pricing Plans | `appiappi-pricing-plans` | `[appiappi_pricing]` | **Built** — CPT `appiappi_plan`, native meta box, active on the local site with 4 seeded plans |
-| Template / Design Showcase | `appiappi-template-showcase` | `[appiappi_templates]` | Not yet built — theme uses `appiappi_get_featured_templates()` + `appiappi_get_template_categories()` / `appiappi_get_template_styles()` placeholder data |
+| Template / Design Showcase | `appiappi-template-showcase` | `[appiappi_templates count="3" category="" show_sidebar="1"]` | **Built** — CPT `appiappi_template` + taxonomies `appiappi_template_category`/`appiappi_template_style`, active with 3 seeded designs across 6 categories/4 styles; see §13 |
 | Hero Slideshow | `appiappi-hero-slider` | `[appiappi_hero_slider]` | Not yet built — theme uses the static hero in `template-parts/sections/hero.php` |
 
-Build order: theme visuals → **Pricing Plans plugin (done)** → Template
-Showcase plugin → Hero Slideshow plugin → package theme + all plugins as
-separate installable zips for a fresh WordPress install on real hosting.
+Build order: theme visuals → **Pricing Plans plugin (done)** →
+**Template Showcase plugin (done)** → Hero Slideshow plugin → package
+theme + all plugins as separate installable zips for a fresh WordPress
+install on real hosting.
 Each plugin uses native meta boxes (no ACF/third-party dependency) and
 exposes both a shortcode and a plain PHP render function; the theme checks
 `shortcode_exists()`/`function_exists()` before calling a plugin so it
@@ -123,9 +124,9 @@ inside it corresponds to a real path on the running site.
 
 **Built:**
 - `appiappi_plan` CPT — registered in `wp-content/plugins/appiappi-pricing-plans/includes/cpt.php`. Not public (no single/archive template), managed entirely through wp-admin. Meta keys (all prefixed `_appiappi_plan_`): `price`, `period`, `note`, `color` (one of `starter`/`business`/`professional`/`growth`, mapped to the matching CSS token), `icon` (one of a curated set — see `appiappi_pricing_icon_options()`), `featured` (0/1), `badge`, `cta_text`, `cta_url`, `features` (newline-separated string, split on render). Ordering uses native `menu_order` (`page-attributes` support → the classic "Order" field).
+- `appiappi_template` CPT — registered in `wp-content/plugins/appiappi-template-showcase/includes/cpt.php`. Not public, uses the native Featured Image as the design preview (`post-thumbnails` support). Meta keys (prefixed `_appiappi_template_`): `desc`, `price`, `rating`, `rating_count`, `demo_url`, `details_url`, `vendor`, `source_url` (the last two exist specifically so third-party designs credit their real source, per [MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library)). Two taxonomies: `appiappi_template_category` (hierarchical; each term has an `icon` term-meta field set via custom add/edit-term fields in `includes/taxonomy-meta.php`, from the same curated icon set as the theme) and `appiappi_template_style` (flat tags, e.g. Modern/Minimal/Bold/Classic).
 
 Planned:
-- **Website Template** CPT + **Template Category** taxonomy (Phase 3) — replaces `appiappi_get_featured_templates()` placeholder, see § 13
 - **Portfolio Project**, **Case Study**, **FAQ** CPTs (Phase 2/3)
 - **Lead** CPT or custom table (Phase 4) — see [MASTER_PROMPT.md § Lead Management](MASTER_PROMPT.md#lead-management)
 
@@ -214,18 +215,31 @@ FAQ (per [MASTER_PROMPT.md § Pricing Page](MASTER_PROMPT.md#pricing-page)) does
 
 ## 13. Template Library
 
-**Not yet a real system, but the homepage section now visually matches the
-full reference layout.** `template-parts/sections/templates-preview.php`
-renders a two-column layout: a sidebar card (search input, category list
-from `appiappi_get_template_categories()`, style checkboxes from
-`appiappi_get_template_styles()`) plus a 3-card grid from
-`appiappi_get_featured_templates()` — all in `inc/template-tags.php`,
-explicitly marked `TODO(Phase 3)`. **The sidebar is presentational only —
-no live filtering yet.** That real behaviour, plus the `/templates/`
-archive and template detail pages, belongs to the future
-**`appiappi-template-showcase`** plugin (Website Template CPT + a
-`appiappi_template_category` taxonomy) per [MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library)
-and § Companion Plugin Architecture.
+**Built as the `appiappi-template-showcase` companion plugin** (§5, §7).
+`template-parts/sections/templates-preview.php` calls the plugin's
+`[appiappi_templates]` shortcode via `shortcode_exists()` when active
+(falling back to the theme's `appiappi_get_featured_templates()` +
+`appiappi_get_template_categories()` + `appiappi_get_template_styles()`
+placeholders otherwise), and both paths render through the shared
+`appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar )`
+function in `inc/template-tags.php`.
+
+**What's real:** category links in the sidebar work — clicking one sets
+`?appiappi_category=<slug>` and reloads the page, which the theme reads
+and passes to the shortcode's `category` attribute, which does a real
+`tax_query` against `appiappi_template_category`. No JavaScript involved.
+
+**What's still presentational only:** the style checkboxes and the search
+input don't filter anything yet — that would need client-side/AJAX
+behaviour, out of scope for this pass. A dedicated `/templates/` archive
+page (unbounded browsing, not just the homepage's 3-card teaser) and
+individual template detail pages don't exist yet — see
+[MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library).
+
+The local site has the plugin active with 6 categories, 4 styles, and 3
+seeded designs (Construction Pro / Justice Law / Dental Clinic) matching
+the original placeholder content — manage them under **Website Designs**
+in wp-admin (set the Featured Image there for the preview photo).
 
 ## 14. Template Detail Pages / Portfolio / Case Studies / Blog / FAQ / Contact Forms / Lead Management
 
@@ -303,17 +317,18 @@ activated with `wp plugin activate appiappi-pricing-plans`. Junctions
 aren't portable/committable — a second machine needs Local installed, a site
 created, and every junction (theme + each plugin) recreated manually.
 
-A one-time data seed for the 4 launch pricing plans was run via
-`wp eval-file` against a small script (not committed — it's dev-environment
-setup, not app code) that calls `wp_insert_post()` + `update_post_meta()`
-for each plan, matching the values that used to live in
-`appiappi_get_pricing_plans()`. Recreate similarly on any new environment,
-or add plans manually under **Pricing Plans** in wp-admin.
+One-time data seeds (4 launch pricing plans; 6 template categories + 4
+styles + 3 sample designs) were run via `wp eval-file` against small
+scripts (not committed — dev-environment setup, not app code) using
+`wp_insert_post()` / `wp_insert_term()` + `update_post_meta()`/
+`update_term_meta()`, matching the values that used to live in the theme's
+placeholder functions. Recreate similarly on any new environment, or add
+content manually under **Pricing Plans** / **Website Designs** in wp-admin.
 
 ## 21. Known Limitations
 
-- Template Showcase and Hero Slideshow are still hard-coded placeholder data behind a single function each in `inc/template-tags.php` (by design, see § 12–13) — **not** meant to stay that way past their respective plugin builds. Pricing Plans is no longer in this state (§7, §12).
-- Template library sidebar (search box, category list, style checkboxes) is visual only — clicking a category or checking a style does not filter the grid; real filtering is future `appiappi-template-showcase` plugin functionality.
+- Hero Slideshow is still hard-coded placeholder data in `inc/template-tags.php` (by design, see § 12) — **not** meant to stay that way past its plugin build. Pricing Plans and Template Showcase are no longer in this state (§7, §12, §13).
+- Template Showcase's style checkboxes and search box are visual only — no filtering. Category links, however, do work (§13).
 - No admin Settings page — only Customizer options exist.
 - Hero image is a placeholder SVG illustration, not a real photograph — replace before launch.
 - No nav menu created in wp-admin yet — header/mobile nav render via `appiappi_nav_fallback()` with best-guess page slugs (`/templates/`, `/services/`, `/pricing/`, etc.) that don't exist as real pages yet.
@@ -356,7 +371,7 @@ than duplicated here — grep for `TODO` to find them all.
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Architecture, design system, theme skeleton, Customizer settings, header, footer, homepage, responsive foundation, docs | **Done** — visuals approved by the user |
-| 1.5 | Companion Plugin Architecture: Pricing Plans plugin (CPT + shortcode) | **Pricing Plans done**; Template Showcase and Hero Slideshow plugins next |
+| 1.5 | Companion Plugin Architecture: Pricing Plans, Template Showcase, Hero Slideshow plugins | **Pricing Plans done, Template Showcase done**; Hero Slideshow next |
 | 2 | Services/How It Works/About/Contact pages, FAQ, Portfolio, Blog | Not started |
 | 3 | Template Showcase plugin (CPT + taxonomy), search/filters, detail pages, selection workflow | Not started |
 | 4 | Lead management, admin Settings page, SEO foundation, performance/security hardening | Not started |
@@ -375,11 +390,13 @@ than duplicated here — grep for `TODO` to find them all.
 | Theme supports / nav locations / image sizes | `inc/setup.php` | `add_theme_support`, `register_nav_menus` | Add new image sizes or theme features here |
 | Asset loading | `inc/enqueue.php` | Registers/enqueues all CSS/JS, Google Fonts | Add new stylesheets/scripts here, respecting dependency order |
 | Global settings | `inc/customizer.php` | Brand colour, header CTA, contact info, social links, footer tagline | Add new Customizer sections/settings here |
-| Icons, nav fallback, placeholder data, shared card renderer | `inc/template-tags.php` | `appiappi_icon()`, `appiappi_nav_fallback()`, `appiappi_get_pricing_plans()` (fallback only, see plugin row below), `appiappi_get_featured_templates()`/`appiappi_get_template_categories()`/`appiappi_get_template_styles()`, `appiappi_get_google_rating()`, `appiappi_render_pricing_cards( $plans )` | Add icons to the `$icons` array; `appiappi_render_pricing_cards()` is the one place pricing-card HTML lives — edit it, not the shortcode or the preview template, when changing card markup |
+| Icons, nav fallback, placeholder data, shared renderers | `inc/template-tags.php` | `appiappi_icon()`, `appiappi_nav_fallback()`, `appiappi_get_pricing_plans()` (fallback only), `appiappi_get_featured_templates()`/`appiappi_get_template_categories()`/`appiappi_get_template_styles()` (fallback only), `appiappi_get_google_rating()`, `appiappi_render_pricing_cards( $plans )`, `appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar )` | Add icons to the `$icons` array; the two `appiappi_render_*()` functions are the only place their respective section's HTML lives — edit them, not a shortcode or a preview template, when changing card/section markup |
 | Homepage assembly | `front-page.php` | Section order | Add/remove `get_template_part()` calls |
 | Homepage hero | `template-parts/sections/hero.php` | Headline, chips, CTAs, visual, rating card | Edit copy/layout here |
 | Homepage pricing preview | `template-parts/sections/pricing-preview.php` | Calls `[appiappi_pricing]` shortcode if active, else the theme placeholder — both via `appiappi_render_pricing_cards()` | Edit the shortcode-vs-fallback logic here; edit actual plan data via **Pricing Plans** in wp-admin |
 | **Pricing Plans plugin** | `wp-content/plugins/appiappi-pricing-plans/` | CPT `appiappi_plan`, meta box admin UI, `[appiappi_pricing]` shortcode | `includes/cpt.php` (post type/admin columns), `includes/meta-boxes.php` (admin fields + save/sanitize), `includes/shortcode.php` (query + data mapping) |
+| Homepage template showcase preview | `template-parts/sections/templates-preview.php` | Calls `[appiappi_templates]` shortcode if active (reads `?appiappi_category=` for real filtering), else the theme placeholder — both via `appiappi_render_template_showcase()` | Edit the shortcode-vs-fallback logic here; edit actual designs/categories/styles via **Website Designs** in wp-admin |
+| **Template Showcase plugin** | `wp-content/plugins/appiappi-template-showcase/` | CPT `appiappi_template`, taxonomies `appiappi_template_category`/`appiappi_template_style`, `[appiappi_templates]` shortcode | `includes/cpt.php` (post type + taxonomies + admin columns), `includes/taxonomy-meta.php` (category icon field), `includes/meta-boxes.php` (admin fields + save/sanitize), `includes/shortcode.php` (query + data mapping) |
 | Homepage template library preview | `template-parts/sections/templates-preview.php` | Renders `appiappi_get_featured_templates()` + sidebar (presentational only) | Edit card/sidebar markup here; edit template data in `template-tags.php` |
 | Homepage trust bar | `template-parts/sections/trust-bar.php` | 4-item icon strip, per-item colour | Edit `$items` array in the file |
 | Homepage final CTA | `template-parts/sections/final-cta.php` | Closing conversion band | Edit copy/links here |
