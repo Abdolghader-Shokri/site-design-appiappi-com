@@ -298,11 +298,12 @@ Rules for every companion plugin:
 
 **Build order** (user-specified, one approved step at a time): theme visual
 rebuild (done) → **Pricing Plans plugin (done)** → **Template Showcase
-plugin (done)** → Hero Slideshow plugin → package theme + all plugins as
-separate installable zips, for installing on a fresh WordPress site on real
-hosting at the end of the project. See PROJECT_MASTER.md §5/§7/§12/§13 for
-the as-built details and the shared-render-function pattern to repeat for
-the Hero Slideshow plugin.
+plugin (done)** → **Hero Slideshow plugin (done)** → package theme + all
+plugins as separate installable zips, for installing on a fresh WordPress
+site on real hosting at the end of the project. **All three companion
+plugins are now built.** See PROJECT_MASTER.md §5/§7/§11a/§12/§13 for the
+as-built details of each and the shared-render-function pattern they all
+follow.
 
 ## No Hard-Coded Business Data
 

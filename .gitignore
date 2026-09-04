@@ -14,6 +14,7 @@
 # Companion plugins live in this repo and are junctioned into the Local WP site:
 !/wp-content/plugins/appiappi-pricing-plans/
 !/wp-content/plugins/appiappi-template-showcase/
+!/wp-content/plugins/appiappi-hero-slider/
 /wp-content/mu-plugins/*
 !/wp-content/mu-plugins/.gitkeep
 /wp-content/themes/*

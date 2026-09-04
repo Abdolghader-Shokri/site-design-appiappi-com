@@ -2,6 +2,30 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-05 — Hero Slider companion plugin (third and last of the three)
+
+### Added
+- New plugin `wp-content/plugins/appiappi-hero-slider/`: registers the `appiappi_slide` CPT (post Title = slide headline, native Featured Image = slide visual) with a "Slide Details" meta box (subheadline, CTA button text/URL, optional image alt text) and the `[appiappi_hero_slider]` shortcode.
+- Shared renderer `appiappi_render_hero_slides( $slides )` added to the theme's `inc/template-tags.php`, same pattern as the other two plugins. Refactored `template-parts/sections/hero.php` down to just the shortcode-or-fallback check.
+- Real slider behaviour in `assets/js/main.js` (new, self-contained IIFE): pill-shaped dot navigation, 7s auto-advance, pause on hover/focus, and auto-advance is skipped entirely under `prefers-reduced-motion`. A single slide renders no dots and the script does nothing (no unnecessary JS runs).
+- New CSS in `assets/css/home.css`: `.hero-slide`/`.hero-dots` plus an absolute-positioned crossfade for the slide images (`.hero__visual-frame img`).
+- Seeded 2 sample slides (the original static hero content, plus a second "Grow With Ongoing SEO & Support" slide) to demonstrate rotation.
+
+### Changed
+- Only the headline, subheadline, image and primary CTA rotate per slide — the eyebrow, 4 feature chips, "View Our Plans" secondary CTA, and the (still never-fabricated) Google-rating card stay constant, simply repeated inside each slide's markup since only one is visible at a time.
+- `.gitignore`: un-ignored `wp-content/plugins/appiappi-hero-slider/`.
+
+### Files Modified
+- `wp-content/plugins/appiappi-hero-slider/**` (new)
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `template-parts/sections/hero.php`, `assets/css/home.css`, `assets/js/main.js`
+- `.gitignore`, `PROJECT_MASTER.md`, `MASTER_PROMPT.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- **All three companion plugins are now built** (Pricing Plans, Template Showcase, Hero Slideshow) — the Companion Plugin Architecture phase (1.5) is complete.
+- Hit and resolved a Local-by-WP-Engine environment issue mid-session: a stale/leftover instance-id folder under `AppData\Roaming\Local\run\` was mistaken for the current one, causing WP-CLI to report a false "database connection" error even though the live site's actual `nginx`/`php-cgi`/`mysqld` processes were fine. Root-caused via `Get-CimInstance Win32_Process`, corrected the local `wpcli.sh` helper, and documented the diagnostic method in `PROJECT_MASTER.md` §25 Troubleshooting so it isn't re-debugged from scratch next time.
+- Verified via shortcode render (both slides + dots present), a full homepage check, a live browser screenshot (desktop + mobile), and console/debug-log checks — no errors.
+- Next step (pending user direction): package theme + all three plugins as installable zips, or move on to Phase 2 (Services, How It Works, About, Contact, FAQ, Portfolio, Blog).
+
 ## 2026-09-04 — Template Showcase companion plugin
 
 ### Added

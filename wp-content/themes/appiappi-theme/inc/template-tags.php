@@ -258,6 +258,24 @@ function appiappi_get_google_rating() {
 }
 
 /**
+ * TODO(Phase 1.5 follow-up): fallback content for the hero when the
+ * appiappi-hero-slider plugin isn't active (or is active but has zero
+ * published slides) — see appiappi_render_hero_slides() below.
+ */
+function appiappi_get_hero_slides() {
+	return array(
+		array(
+			'headline'    => __( 'Your Website. Professionally Managed. Every Day.', 'appiappi' ),
+			'subheadline' => __( 'Get a professionally designed website, managed hosting, ongoing SEO, content updates and dedicated support — all from one trusted Canadian team.', 'appiappi' ),
+			'image'       => get_template_directory_uri() . '/assets/images/hero-placeholder.svg',
+			'image_alt'   => '',
+			'cta_text'    => __( 'Explore Website Designs', 'appiappi' ),
+			'cta_url'     => home_url( '/templates/' ),
+		),
+	);
+}
+
+/**
  * Shared pricing-card markup. Renders a `.pricing-grid` of cards from an
  * array shaped like appiappi_get_pricing_plans()'s return value.
  *
@@ -422,6 +440,115 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 					<?php esc_html_e( 'Browse All Designs', 'appiappi' ); ?> <?php echo appiappi_icon( 'chevron-right' ); ?>
 				</a>
 			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Shared hero markup (content column + rotating slides + visual column).
+ * Same pattern as the pricing/template-showcase renderers: the theme's
+ * own placeholder (appiappi_get_hero_slides()) and the
+ * appiappi-hero-slider plugin's [appiappi_hero_slider] shortcode both
+ * build a $slides array in this shape and render through this one
+ * function.
+ *
+ * The eyebrow, the 4 feature chips, and the "View Our Plans" secondary
+ * CTA are constant across every slide (they're standing value props, not
+ * per-slide marketing copy) and are simply repeated inside each slide's
+ * markup — harmless since only one slide is visible at a time. Only the
+ * headline, subheadline, image and primary CTA actually change per slide.
+ * Dots (and the auto-advance/pause-on-hover behaviour in assets/js/main.js)
+ * only appear when there's more than one slide.
+ *
+ * @param array $slides Each item: headline, subheadline, image,
+ *                       image_alt, cta_text, cta_url.
+ */
+function appiappi_render_hero_slides( array $slides ) {
+	if ( empty( $slides ) ) {
+		return '';
+	}
+
+	$rating = appiappi_get_google_rating();
+	$multi  = count( $slides ) > 1;
+
+	$chips = array(
+		array( 'icon' => 'monitor',   'label' => __( 'Professional Templates', 'appiappi' ) ),
+		array( 'icon' => 'rocket',    'label' => __( 'Fast Launch', 'appiappi' ) ),
+		array( 'icon' => 'bar-chart', 'label' => __( 'SEO & Optimization', 'appiappi' ) ),
+		array( 'icon' => 'headset',   'label' => __( 'Daily Support', 'appiappi' ) ),
+	);
+
+	ob_start();
+	?>
+	<div class="hero__content">
+		<span class="hero__eyebrow"><?php echo appiappi_icon( 'leaf', '' ); ?> <?php esc_html_e( 'Canadian Web Design & SEO', 'appiappi' ); ?></span>
+
+		<div class="hero__slides" aria-live="polite">
+			<?php foreach ( $slides as $index => $slide ) : ?>
+				<div class="hero-slide <?php echo 0 === $index ? 'is-active' : ''; ?>" data-hero-slide="<?php echo esc_attr( $index ); ?>">
+					<h1 class="hero__title"><?php echo esc_html( $slide['headline'] ); ?></h1>
+					<p class="hero__lede"><?php echo esc_html( $slide['subheadline'] ); ?></p>
+
+					<ul class="chip-list">
+						<?php foreach ( $chips as $chip ) : ?>
+							<li class="chip">
+								<span class="chip__icon"><?php echo appiappi_icon( $chip['icon'] ); ?></span>
+								<span class="chip__label"><?php echo esc_html( $chip['label'] ); ?></span>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+
+					<div class="hero__actions">
+						<a href="<?php echo esc_url( $slide['cta_url'] ); ?>" class="btn btn-primary"><?php echo esc_html( $slide['cta_text'] ); ?></a>
+						<a href="<?php echo esc_url( home_url( '/pricing/' ) ); ?>" class="btn btn-secondary"><?php esc_html_e( 'View Our Plans', 'appiappi' ); ?></a>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		</div>
+
+		<?php if ( $multi ) : ?>
+			<div class="hero-dots" role="tablist" aria-label="<?php esc_attr_e( 'Hero slides', 'appiappi' ); ?>">
+				<?php foreach ( $slides as $index => $slide ) : ?>
+					<button
+						type="button"
+						class="<?php echo 0 === $index ? 'is-active' : ''; ?>"
+						data-hero-dot="<?php echo esc_attr( $index ); ?>"
+						aria-label="<?php echo esc_attr( sprintf( /* translators: %d slide number */ __( 'Show slide %d', 'appiappi' ), $index + 1 ) ); ?>"
+					></button>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+	</div>
+
+	<div class="hero__visual">
+		<div class="hero__visual-frame">
+			<?php foreach ( $slides as $index => $slide ) : ?>
+				<?php $image = $slide['image'] ?: get_template_directory_uri() . '/assets/images/hero-placeholder.svg'; ?>
+				<img
+					class="<?php echo 0 === $index ? 'is-active' : ''; ?>"
+					data-hero-slide-image="<?php echo esc_attr( $index ); ?>"
+					src="<?php echo esc_url( $image ); ?>"
+					alt="<?php echo esc_attr( $slide['image_alt'] ); ?>"
+					<?php echo 0 === $index ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'; ?>
+				>
+			<?php endforeach; ?>
+		</div>
+
+		<div class="rating-card <?php echo $rating ? '' : 'rating-card--placeholder'; ?>">
+			<span class="rating-card__icon" aria-hidden="true"><?php echo appiappi_icon( 'star' ); ?></span>
+			<span>
+				<span class="rating-card__score"><?php echo $rating ? esc_html( $rating['score'] ) : esc_html__( '—', 'appiappi' ); ?></span>
+				<span class="rating-card__stars" aria-hidden="true">★★★★★</span>
+				<span class="rating-card__caption">
+					<?php
+					echo $rating
+						? esc_html( sprintf( /* translators: %d review count */ __( 'Based on %d+ reviews', 'appiappi' ), $rating['count'] ) )
+						: esc_html__( 'Google Reviews — coming soon', 'appiappi' );
+					?>
+				</span>
+			</span>
 		</div>
 	</div>
 	<?php

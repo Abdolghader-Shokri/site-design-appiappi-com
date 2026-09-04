@@ -45,11 +45,55 @@
 	width: 100%;
 }
 
+/* ---------- Hero slider ---------- */
+
+.hero-slide {
+	display: none;
+}
+
+.hero-slide.is-active {
+	display: block;
+	animation: appiappi-hero-fade-in 350ms ease;
+}
+
+@keyframes appiappi-hero-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.hero-dots {
+	display: flex;
+	gap: var(--space-2);
+	margin-top: var(--space-6);
+}
+
+.hero-dots button {
+	width: 8px;
+	height: 8px;
+	padding: 0;
+	border: none;
+	border-radius: var(--radius-full);
+	background: var(--color-neutral-300);
+	transition: width var(--transition-base), background var(--transition-base);
+}
+
+.hero-dots button.is-active {
+	width: 24px;
+	background: var(--color-primary);
+}
+
 .hero__visual {
 	position: relative;
 }
 
 .hero__visual-frame {
+	position: relative;
 	border-radius: var(--radius-xl);
 	overflow: hidden;
 	aspect-ratio: 4 / 3;
@@ -57,9 +101,17 @@
 }
 
 .hero__visual-frame img {
+	position: absolute;
+	inset: 0;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+	opacity: 0;
+	transition: opacity 400ms ease;
+}
+
+.hero__visual-frame img.is-active {
+	opacity: 1;
 }
 
 .rating-card {

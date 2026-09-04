@@ -12,6 +12,47 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-05 — Only headline/subheadline/image/CTA rotate in the hero slider
+
+When building the `appiappi-hero-slider` plugin, the hero's other elements
+(the "Canadian Web Design & SEO" eyebrow, the 4 feature chips, the "View
+Our Plans" secondary CTA, the Google-rating card) were deliberately kept
+**out** of the per-slide data model, even though it would have been just
+as easy to make them per-slide fields. Reasoning: those are standing value
+props / trust signals about the company, not per-slide marketing messages
+— if they changed every 7 seconds along with the headline, the hero would
+feel busier and less trustworthy, working against the "sophisticated, not
+flashy" design brief. Implementation-wise this also kept the CPT small
+(4 meta fields) instead of duplicating global site content into every
+slide. The chips/eyebrow/secondary-CTA/rating-card markup is simply
+repeated inside each slide's HTML (harmless, since only one slide is ever
+visible) rather than being extracted into a separate always-visible DOM
+region, which would have been more "correct" structurally but meaningfully
+more complex for no user-visible benefit.
+
+## 2026-09-05 — Local instance-id mismatch: diagnosed, partially misdiagnosed, then fixed
+
+Mid-session, WP-CLI started failing with "Error establishing a database
+connection" even though the site loaded in a browser (WordPress serves its
+own DB-error page with an HTTP 200, so a bare `curl` status check can look
+fine when it isn't — this tripped me up initially). Root cause: Local (by
+WP Engine) creates a fresh instance-id folder under
+`AppData\Roaming\Local\run\` on some restarts without always cleaning up
+the previous one, and I had assumed "most recently created folder = the
+one actually in use," which was **wrong** — the real, live `nginx.exe`/
+`php-cgi.exe`/`mysqld.exe` processes were still pointing at the *older*
+instance folder (`En5UgfWsJ`, confirmed via
+`Get-CimInstance Win32_Process -Filter "Name='mysqld.exe'"` and reading
+each process's `CommandLine`). Because of that wrong assumption, I first
+stopped two `mysqld.exe` processes that were actually the correct,
+functioning ones (Local's watchdog silently respawned equivalents on the
+same port immediately after, so no lasting harm) before finding the real
+fix: my own `wpcli.sh` dev helper script had been pointed at the wrong,
+unused instance folder the whole time. **Lesson, now captured in
+PROJECT_MASTER.md §25:** never assume "newest folder" — always verify
+which instance is live by inspecting the actual running processes'
+command lines first, especially before stopping any process.
+
 ## 2026-09-04 — Style is a taxonomy, not a hardcoded select (unlike plan colour)
 
 For the Pricing Plans plugin, colour and icon were made curated dropdowns

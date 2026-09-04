@@ -33,3 +33,73 @@
 		onScroll();
 	}
 } )();
+
+/**
+ * Hero slider: only does anything when there are 2+ slides (a single
+ * slide renders no dots and this exits immediately). Auto-advances every
+ * 7s, pauses on hover/focus, and skips auto-advance entirely for
+ * prefers-reduced-motion.
+ */
+( function () {
+	'use strict';
+
+	var slides = document.querySelectorAll( '.hero-slide' );
+	if ( slides.length < 2 ) {
+		return;
+	}
+
+	var images = document.querySelectorAll( '[data-hero-slide-image]' );
+	var dots = document.querySelectorAll( '[data-hero-dot]' );
+	var hero = document.querySelector( '.hero' );
+	var index = 0;
+	var timer = null;
+	var prefersReducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+	function show( next ) {
+		index = next;
+		slides.forEach( function ( el, i ) {
+			el.classList.toggle( 'is-active', i === index );
+		} );
+		images.forEach( function ( el, i ) {
+			el.classList.toggle( 'is-active', i === index );
+		} );
+		dots.forEach( function ( el, i ) {
+			el.classList.toggle( 'is-active', i === index );
+		} );
+	}
+
+	function advance() {
+		show( ( index + 1 ) % slides.length );
+	}
+
+	function start() {
+		if ( prefersReducedMotion ) {
+			return;
+		}
+		stop();
+		timer = window.setInterval( advance, 7000 );
+	}
+
+	function stop() {
+		if ( timer ) {
+			window.clearInterval( timer );
+			timer = null;
+		}
+	}
+
+	dots.forEach( function ( dot, i ) {
+		dot.addEventListener( 'click', function () {
+			show( i );
+			start();
+		} );
+	} );
+
+	if ( hero ) {
+		hero.addEventListener( 'mouseenter', stop );
+		hero.addEventListener( 'mouseleave', start );
+		hero.addEventListener( 'focusin', stop );
+		hero.addEventListener( 'focusout', start );
+	}
+
+	start();
+} )();
