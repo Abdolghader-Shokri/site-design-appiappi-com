@@ -2,6 +2,12 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Content: 10 real Real Estate designs seeded from ThemeForest
+
+### Added
+- 10 new Website Designs under the existing **Real Estate** category, pulled from the top 10 (sorted by date) of ThemeForest's `wordpress/real-estate` listing via the Envato search API (`v1/discovery/search/search/item`) — not by browsing the listing page. Each carries its real price, rating (all `0`/`0` — genuinely brand-new listings), ThemeForest Details Page URL, the theme's own real external demo URL, vendor username, and its actual marketplace preview screenshot downloaded as the Featured Image. Total seeded designs: 3 → 13.
+- These now have real Details Page URLs, so the existing Price & Rating Sync cron will keep them current automatically going forward.
+
 ## 2026-09-06 — Fix: Envato rating field was silently never syncing
 
 ### Fixed

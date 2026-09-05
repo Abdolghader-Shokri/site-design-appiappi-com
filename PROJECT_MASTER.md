@@ -55,7 +55,7 @@ for the full spec, and [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) for why.
 | Component | Plugin slug | Shortcode | Status |
 |---|---|---|---|
 | Pricing Plans | `appiappi-pricing-plans` | `[appiappi_pricing]` | **Built** — CPT `appiappi_plan`, native meta box, active on the local site with 4 seeded plans |
-| Template / Design Showcase | `appiappi-template-showcase` | `[appiappi_templates count="3" category="" show_sidebar="1"]` | **Built** — CPT `appiappi_template` + taxonomies `appiappi_template_category`/`appiappi_template_style`, active with 3 seeded designs across 6 categories/4 styles; see §13 |
+| Template / Design Showcase | `appiappi-template-showcase` | `[appiappi_templates count="3" category="" show_sidebar="1"]` | **Built** — CPT `appiappi_template` + taxonomies `appiappi_template_category`/`appiappi_template_style`, active with 13 seeded designs across 6 categories/4 styles; see §13 |
 | Hero Slideshow | `appiappi-hero-slider` | `[appiappi_hero_slider]` | **Built** — CPT `appiappi_slide`, native meta box, active with 2 seeded slides; see §11a |
 | FAQ | `appiappi-faq` | `[appiappi_faq category="" limit="-1"]` | **Built** — CPT `appiappi_faq` + taxonomy `appiappi_faq_category`, active with the 12 launch questions seeded; see §14a |
 | Portfolio | `appiappi-portfolio` | `[appiappi_portfolio count="6" industry=""]` | **Built** — CPT `appiappi_project` + taxonomy `appiappi_portfolio_industry`, active with 3 concept projects seeded; see §14b |
@@ -405,10 +405,25 @@ a shortcode embedded in a static Page.
   array shape — used by the shortcode's query loop AND both new
   templates, so nothing is duplicated.
 
-The local site has the plugin active with 6 categories, 4 styles, and 3
-seeded designs (Construction Pro / Justice Law / Dental Clinic) matching
-the original placeholder content — manage them under **Website Designs**
-in wp-admin (set the Featured Image there for the preview photo).
+The local site has the plugin active with 6 categories, 4 styles, and 13
+seeded designs — the original 3 placeholder concepts (Construction Pro /
+Justice Law / Dental Clinic) plus **10 real Real Estate designs added
+2026-09-06** by pulling the top 10 (sorted by date) from ThemeForest's
+`wordpress/real-estate` category via the Envato **search** API
+(`api.envato.com/v1/discovery/search/search/item?site=themeforest.net&category=wordpress/real-estate&sort_by=date`
+— a different endpoint/schema than the single-item lookup `price-sync.php`
+uses; its `rating` field is a nested `{rating, count}` object here, unlike
+the flat fields on `catalog/item`). Each of those 10 carries its real
+price, rating, ThemeForest Details Page URL, the theme's own real
+external demo URL (from the item's `demo-url` attribute, not the Envato
+preview link), the vendor's username, and its actual marketplace preview
+screenshot downloaded and set as the Featured Image
+(`media_sideload_image()`) — nothing fabricated. Since these now carry
+real Details Page URLs, they're automatically picked up by the
+Price & Rating Sync's regular cron cycle from here on. Style wasn't set
+for these 10 (not requested, and not something reliably inferable from
+the API data) — manage all designs under **Website Designs** in
+wp-admin.
 
 **CSS + layout polish (added 2026-09-06):** all of `.templates-layout`,
 `.templates-sidebar*`, `.templates-main*` and `.template-grid`/
