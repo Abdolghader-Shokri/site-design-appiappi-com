@@ -2,6 +2,22 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Services page copywriting rewrite
+
+### Changed
+- `appiappi_get_services()` (`inc/template-tags.php`): each of the 6 services now carries a `hook` (punchy ~30–40 word benefit statement), a `breakdown` (4–6 specific, premium-sounding sub-task bullets — e.g. "Schema markup for services, reviews and local business data" rather than "keyword optimization"), and a `closing` line bridging "service" to "partner". Copy follows the user's brief: Canadian spelling, "we"/"you" partnership tone, "foundational business infrastructure" positioning.
+- `page-services.php` rebuilt from a 3-column icon-card grid to a stacked full-width layout (`.service-list` / `.service-block`) to fit the much longer per-service copy: icon+name header, hook paragraph, a 2-column checklist of breakdown bullets, and a tinted callout for the closing line.
+- Page intro copy updated to lead with the "foundational business infrastructure" framing.
+- New CSS in `assets/css/pages.css`: `.service-list`, `.service-block(__header/__hook/__breakdown/__closing)`; removed the now-unused `.service-grid`/`.service-card` card-grid rules (kept `.service-card__icon`, still reused).
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `page-services.php`, `assets/css/pages.css`
+- `PROJECT_MASTER.md`
+
+### Notes
+- Verified via direct HTML fetch: all 6 `<h2>` service names present, hook/breakdown/closing text renders correctly, 36 total breakdown bullets (6 services × 6 each), no PHP errors.
+- Only the Services page's content model changed — `appiappi_get_services()`'s `name` field (used by the Contact form's "Interested Service" dropdown) is untouched, so nothing else broke.
+
 ## 2026-09-05 — Phase 3 & 4: Template Library completion, SEO/Settings/Security
 
 ### Added

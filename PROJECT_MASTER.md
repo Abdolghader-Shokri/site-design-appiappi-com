@@ -331,7 +331,7 @@ in wp-admin (set the Featured Image there for the preview photo).
 
 Three static-content page templates in the theme root (auto-applied via the `page-{slug}.php` naming convention to Pages with matching slugs — no manual "Page Attributes → Template" selection needed, though each also declares a `Template Name:` header so it can be assigned to a differently-slugged page too):
 
-- **`page-services.php`** (slug `services`) — 6 service cards from `appiappi_get_services()` (a static array in `inc/template-tags.php`, same "fixed offering, not business data" reasoning as the trust bar).
+- **`page-services.php`** (slug `services`) — 6 full-width service blocks from `appiappi_get_services()` (a static array in `inc/template-tags.php`, same "fixed offering, not business data" reasoning as the trust bar). Each service carries 4 pieces of copy: `hook` (a punchy ~30–40 word benefit statement), `breakdown` (4–6 concrete sub-task bullets, written to sound premium/specific rather than generic — "Schema markup for services, reviews and local business data", not "SEO stuff"), and `closing` (a short line bridging "service" to "partner", rendered as a tinted callout). Rewritten 2026-09-06 per the user's copywriting brief — Canadian spelling (optimisation, colour where it comes up), "we"/"you" partnership framing, "foundational business infrastructure" positioning in the page intro.
 - **`page-how-it-works.php`** (slug `how-it-works`) — 6 numbered steps from `appiappi_get_how_it_works_steps()`, same pattern.
 - **`page-about.php`** (slug `about`) — genuinely admin-editable: renders `the_content()` from the real WordPress Page, not a static array, since this is editorial copy the business owner should be able to rewrite without touching code.
 

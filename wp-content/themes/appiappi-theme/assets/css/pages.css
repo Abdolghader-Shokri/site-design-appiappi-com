@@ -38,16 +38,6 @@
 
 /* ---------- Services ---------- */
 
-.service-grid {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--space-6);
-}
-
-.service-card {
-	padding: var(--space-8);
-}
-
 .service-card__icon {
 	display: inline-flex;
 	align-items: center;
@@ -57,26 +47,83 @@
 	border-radius: var(--radius-md);
 	background: var(--color-primary-50);
 	color: var(--color-primary);
+	flex-shrink: 0;
+}
+
+.service-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-10);
+	max-width: 860px;
+	margin-inline: auto;
+}
+
+.service-block {
+	padding-block: var(--space-10);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.service-block:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.service-block:first-child {
+	padding-top: 0;
+}
+
+.service-block__header {
+	display: flex;
+	align-items: center;
+	gap: var(--space-4);
 	margin-bottom: var(--space-5);
 }
 
-.service-card h3 {
-	margin-bottom: var(--space-2);
-}
-
-.service-card p {
+.service-block__header h2 {
 	margin-bottom: 0;
 }
 
-@media (min-width: 640px) {
-	.service-grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
+.service-block__hook {
+	font-size: var(--fs-lg);
+	color: var(--color-neutral-800);
+	max-width: 68ch;
 }
 
-@media (min-width: 1024px) {
-	.service-grid {
-		grid-template-columns: repeat(3, 1fr);
+.service-block__breakdown {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-2) var(--space-6);
+	margin-bottom: var(--space-6);
+}
+
+.service-block__breakdown li {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	font-size: var(--fs-sm);
+	color: var(--color-neutral-800);
+	padding-block: var(--space-2);
+}
+
+.service-block__breakdown svg {
+	flex-shrink: 0;
+	color: var(--color-primary);
+	margin-top: 2px;
+}
+
+.service-block__closing {
+	margin: 0;
+	padding: var(--space-5) var(--space-6);
+	background: var(--color-bg-subtle);
+	border-left: 3px solid var(--color-primary);
+	border-radius: var(--radius-md);
+	font-style: italic;
+	color: var(--color-neutral-800);
+}
+
+@media (min-width: 768px) {
+	.service-block__breakdown {
+		grid-template-columns: repeat(2, 1fr);
 	}
 }
 
