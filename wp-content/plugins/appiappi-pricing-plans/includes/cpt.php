@@ -23,7 +23,7 @@ function appiappi_pricing_register_cpt() {
 		'show_in_menu'       => true,
 		'show_in_rest'       => false,
 		'menu_icon'          => 'dashicons-money-alt',
-		'supports'           => array( 'title', 'page-attributes' ),
+		'supports'           => array( 'title', 'editor', 'page-attributes' ),
 		'capability_type'    => 'post',
 		'map_meta_cap'       => true,
 	) );

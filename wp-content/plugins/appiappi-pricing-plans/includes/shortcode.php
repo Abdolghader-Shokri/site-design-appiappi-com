@@ -41,6 +41,7 @@ function appiappi_pricing_get_plans() {
 			'value_driver'     => get_post_meta( $post->ID, '_appiappi_plan_value_driver', true ),
 			'group'            => get_post_meta( $post->ID, '_appiappi_plan_group', true ) ?: 'launch',
 			'homepage_visible' => ( '' === $homepage_visible_raw ) ? true : ( '1' === $homepage_visible_raw ),
+			'description' => $post->post_content ? apply_filters( 'the_content', $post->post_content ) : '',
 			'price'    => get_post_meta( $post->ID, '_appiappi_plan_price', true ),
 			'period'   => get_post_meta( $post->ID, '_appiappi_plan_period', true ),
 			'note'     => get_post_meta( $post->ID, '_appiappi_plan_note', true ),
@@ -58,8 +59,10 @@ function appiappi_pricing_get_plans() {
 
 function appiappi_pricing_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
-		'homepage_only' => '0',
-		'group'         => '',
+		'homepage_only'   => '0',
+		'group'           => '',
+		'show_description' => '0',
+		'link_to_pricing' => '0',
 	), $atts, 'appiappi_pricing' );
 
 	$plans = appiappi_pricing_get_plans();
@@ -84,7 +87,11 @@ function appiappi_pricing_shortcode( $atts ) {
 	}
 
 	if ( function_exists( 'appiappi_render_pricing_cards' ) ) {
-		return appiappi_render_pricing_cards( $plans );
+		return appiappi_render_pricing_cards(
+			$plans,
+			filter_var( $atts['show_description'], FILTER_VALIDATE_BOOLEAN ),
+			filter_var( $atts['link_to_pricing'], FILTER_VALIDATE_BOOLEAN )
+		);
 	}
 
 	// Minimal fallback if the Appiappi theme (which owns the card markup) isn't active.

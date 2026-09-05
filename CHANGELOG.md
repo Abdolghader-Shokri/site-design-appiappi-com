@@ -2,6 +2,26 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Pricing page: per-plan description + homepage anchor linking
+
+### Added
+- `appiappi_plan` CPT gained native `editor` support — each plan can now have a fuller paragraph description (separate from the short tagline/audience/value-driver/note fields), written directly in wp-admin.
+- `appiappi_render_pricing_cards()` gained two parameters: `$show_description` (renders `.pricing-card__description` — used on the Pricing page only, per the user's explicit "not needed on the homepage" instruction) and `$link_to_pricing` (overrides every plan's CTA href to `/pricing/#plan-{id}` — used on the homepage teaser only, so clicking "Choose [Plan]" jumps straight to that plan's full card with description on the Pricing page).
+- `[appiappi_pricing]` shortcode gained matching `show_description="1"` and `link_to_pricing="1"` attributes.
+- Every pricing card now has a stable anchor `id="plan-{id}"` regardless of context, plus `scroll-margin-top` so the sticky header doesn't cover it when landing on the anchor.
+- Seeded full descriptions for all 5 existing plans (Starter/Business/Professional/Growth/SEO Growth).
+
+### Files Modified
+- `wp-content/plugins/appiappi-pricing-plans/includes/cpt.php`, `meta-boxes.php`, `shortcode.php`
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `page-pricing.php`, `template-parts/sections/pricing-preview.php`, `assets/css/home.css`
+- `PROJECT_MASTER.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- Per-plan colour was already identical between the homepage and Pricing page (both read the same `color` field through the same shared renderer) — no change needed there.
+- The Pricing page's CTA buttons still point at each plan's `cta_url` (currently `#contact`) — that's the field that will become a real order/checkout link once payment processing is built (Phase 5, still future). This pass only handles the homepage → Pricing-page handoff, not payment itself.
+- Verified via direct HTML fetch: homepage has zero `.pricing-card__description` blocks and all 4 visible plans' CTAs point at `/pricing/#plan-{id}`; Pricing page has exactly 5 description blocks and all 5 anchor IDs present; no PHP errors.
+- Visual styling of the Pricing page (per the user's own sequencing — "let's fix the scenario/structure first, then get to styling") is intentionally not addressed in this pass.
+
 ## 2026-09-06 — Fix: pricing grid didn't balance for 3- or 2-card groups
 
 ### Fixed

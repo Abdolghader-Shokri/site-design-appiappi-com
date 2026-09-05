@@ -103,6 +103,7 @@ function appiappi_get_pricing_plans( $homepage_only = false ) {
 			'tagline'  => __( 'Get Online, Fast.', 'appiappi' ),
 			'audience' => __( 'Perfect for new businesses that need a professional online presence right away.', 'appiappi' ),
 			'value_driver' => __( 'Get online in days, not weeks — without cutting corners on quality.', 'appiappi' ),
+			'description' => __( 'The Starter plan is built for businesses that need to establish a credible online presence without delay. We handle the full technical setup — a professional WordPress environment, your chosen template, SSL security, and essential plugins — so your website is live, secure, and ready for customers within days. Ideal as a first step for brand-new businesses, or as a fast, no-frills launch while you plan a fuller build later.', 'appiappi' ),
 			'group'    => 'launch',
 			'homepage_visible' => true,
 			'price'    => '199',
@@ -127,6 +128,7 @@ function appiappi_get_pricing_plans( $homepage_only = false ) {
 			'tagline'  => __( 'Your Brand, Fully Realized.', 'appiappi' ),
 			'audience' => __( 'Perfect for established businesses ready to fully align their website with their brand.', 'appiappi' ),
 			'value_driver' => __( 'Move beyond a generic template — launch a site that actually represents your business.', 'appiappi' ),
+			'description' => __( 'The Business plan takes a professionally designed template and makes it genuinely yours. We apply your branding, structure your services and content, and set up navigation and core pages so the finished site actually represents how your business operates — not a generic template with your logo swapped in. Includes a foundational on-page SEO setup to build on.', 'appiappi' ),
 			'group'    => 'launch',
 			'homepage_visible' => true,
 			'price'    => '399',
@@ -152,6 +154,7 @@ function appiappi_get_pricing_plans( $homepage_only = false ) {
 			'tagline'  => __( 'The Premium Standard.', 'appiappi' ),
 			'audience' => __( 'Perfect for businesses that want a high-performance launch with a full year of hosting included.', 'appiappi' ),
 			'value_driver' => __( 'Launch faster, rank better, and skip a full year of hosting decisions entirely.', 'appiappi' ),
+			'description' => __( "The Professional plan is our most complete one-time launch — everything in Business, plus a licensed premium theme, a full year of managed, high-performance hosting, custom logo and visual identity work, and hardened security with automated backups. Built for businesses that want to launch once, launch right, and not think about hosting again for a full year.", 'appiappi' ),
 			'group'    => 'launch',
 			'homepage_visible' => true,
 			'price'    => '699',
@@ -179,6 +182,7 @@ function appiappi_get_pricing_plans( $homepage_only = false ) {
 			'tagline'  => __( 'Always-On Protection &amp; Performance.', 'appiappi' ),
 			'audience' => __( 'Perfect for businesses that want their website professionally maintained without lifting a finger.', 'appiappi' ),
 			'value_driver' => __( 'Eliminate downtime risk and technical debt — for one predictable monthly investment.', 'appiappi' ),
+			'description' => __( 'The Growth plan turns your website from a one-time project into an ongoing, professionally managed asset. Every month we handle hosting, security monitoring, software updates, backups, and requested content changes — plus foundational SEO monitoring to keep your site healthy in search. For business owners who never want to think about their website\'s technical health again.', 'appiappi' ),
 			'group'    => 'growth',
 			'homepage_visible' => true,
 			'price'    => '599',
@@ -204,6 +208,7 @@ function appiappi_get_pricing_plans( $homepage_only = false ) {
 			'tagline'  => __( 'Aggressive Organic Growth.', 'appiappi' ),
 			'audience' => __( 'Perfect for established businesses ready to actively compete for search visibility in their market.', 'appiappi' ),
 			'value_driver' => __( 'Scale your organic traffic predictably — with a dedicated strategy behind it every month.', 'appiappi' ),
+			'description' => __( "SEO Growth builds on everything in the Growth plan and adds a dedicated, ongoing organic-growth strategy: keyword and competitor research, monthly content marketing, local SEO and Google Business Profile optimisation, and detailed monthly reporting on what's actually moving the needle. Built for businesses ready to treat search visibility as an active growth channel, not an afterthought.", 'appiappi' ),
 			'group'    => 'growth',
 			'homepage_visible' => false,
 			'price'    => '899',
@@ -352,7 +357,7 @@ function appiappi_get_hero_slides() {
  *                      badge, features (array of strings), cta_text,
  *                      cta_url.
  */
-function appiappi_render_pricing_cards( array $plans ) {
+function appiappi_render_pricing_cards( array $plans, $show_description = false, $link_to_pricing = false ) {
 	if ( empty( $plans ) ) {
 		return '';
 	}
@@ -361,7 +366,12 @@ function appiappi_render_pricing_cards( array $plans ) {
 	?>
 	<div class="pricing-grid">
 		<?php foreach ( $plans as $plan ) : ?>
-			<div class="pricing-card <?php echo ! empty( $plan['featured'] ) ? 'pricing-card--featured' : ''; ?>" style="--plan-color: <?php echo esc_attr( $plan['color'] ); ?>">
+			<?php
+			$cta_url = $link_to_pricing
+				? home_url( '/pricing/#plan-' . $plan['id'] )
+				: $plan['cta_url'];
+			?>
+			<div id="plan-<?php echo esc_attr( $plan['id'] ); ?>" class="pricing-card <?php echo ! empty( $plan['featured'] ) ? 'pricing-card--featured' : ''; ?>" style="--plan-color: <?php echo esc_attr( $plan['color'] ); ?>">
 				<?php if ( ! empty( $plan['badge'] ) ) : ?>
 					<span class="pricing-card__badge"><?php echo esc_html( $plan['badge'] ); ?></span>
 				<?php endif; ?>
@@ -381,6 +391,10 @@ function appiappi_render_pricing_cards( array $plans ) {
 					<p class="pricing-card__audience"><?php echo esc_html( $plan['audience'] ); ?></p>
 				<?php endif; ?>
 
+				<?php if ( $show_description && ! empty( $plan['description'] ) ) : ?>
+					<div class="pricing-card__description"><?php echo wp_kses_post( $plan['description'] ); ?></div>
+				<?php endif; ?>
+
 				<ul class="pricing-card__features">
 					<?php foreach ( $plan['features'] as $feature ) : ?>
 						<li><?php echo appiappi_icon( 'check' ); ?><span><?php echo wp_kses_post( $feature ); ?></span></li>
@@ -391,7 +405,7 @@ function appiappi_render_pricing_cards( array $plans ) {
 					<p class="pricing-card__value-driver"><?php echo appiappi_icon( 'trending-up' ); ?><span><?php echo esc_html( $plan['value_driver'] ); ?></span></p>
 				<?php endif; ?>
 
-				<a href="<?php echo esc_url( $plan['cta_url'] ); ?>" class="btn <?php echo ! empty( $plan['featured'] ) ? 'btn-primary' : 'btn-secondary'; ?> btn-block">
+				<a href="<?php echo esc_url( $cta_url ); ?>" class="btn <?php echo ! empty( $plan['featured'] ) ? 'btn-primary' : 'btn-secondary'; ?> btn-block">
 					<?php echo esc_html( $plan['cta_text'] ); ?>
 				</a>
 			</div>

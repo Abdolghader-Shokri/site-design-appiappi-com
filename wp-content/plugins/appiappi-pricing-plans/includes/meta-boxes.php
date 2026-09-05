@@ -43,6 +43,9 @@ add_action( 'add_meta_boxes', 'appiappi_pricing_add_meta_box' );
 
 function appiappi_pricing_render_meta_box( $post ) {
 	wp_nonce_field( 'appiappi_pricing_save', 'appiappi_pricing_nonce' );
+	?>
+	<p class="description"><?php esc_html_e( 'Write a fuller description of this plan in the main content editor above — it only shows on the full Pricing page (not the homepage preview).', 'appiappi-pricing-plans' ); ?></p>
+	<?php
 
 	$price    = get_post_meta( $post->ID, '_appiappi_plan_price', true );
 	$period   = get_post_meta( $post->ID, '_appiappi_plan_period', true );

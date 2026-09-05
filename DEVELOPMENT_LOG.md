@@ -12,6 +12,23 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Homepage → Pricing anchor linking, and the future-checkout CTA
+
+The user reframed the Pricing page's purpose: it will eventually host real
+order/checkout actions (Phase 5 payment architecture), so (a) it needs to
+look and feel professional/complete on its own, and (b) the homepage's
+plan CTAs should send visitors to that plan's full card there rather than
+straight to a generic contact anchor. Implemented via two independent
+shared-renderer parameters (`$show_description`, `$link_to_pricing`)
+rather than one combined "context" flag, since the two behaviours don't
+always travel together — the Pricing page needs the description without
+the redirect (it's already the destination), and a future third context
+(e.g. a template-detail-page pricing widget) might want the redirect
+without the description. Kept the actual CTA `cta_url` field
+(`#contact` today) as the thing that changes once real payment/checkout
+exists — no new field was added for "checkout URL" since that's Phase 5
+scope and the existing field already does the job structurally.
+
 ## 2026-09-06 — Pricing rewrite kept dollar amounts unchanged on purpose
 
 The pricing-strategist brief said "our current pricing looks too low and

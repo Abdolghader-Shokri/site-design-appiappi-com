@@ -201,6 +201,7 @@
 	border: 1px solid var(--color-border);
 	background: var(--color-white);
 	position: relative;
+	scroll-margin-top: calc(var(--header-height) + var(--space-6));
 }
 
 .pricing-card--featured {
@@ -275,6 +276,19 @@
 	font-style: italic;
 	color: var(--color-neutral-600);
 	margin-bottom: var(--space-6);
+}
+
+.pricing-card__description {
+	font-size: var(--fs-sm);
+	color: var(--color-neutral-800);
+	line-height: var(--lh-normal);
+	margin-bottom: var(--space-6);
+	padding-bottom: var(--space-6);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.pricing-card__description p:last-child {
+	margin-bottom: 0;
 }
 
 .pricing-card__features {

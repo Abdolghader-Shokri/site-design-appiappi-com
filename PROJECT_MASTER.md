@@ -300,7 +300,14 @@ stylistic language (see DEVELOPMENT_LOG.md).
 
 - **Launch Tiers** (`group = launch`, one-time): Starter $199, Business $399, Professional $699 ("Most Popular").
 - **Growth Tiers** (`group = growth`, monthly): Growth $599/mo (`homepage_visible = true`), **SEO Growth $899/mo (new — `homepage_visible = false`, Pricing page only)**, matching the original spec's "may not need to be publicly visible at launch" guidance for this tier.
-- `[appiappi_pricing]` shortcode attributes: `homepage_only="1"` (only plans with `homepage_visible` checked — used by the homepage teaser) and `group="launch"`/`group="growth"` (used by the Pricing page's two sections).
+- `[appiappi_pricing]` shortcode attributes: `homepage_only="1"` (only plans with `homepage_visible` checked — homepage teaser), `group="launch"`/`group="growth"` (Pricing page's two sections), `show_description="1"` (renders the plan's full description — Pricing page only), `link_to_pricing="1"` (CTA buttons link to `/pricing/#plan-{id}` instead of the plan's own `cta_url` — homepage teaser only).
+
+**Full descriptions + homepage → Pricing anchor linking (added 2026-09-06):**
+- `appiappi_plan` CPT gained `editor` support — the main content editor holds a fuller paragraph description of the plan, separate from the short `note`/`tagline`/`audience`/`value_driver` fields. Mapped into the `description` array key (rendered via `the_content` filter in the plugin, or a plain string in the theme placeholder).
+- `appiappi_render_pricing_cards( $plans, $show_description = false, $link_to_pricing = false )` — the theme's shared renderer — only outputs `.pricing-card__description` when `$show_description` is true (Pricing page passes `true`; the homepage teaser leaves it `false`, per the user's explicit "don't need it on the homepage" instruction), and every card gets an anchor `id="plan-{id}"` regardless of context.
+- When `$link_to_pricing` is true (homepage teaser only), every plan's CTA button href becomes `home_url( '/pricing/#plan-' . $plan['id'] )` instead of the plan's own `cta_url` — clicking "Choose Starter" on the homepage jumps straight to that plan's full card (with description) on the Pricing page. On the Pricing page itself, CTAs keep using the real `cta_url` (currently `#contact`; this is the button that will eventually become a real order/checkout action once payment processing is built — see [MASTER_PROMPT.md § Payment Architecture](MASTER_PROMPT.md#payment-architecture), still Phase 5/future).
+- Colour is not a separate concern here — both pages already read the same `color` field from the same CPT/placeholder data through the same shared renderer, so per-plan colour has always matched between the homepage and the Pricing page.
+- `.pricing-card` gained `scroll-margin-top` so the sticky header doesn't cover the target card when landing on a `#plan-*` anchor.
 
 **`page-pricing.php`** (rewritten 2026-09-06): Launch Tiers section →
 Growth Tiers section → a "How Our Pricing Works" explainer (Setup Fees

@@ -31,13 +31,13 @@ $has_plugin = shortcode_exists( 'appiappi_pricing' );
 			</div>
 
 			<?php if ( $has_plugin ) : ?>
-				<?php echo do_shortcode( '[appiappi_pricing group="launch"]' ); ?>
+				<?php echo do_shortcode( '[appiappi_pricing group="launch" show_description="1"]' ); ?>
 			<?php else : ?>
 				<?php
 				$launch_plans = array_values( array_filter( appiappi_get_pricing_plans(), function ( $plan ) {
 					return 'launch' === ( $plan['group'] ?? 'launch' );
 				} ) );
-				echo appiappi_render_pricing_cards( $launch_plans );
+				echo appiappi_render_pricing_cards( $launch_plans, true );
 				?>
 			<?php endif; ?>
 		</div>
@@ -52,13 +52,13 @@ $has_plugin = shortcode_exists( 'appiappi_pricing' );
 			</div>
 
 			<?php if ( $has_plugin ) : ?>
-				<?php echo do_shortcode( '[appiappi_pricing group="growth"]' ); ?>
+				<?php echo do_shortcode( '[appiappi_pricing group="growth" show_description="1"]' ); ?>
 			<?php else : ?>
 				<?php
 				$growth_plans = array_values( array_filter( appiappi_get_pricing_plans(), function ( $plan ) {
 					return 'growth' === ( $plan['group'] ?? 'launch' );
 				} ) );
-				echo appiappi_render_pricing_cards( $growth_plans );
+				echo appiappi_render_pricing_cards( $growth_plans, true );
 				?>
 			<?php endif; ?>
 		</div>
