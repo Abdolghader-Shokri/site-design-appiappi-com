@@ -342,24 +342,39 @@ using the admin-configured column count.
 (falling back to the theme's `appiappi_get_featured_templates()` +
 `appiappi_get_template_categories()` + `appiappi_get_template_styles()`
 placeholders otherwise), and both paths render through the shared
-`appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar )`
-function in `inc/template-tags.php`.
+`appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar, $columns = null, $total = null )`
+function in `inc/template-tags.php`. `$columns` defaults to the
+**Website Designs → Display Settings** option (see below) whenever
+`$show_sidebar` is true — which both the homepage teaser and the
+`/templates/` archive are, so they always render the identical
+sidebar+grid layout the user asked for ("همینجا که در صفحه اول داره
+نمایش میده... کنارش هم مثل همین صفحه اول گروهبندی‌ها"), sharing one
+admin-configurable column count. `$total`, when given (only the archive
+page passes it), renders "of N total" next to the per-page count.
 
 **Now complete (Phase 3).** `appiappi_template` is a **public** CPT with
 `has_archive => 'templates'` and `rewrite => ['slug' => 'templates']` — so
 `/templates/` and `/templates/{design-slug}/` are real WordPress URLs, not
 a shortcode embedded in a static Page.
 
-- **`archive-appiappi_template.php`** — the full browsable library. Calls
-  `appiappi_showcase_get_templates( -1, $category_filter )` directly
-  (bypassing the main WP archive query, same data function the shortcode
-  uses) so it always shows *every* published design, with the full
-  sidebar. Category links still work via `?appiappi_category=<slug>` +
-  `tax_query` (real page reload). **Style checkboxes and the search box
-  are now live, client-side JS** (`assets/js/main.js`, third IIFE) —
-  every card already carries `data-style`/`data-search` attributes from
-  the shared render function, so filtering needs no AJAX round trip; the
-  visible count and an empty-state message update live too.
+- **`archive-appiappi_template.php`** — the full browsable library. Runs
+  the **native main query/loop** (`have_posts()`/`the_post()`), so it
+  paginates like the blog archive rather than dumping every design onto
+  one page. The plugin's `appiappi_showcase_archive_query()`
+  (`includes/cpt.php`, on `pre_get_posts`) sets `posts_per_page` to the
+  admin-configured **columns × rows-per-page** (added 2026-09-06 —
+  **Website Designs → Display Settings**: "Designs Per Row" default 3,
+  "Rows Per Page" default 4, so 12 designs per page by default) and
+  applies the `?appiappi_category=<slug>` filter as a real `tax_query` on
+  that same main query, so `appiappi_pagination()` (which reads
+  `$wp_query` directly) works for free. Beyond the first page, WordPress's
+  standard `/templates/page/2/` archive pagination URLs apply. **Style
+  checkboxes and the search box are live, client-side JS**
+  (`assets/js/main.js`, third IIFE) filtering within the current page's
+  results — every card already carries `data-style`/`data-search`
+  attributes from the shared render function, so filtering needs no AJAX
+  round trip; the visible count and an empty-state message update live
+  too.
 - **`single-appiappi_template.php`** — the detail page: category badge,
   featured image, a real content-editor description (falls back to the
   short "Short Description" meta field if the editor is empty — the CPT
@@ -375,6 +390,22 @@ The local site has the plugin active with 6 categories, 4 styles, and 3
 seeded designs (Construction Pro / Justice Law / Dental Clinic) matching
 the original placeholder content — manage them under **Website Designs**
 in wp-admin (set the Featured Image there for the preview photo).
+
+**CSS + layout polish (added 2026-09-06):** all of `.templates-layout`,
+`.templates-sidebar*`, `.templates-main*` and `.template-grid`/
+`.template-card*` moved from `home.css` (front-page-only) to
+`components.css` (loaded on every page) — same bug/fix as the pricing
+cards (§12): this markup is shared with `/templates/`, a regular Page
+template, which never loaded `home.css` and so rendered completely
+unstyled there until this move. `.template-grid` also switched from CSS
+Grid to the same flexbox `--cols` pattern as `.pricing-grid`, so a short
+last row (e.g. 1 design alone on the final row) centres on the page
+instead of leaving a lopsided gap. The homepage-only "Browse All
+Designs" footer button (`.templates-preview__footer`) now only renders
+when NOT on the `/templates/` archive itself (`! is_post_type_archive( 'appiappi_template' )`),
+since there it was a redundant self-link now superseded by real
+pagination — this check is independent of `$show_sidebar` since both the
+homepage teaser and the archive render with the sidebar shown.
 
 ## 14. Services / How It Works / About Pages
 

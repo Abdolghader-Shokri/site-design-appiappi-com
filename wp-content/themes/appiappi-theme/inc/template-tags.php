@@ -464,8 +464,23 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
  * @param bool  $show_sidebar Whether to render the filter sidebar at all
  *                             (a shortcode instance placed in a narrow
  *                             spot can opt out and show just the grid).
+ * @param int|null $columns   Designs per row on desktop. Null reads the
+ *                             "Website Designs → Display Settings"
+ *                             option (default 3) — only meaningful when
+ *                             $show_sidebar is true; the homepage teaser
+ *                             keeps its own fixed column steps in CSS.
+ * @param int|null $total     Total matching designs across all pages, if
+ *                             different from count( $templates ) (i.e.
+ *                             the caller paginated). Null shows just the
+ *                             count of $templates, as before.
  */
-function appiappi_render_template_showcase( array $templates, array $categories, array $styles, $show_sidebar = true ) {
+function appiappi_render_template_showcase( array $templates, array $categories, array $styles, $show_sidebar = true, $columns = null, $total = null ) {
+	if ( $show_sidebar && null === $columns ) {
+		$columns = (int) get_option( 'appiappi_templates_columns', 3 );
+	}
+	if ( null !== $columns ) {
+		$columns = max( 1, min( 4, (int) $columns ) );
+	}
 	ob_start();
 	?>
 	<div class="templates-layout <?php echo $show_sidebar ? '' : 'templates-layout--no-sidebar'; ?>">
@@ -513,7 +528,18 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 						esc_html( _n( 'Showing %d design', 'Showing %d designs', count( $templates ), 'appiappi' ) ),
 						count( $templates )
 					);
-					?>
+					if ( null !== $total && $total > count( $templates ) ) :
+						?>
+						<span class="templates-main__count-total">
+							<?php
+							printf(
+								/* translators: %d total number of designs across all pages */
+								esc_html__( 'of %d total', 'appiappi' ),
+								(int) $total
+							);
+							?>
+						</span>
+					<?php endif; ?>
 				</p>
 				<div class="templates-main__nav" aria-hidden="true">
 					<button type="button" tabindex="-1"><?php echo appiappi_icon( 'chevron-right', '' ); ?></button>
@@ -523,7 +549,7 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 			<?php if ( empty( $templates ) ) : ?>
 				<p><?php esc_html_e( 'No website designs published yet.', 'appiappi' ); ?></p>
 			<?php else : ?>
-				<div class="template-grid" id="templates-grid">
+				<div class="template-grid" id="templates-grid" <?php echo null !== $columns ? 'style="--template-cols: ' . esc_attr( $columns ) . '"' : ''; ?>>
 					<?php foreach ( $templates as $template ) : ?>
 						<div class="card template-card" data-category="<?php echo esc_attr( $template['category'] ); ?>" data-style="<?php echo esc_attr( $template['style'] ?? '' ); ?>" data-search="<?php echo esc_attr( strtolower( $template['name'] . ' ' . $template['desc'] . ' ' . $template['category'] ) ); ?>">
 							<div class="template-card__media">
@@ -555,11 +581,13 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 				<p id="templates-empty" class="templates-empty-state" hidden><?php esc_html_e( 'No designs match your search/filters. Try clearing them.', 'appiappi' ); ?></p>
 			<?php endif; ?>
 
-			<div class="templates-preview__footer">
-				<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary">
-					<?php esc_html_e( 'Browse All Designs', 'appiappi' ); ?> <?php echo appiappi_icon( 'chevron-right' ); ?>
-				</a>
-			</div>
+			<?php if ( ! is_post_type_archive( 'appiappi_template' ) ) : ?>
+				<div class="templates-preview__footer">
+					<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary">
+						<?php esc_html_e( 'Browse All Designs', 'appiappi' ); ?> <?php echo appiappi_icon( 'chevron-right' ); ?>
+					</a>
+				</div>
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php

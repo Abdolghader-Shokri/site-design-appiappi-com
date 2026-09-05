@@ -58,6 +58,37 @@ function appiappi_showcase_register_cpt() {
 }
 add_action( 'init', 'appiappi_showcase_register_cpt' );
 
+/**
+ * Paginates the /templates/ archive (the "Website Designs" page) using
+ * the admin-configured columns × rows-per-page (Website Designs →
+ * Display Settings), and applies the `?appiappi_category=` filter used
+ * by the sidebar's category links to the main query itself — so
+ * archive-appiappi_template.php can run a normal have_posts()/the_post()
+ * loop and appiappi_pagination() (which reads the main $wp_query) works
+ * for free, exactly like the blog archive.
+ */
+function appiappi_showcase_archive_query( $query ) {
+	if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'appiappi_template' ) ) {
+		return;
+	}
+
+	$columns = max( 1, min( 4, (int) get_option( 'appiappi_templates_columns', 3 ) ) );
+	$rows    = max( 1, (int) get_option( 'appiappi_templates_rows_per_page', 4 ) );
+	$query->set( 'posts_per_page', $columns * $rows );
+	$query->set( 'orderby', 'menu_order' );
+	$query->set( 'order', 'ASC' );
+
+	$category_filter = isset( $_GET['appiappi_category'] ) ? sanitize_title( wp_unslash( $_GET['appiappi_category'] ) ) : '';
+	if ( $category_filter ) {
+		$query->set( 'tax_query', array( array(
+			'taxonomy' => 'appiappi_template_category',
+			'field'    => 'slug',
+			'terms'    => $category_filter,
+		) ) );
+	}
+}
+add_action( 'pre_get_posts', 'appiappi_showcase_archive_query' );
+
 function appiappi_showcase_admin_columns( $columns ) {
 	$columns['appiappi_price']  = __( 'Price', 'appiappi-template-showcase' );
 	$columns['appiappi_rating'] = __( 'Rating', 'appiappi-template-showcase' );

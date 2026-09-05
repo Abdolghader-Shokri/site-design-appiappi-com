@@ -2,6 +2,24 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Website Designs page: matches homepage layout, configurable grid, real pagination
+
+### Fixed
+- Same bug as the pricing cards (see below): every `.templates-layout`/`.templates-sidebar*`/`.templates-main*`/`.template-grid`/`.template-card*` CSS rule lived in `home.css` (front-page-only), so the dedicated `/templates/` Website Designs page rendered completely unstyled. Moved the whole block to `components.css` (loaded on every page).
+
+### Added
+- New **Website Designs → Display Settings** admin page (`appiappi-template-showcase` plugin, `includes/settings.php`): "Designs Per Row" (1-4, default 3) and "Rows Per Page" (1-10, default 4) — 12 designs per page by default.
+- The `/templates/` archive now runs the native main query/loop instead of fetching every design at once, so it paginates once designs exceed one page (`appiappi_showcase_archive_query()` in `includes/cpt.php`, on `pre_get_posts`, also carries the existing `?appiappi_category=` filter into the main query as a real `tax_query`). Standard WordPress `/templates/page/2/` archive pagination applies; `appiappi_pagination()` renders the page links.
+- `.template-grid` switched from CSS Grid to the same flexbox `--cols`/`--template-cols` pattern used by `.pricing-grid`, so a short last row (fewer designs than the configured columns) centres on the page instead of leaving empty space on the right.
+
+### Changed
+- `appiappi_render_template_showcase()` gained `$columns` (defaults to the new admin setting whenever the sidebar is shown) and `$total` (shows "of N total" next to the per-page count) parameters. Since both the homepage teaser and the `/templates/` page already render with the sidebar shown, they now share one admin-configurable column count, keeping them visually identical as requested.
+- The "Browse All Designs" footer button now only renders when NOT on the `/templates/` archive itself — there it was a redundant self-link, now superseded by real pagination. (Both the homepage teaser and the archive render with the sidebar shown, so this check uses `is_post_type_archive()` rather than `$show_sidebar`.)
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/assets/css/home.css`, `assets/css/components.css`, `inc/template-tags.php`, `archive-appiappi_template.php`
+- `wp-content/plugins/appiappi-template-showcase/includes/cpt.php`, `includes/settings.php` (new), `appiappi-template-showcase.php`
+
 ## 2026-09-06 — Pricing page: one plan per row, full width
 
 ### Changed
