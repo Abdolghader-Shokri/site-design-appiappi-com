@@ -2,6 +2,29 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Pricing page rewrite: premium positioning + new SEO Growth plan
+
+### Added
+- New per-plan fields across the `appiappi-pricing-plans` plugin and theme placeholder: `tagline`, `audience` ("Perfect for…"), `value_driver` (ROI sentence, rendered as a highlighted callout), `group` (`launch`/`growth`), and `homepage_visible` (checkbox, default on).
+- New 5th plan: **SEO Growth** ($899/mo, `group=growth`, `homepage_visible` off) — aggressive organic growth tier from the original master spec, now actually built and seeded (CPT post ID 50).
+- `[appiappi_pricing]` shortcode gained `homepage_only="1"` and `group="launch"|"growth"` attributes for filtering; the theme's `appiappi_get_pricing_plans( $homepage_only )` fallback got the matching parameter.
+- New `--color-plan-seo-growth` design token (teal) for the 5th plan's card accent.
+- `page-pricing.php` restructured: "Launch Tiers" section, "Growth Tiers" section, and a new "How Our Pricing Works" explainer (Setup Fees vs. Monthly Subscriptions) — all before the **unchanged** FAQ accordion, per the user's explicit instruction to leave it alone.
+- Rewrote all 4 existing plans' copy (tagline, audience, value driver, renamed premium-sounding features — e.g. "Professional WordPress Environment Setup" instead of "WordPress installation") per the user's pricing-strategist brief.
+
+### Changed
+- Homepage pricing teaser now explicitly requests `homepage_only="1"`, so it continues showing only the original 4 plans even with SEO Growth added.
+- `appiappi_render_pricing_cards()` (shared renderer) now displays tagline, audience and value-driver when present.
+
+### Files Modified
+- `wp-content/plugins/appiappi-pricing-plans/includes/meta-boxes.php`, `shortcode.php`
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `page-pricing.php`, `template-parts/sections/pricing-preview.php`, `assets/css/home.css`, `assets/css/pages.css`, `assets/css/tokens.css`
+- `PROJECT_MASTER.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- **Dollar amounts unchanged** — $199/$399/$699 one-time, $599/mo Growth, $899/mo SEO Growth. The brief's "justify higher investment" language was treated as a copywriting/positioning instruction, not a request to raise real prices — see DEVELOPMENT_LOG.md.
+- Verified via direct HTML fetch: homepage shows exactly 4 plans (SEO Growth correctly excluded), Pricing page shows all 5 across two correctly-labelled group sections, all 5 taglines/audiences/value-drivers render, "How Our Pricing Works" section present, FAQ section unchanged (still 12 questions), no PHP errors.
+
 ## 2026-09-06 — How It Works page copywriting rewrite
 
 ### Changed

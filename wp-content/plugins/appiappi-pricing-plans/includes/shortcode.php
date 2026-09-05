@@ -23,17 +23,24 @@ function appiappi_pricing_get_plans() {
 		'business'     => 'var(--color-plan-business)',
 		'professional' => 'var(--color-plan-professional)',
 		'growth'       => 'var(--color-plan-growth)',
+		'seo-growth'   => 'var(--color-plan-seo-growth)',
 	);
 
 	$plans = array();
 	foreach ( $posts as $post ) {
 		$color_key  = get_post_meta( $post->ID, '_appiappi_plan_color', true );
 		$features   = get_post_meta( $post->ID, '_appiappi_plan_features', true );
+		$homepage_visible_raw = get_post_meta( $post->ID, '_appiappi_plan_homepage_visible', true );
 
 		$plans[] = array(
-			'id'       => $post->post_name,
-			'icon'     => get_post_meta( $post->ID, '_appiappi_plan_icon', true ) ?: 'rocket',
-			'name'     => get_the_title( $post ),
+			'id'               => $post->post_name,
+			'icon'             => get_post_meta( $post->ID, '_appiappi_plan_icon', true ) ?: 'rocket',
+			'name'             => get_the_title( $post ),
+			'tagline'          => get_post_meta( $post->ID, '_appiappi_plan_tagline', true ),
+			'audience'         => get_post_meta( $post->ID, '_appiappi_plan_audience', true ),
+			'value_driver'     => get_post_meta( $post->ID, '_appiappi_plan_value_driver', true ),
+			'group'            => get_post_meta( $post->ID, '_appiappi_plan_group', true ) ?: 'launch',
+			'homepage_visible' => ( '' === $homepage_visible_raw ) ? true : ( '1' === $homepage_visible_raw ),
 			'price'    => get_post_meta( $post->ID, '_appiappi_plan_price', true ),
 			'period'   => get_post_meta( $post->ID, '_appiappi_plan_period', true ),
 			'note'     => get_post_meta( $post->ID, '_appiappi_plan_note', true ),
@@ -49,8 +56,26 @@ function appiappi_pricing_get_plans() {
 	return $plans;
 }
 
-function appiappi_pricing_shortcode() {
+function appiappi_pricing_shortcode( $atts ) {
+	$atts = shortcode_atts( array(
+		'homepage_only' => '0',
+		'group'         => '',
+	), $atts, 'appiappi_pricing' );
+
 	$plans = appiappi_pricing_get_plans();
+
+	if ( filter_var( $atts['homepage_only'], FILTER_VALIDATE_BOOLEAN ) ) {
+		$plans = array_values( array_filter( $plans, function ( $plan ) {
+			return ! empty( $plan['homepage_visible'] );
+		} ) );
+	}
+
+	if ( $atts['group'] ) {
+		$group = sanitize_key( $atts['group'] );
+		$plans = array_values( array_filter( $plans, function ( $plan ) use ( $group ) {
+			return $plan['group'] === $group;
+		} ) );
+	}
 
 	if ( empty( $plans ) ) {
 		return is_user_logged_in() && current_user_can( 'edit_posts' )

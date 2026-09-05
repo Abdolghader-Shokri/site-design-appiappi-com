@@ -94,22 +94,28 @@ function appiappi_nav_fallback( $args ) {
  * TODO(Phase 2): replace with a query against the Pricing Plan CPT so
  * the business owner can add/edit/reorder/hide plans from wp-admin.
  */
-function appiappi_get_pricing_plans() {
-	return array(
+function appiappi_get_pricing_plans( $homepage_only = false ) {
+	$plans = array(
 		array(
 			'id'       => 'starter',
 			'icon'     => 'rocket',
 			'name'     => __( 'Starter', 'appiappi' ),
+			'tagline'  => __( 'Get Online, Fast.', 'appiappi' ),
+			'audience' => __( 'Perfect for new businesses that need a professional online presence right away.', 'appiappi' ),
+			'value_driver' => __( 'Get online in days, not weeks — without cutting corners on quality.', 'appiappi' ),
+			'group'    => 'launch',
+			'homepage_visible' => true,
 			'price'    => '199',
 			'period'   => __( 'one-time', 'appiappi' ),
-			'note'     => __( 'Launch a new site fast.', 'appiappi' ),
+			'note'     => __( 'Your professional foundation, live fast.', 'appiappi' ),
 			'color'    => 'var(--color-plan-starter)',
 			'featured' => false,
 			'features' => array(
-				__( 'WordPress installation', 'appiappi' ),
-				__( 'Theme &amp; demo install', 'appiappi' ),
-				__( 'SSL &amp; domain connection', 'appiappi' ),
-				__( 'Essential plugin setup', 'appiappi' ),
+				__( 'Professional WordPress Environment Setup', 'appiappi' ),
+				__( 'Curated Theme &amp; Demo Content Installation', 'appiappi' ),
+				__( 'SSL Encryption &amp; Secure Domain Connection', 'appiappi' ),
+				__( 'Essential Plugin Configuration', 'appiappi' ),
+				__( 'Launch-Ready Technical Foundation', 'appiappi' ),
 			),
 			'cta_text' => __( 'Choose Starter', 'appiappi' ),
 			'cta_url'  => '#contact',
@@ -118,16 +124,23 @@ function appiappi_get_pricing_plans() {
 			'id'       => 'business',
 			'icon'     => 'pencil',
 			'name'     => __( 'Business', 'appiappi' ),
+			'tagline'  => __( 'Your Brand, Fully Realized.', 'appiappi' ),
+			'audience' => __( 'Perfect for established businesses ready to fully align their website with their brand.', 'appiappi' ),
+			'value_driver' => __( 'Move beyond a generic template — launch a site that actually represents your business.', 'appiappi' ),
+			'group'    => 'launch',
+			'homepage_visible' => true,
 			'price'    => '399',
 			'period'   => __( 'one-time', 'appiappi' ),
-			'note'     => __( 'Fully customized for your business.', 'appiappi' ),
+			'note'     => __( 'A website that works as hard as you do.', 'appiappi' ),
 			'color'    => 'var(--color-plan-business)',
 			'featured' => false,
 			'features' => array(
 				__( 'Everything in Starter', 'appiappi' ),
-				__( 'Full theme customization', 'appiappi' ),
-				__( 'Content &amp; contact forms', 'appiappi' ),
-				__( 'Basic on-page SEO', 'appiappi' ),
+				__( 'Full Brand &amp; Visual Customization', 'appiappi' ),
+				__( 'Strategic Content Placement — Services, About, Contact', 'appiappi' ),
+				__( 'Custom Navigation &amp; Site Architecture', 'appiappi' ),
+				__( 'Client-Provided Asset Integration — Photos, Copy, Brand Colours', 'appiappi' ),
+				__( 'Foundational On-Page SEO Structure', 'appiappi' ),
 			),
 			'cta_text' => __( 'Choose Business', 'appiappi' ),
 			'cta_url'  => '#contact',
@@ -136,17 +149,25 @@ function appiappi_get_pricing_plans() {
 			'id'       => 'professional',
 			'icon'     => 'diamond',
 			'name'     => __( 'Professional', 'appiappi' ),
+			'tagline'  => __( 'The Premium Standard.', 'appiappi' ),
+			'audience' => __( 'Perfect for businesses that want a high-performance launch with a full year of hosting included.', 'appiappi' ),
+			'value_driver' => __( 'Launch faster, rank better, and skip a full year of hosting decisions entirely.', 'appiappi' ),
+			'group'    => 'launch',
+			'homepage_visible' => true,
 			'price'    => '699',
 			'period'   => __( 'one-time', 'appiappi' ),
-			'note'     => __( 'Premium theme + 1 year hosting.', 'appiappi' ),
+			'note'     => __( 'Performance-driven, fully managed from day one.', 'appiappi' ),
 			'color'    => 'var(--color-plan-professional)',
 			'featured' => true,
 			'badge'    => __( 'Most Popular', 'appiappi' ),
 			'features' => array(
 				__( 'Everything in Business', 'appiappi' ),
-				__( 'Premium theme license included', 'appiappi' ),
-				__( '1 year managed hosting', 'appiappi' ),
-				__( 'Custom logo &amp; speed/security setup', 'appiappi' ),
+				__( 'Premium Theme License Included', 'appiappi' ),
+				__( '1 Year of Managed, High-Performance Hosting', 'appiappi' ),
+				__( 'Custom Logo &amp; Visual Identity Design', 'appiappi' ),
+				__( 'Advanced Speed &amp; Core Web Vitals Optimisation', 'appiappi' ),
+				__( 'Security Hardening &amp; Automated Backup Configuration', 'appiappi' ),
+				__( 'Search Console &amp; Analytics Integration', 'appiappi' ),
 			),
 			'cta_text' => __( 'Choose Professional', 'appiappi' ),
 			'cta_url'  => '#contact',
@@ -155,21 +176,62 @@ function appiappi_get_pricing_plans() {
 			'id'       => 'growth',
 			'icon'     => 'crown',
 			'name'     => __( 'Growth', 'appiappi' ),
+			'tagline'  => __( 'Always-On Protection &amp; Performance.', 'appiappi' ),
+			'audience' => __( 'Perfect for businesses that want their website professionally maintained without lifting a finger.', 'appiappi' ),
+			'value_driver' => __( 'Eliminate downtime risk and technical debt — for one predictable monthly investment.', 'appiappi' ),
+			'group'    => 'growth',
+			'homepage_visible' => true,
 			'price'    => '599',
 			'period'   => __( '/ month', 'appiappi' ),
-			'note'     => __( 'Ongoing management &amp; SEO.', 'appiappi' ),
+			'note'     => __( 'Your website, managed and monitored every month.', 'appiappi' ),
 			'color'    => 'var(--color-plan-growth)',
 			'featured' => false,
 			'features' => array(
-				__( 'Managed hosting &amp; maintenance', 'appiappi' ),
-				__( 'Ongoing on-page &amp; technical SEO', 'appiappi' ),
-				__( 'Content updates', 'appiappi' ),
-				__( 'Monthly SEO reporting', 'appiappi' ),
+				__( 'Fully Managed Hosting &amp; Uptime Monitoring', 'appiappi' ),
+				__( 'Proactive Security Monitoring &amp; Malware Scanning', 'appiappi' ),
+				__( 'Automated Software &amp; Plugin Updates', 'appiappi' ),
+				__( 'Scheduled Backups with Tested Restore Points', 'appiappi' ),
+				__( 'Ongoing Content &amp; Website Changes', 'appiappi' ),
+				__( 'Foundational Monthly SEO Monitoring', 'appiappi' ),
 			),
 			'cta_text' => __( 'Choose Growth', 'appiappi' ),
 			'cta_url'  => '#contact',
 		),
+		array(
+			'id'       => 'seo-growth',
+			'icon'     => 'trending-up',
+			'name'     => __( 'SEO Growth', 'appiappi' ),
+			'tagline'  => __( 'Aggressive Organic Growth.', 'appiappi' ),
+			'audience' => __( 'Perfect for established businesses ready to actively compete for search visibility in their market.', 'appiappi' ),
+			'value_driver' => __( 'Scale your organic traffic predictably — with a dedicated strategy behind it every month.', 'appiappi' ),
+			'group'    => 'growth',
+			'homepage_visible' => false,
+			'price'    => '899',
+			'period'   => __( '/ month', 'appiappi' ),
+			'note'     => __( "Turn your website into a lead-generation engine.", 'appiappi' ),
+			'color'    => 'var(--color-plan-seo-growth)',
+			'featured' => false,
+			'features' => array(
+				__( 'Everything in Growth', 'appiappi' ),
+				__( 'Advanced Keyword &amp; Competitor Research', 'appiappi' ),
+				__( 'Monthly Content Marketing Strategy &amp; Execution', 'appiappi' ),
+				__( 'Local SEO &amp; Google Business Profile Optimisation', 'appiappi' ),
+				__( 'Advanced Technical SEO Audits', 'appiappi' ),
+				__( 'Conversion Rate Optimisation Review', 'appiappi' ),
+				__( 'Detailed Monthly Performance Reporting', 'appiappi' ),
+			),
+			'cta_text' => __( 'Choose SEO Growth', 'appiappi' ),
+			'cta_url'  => '#contact',
+		),
 	);
+
+	if ( $homepage_only ) {
+		$plans = array_values( array_filter( $plans, function ( $plan ) {
+			return ! empty( $plan['homepage_visible'] );
+		} ) );
+	}
+
+	return $plans;
 }
 
 /**
@@ -306,18 +368,28 @@ function appiappi_render_pricing_cards( array $plans ) {
 
 				<span class="pricing-card__icon"><?php echo appiappi_icon( $plan['icon'] ); ?></span>
 				<h3 class="pricing-card__name"><?php echo esc_html( $plan['name'] ); ?></h3>
+				<?php if ( ! empty( $plan['tagline'] ) ) : ?>
+					<p class="pricing-card__tagline"><?php echo esc_html( $plan['tagline'] ); ?></p>
+				<?php endif; ?>
 
 				<p class="pricing-card__price">
 					<span class="pricing-card__price-amount">$<?php echo esc_html( $plan['price'] ); ?></span>
 					<span class="pricing-card__price-period"><?php echo esc_html( $plan['period'] ); ?></span>
 				</p>
 				<p class="pricing-card__note"><?php echo esc_html( $plan['note'] ); ?></p>
+				<?php if ( ! empty( $plan['audience'] ) ) : ?>
+					<p class="pricing-card__audience"><?php echo esc_html( $plan['audience'] ); ?></p>
+				<?php endif; ?>
 
 				<ul class="pricing-card__features">
 					<?php foreach ( $plan['features'] as $feature ) : ?>
 						<li><?php echo appiappi_icon( 'check' ); ?><span><?php echo wp_kses_post( $feature ); ?></span></li>
 					<?php endforeach; ?>
 				</ul>
+
+				<?php if ( ! empty( $plan['value_driver'] ) ) : ?>
+					<p class="pricing-card__value-driver"><?php echo appiappi_icon( 'trending-up' ); ?><span><?php echo esc_html( $plan['value_driver'] ); ?></span></p>
+				<?php endif; ?>
 
 				<a href="<?php echo esc_url( $plan['cta_url'] ); ?>" class="btn <?php echo ! empty( $plan['featured'] ) ? 'btn-primary' : 'btn-secondary'; ?> btn-block">
 					<?php echo esc_html( $plan['cta_text'] ); ?>

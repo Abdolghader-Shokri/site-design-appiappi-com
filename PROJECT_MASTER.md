@@ -274,16 +274,41 @@ Attributes → Order = slide sequence).
 
 **Built as the `appiappi-pricing-plans` companion plugin** (§5, §7). The
 homepage pricing section (`template-parts/sections/pricing-preview.php`)
-calls the plugin's `[appiappi_pricing]` shortcode via
-`shortcode_exists( 'appiappi_pricing' )` when the plugin is active, and
-falls back to the theme's `appiappi_get_pricing_plans()` static array
-(`inc/template-tags.php`, still kept for this fallback) otherwise. Both
-paths render through the shared `appiappi_render_pricing_cards( $plans )`
-function so card markup lives in exactly one place. The local site has the
-plugin active with 4 seeded plans (Starter/Business/Professional/Growth)
-matching the original placeholder data — edit them under **Pricing
-Plans** in wp-admin. A dedicated `/pricing/` page with full comparison +
-FAQ (per [MASTER_PROMPT.md § Pricing Page](MASTER_PROMPT.md#pricing-page)) does not exist yet.
+and the dedicated `page-pricing.php` (slug `pricing`) both call the
+plugin's `[appiappi_pricing]` shortcode via `shortcode_exists()` when
+active, falling back to the theme's `appiappi_get_pricing_plans()` static
+array (`inc/template-tags.php`) otherwise. Both paths render through the
+shared `appiappi_render_pricing_cards( $plans )` function so card markup
+lives in exactly one place.
+
+**5 plans now exist**, each carrying (beyond the original price/period/
+note/features): `tagline` (a short punchy line under the plan name),
+`audience` ("Perfect for…", shown above the feature list), `value_driver`
+(a one-line ROI statement, shown as a highlighted callout above the CTA
+button), `group` (`launch` or `growth` — which section of the Pricing
+page a plan appears under), and `homepage_visible` (checkbox, default on
+— unchecking keeps a plan available on the full Pricing page only).
+Rewritten 2026-09-06 per the user's pricing-strategist brief — premium/
+authoritative language ("Optimised", "Managed", "Strategic"), explicit
+audience targeting per plan, and value-driver ROI framing.
+**Dollar amounts were deliberately left unchanged** ($199/$399/$699 one-
+time, $599/mo Growth, $899/mo SEO Growth) — the brief's "justify higher
+investment" was treated as a copy/positioning instruction, not a request
+to actually raise prices, since changing real pricing is a business
+decision that needs the user's explicit sign-off, not an inference from
+stylistic language (see DEVELOPMENT_LOG.md).
+
+- **Launch Tiers** (`group = launch`, one-time): Starter $199, Business $399, Professional $699 ("Most Popular").
+- **Growth Tiers** (`group = growth`, monthly): Growth $599/mo (`homepage_visible = true`), **SEO Growth $899/mo (new — `homepage_visible = false`, Pricing page only)**, matching the original spec's "may not need to be publicly visible at launch" guidance for this tier.
+- `[appiappi_pricing]` shortcode attributes: `homepage_only="1"` (only plans with `homepage_visible` checked — used by the homepage teaser) and `group="launch"`/`group="growth"` (used by the Pricing page's two sections).
+
+**`page-pricing.php`** (rewritten 2026-09-06): Launch Tiers section →
+Growth Tiers section → a "How Our Pricing Works" explainer (Setup Fees
+cover the one-time build; Monthly Subscriptions cover ongoing
+management/growth) → the FAQ accordion (per
+[MASTER_PROMPT.md § Pricing Page](MASTER_PROMPT.md#pricing-page) —
+**intentionally left untouched** in the 2026-09-06 rewrite per the user's
+explicit instruction) → the shared final CTA.
 
 ## 13. Template Library
 

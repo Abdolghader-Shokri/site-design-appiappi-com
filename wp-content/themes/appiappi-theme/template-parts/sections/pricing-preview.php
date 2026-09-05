@@ -16,9 +16,9 @@
 		</div>
 
 		<?php if ( shortcode_exists( 'appiappi_pricing' ) ) : ?>
-			<?php echo do_shortcode( '[appiappi_pricing]' ); ?>
+			<?php echo do_shortcode( '[appiappi_pricing homepage_only="1"]' ); ?>
 		<?php else : ?>
-			<?php echo appiappi_render_pricing_cards( appiappi_get_pricing_plans() ); ?>
+			<?php echo appiappi_render_pricing_cards( appiappi_get_pricing_plans( true ) ); ?>
 		<?php endif; ?>
 	</div>
 </section>

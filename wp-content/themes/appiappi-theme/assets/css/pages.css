@@ -332,6 +332,41 @@
 	}
 }
 
+/* ---------- Pricing explainer ---------- */
+
+.pricing-explainer {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-8);
+	max-width: 900px;
+	margin-inline: auto;
+}
+
+.pricing-explainer__col h3 {
+	font-size: var(--fs-lg);
+	margin-bottom: var(--space-2);
+}
+
+.pricing-explainer__col p {
+	margin-bottom: 0;
+}
+
+.pricing-explainer__note {
+	max-width: 900px;
+	margin: var(--space-8) auto 0;
+	padding: var(--space-5) var(--space-6);
+	background: var(--color-bg-subtle);
+	border-radius: var(--radius-md);
+	font-size: var(--fs-sm);
+	text-align: center;
+}
+
+@media (min-width: 768px) {
+	.pricing-explainer {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
 /* ---------- Contact ---------- */
 
 .contact-layout {

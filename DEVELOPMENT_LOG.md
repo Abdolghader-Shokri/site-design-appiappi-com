@@ -12,6 +12,39 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Pricing rewrite kept dollar amounts unchanged on purpose
+
+The pricing-strategist brief said "our current pricing looks too low and
+disconnected from our premium service value... justify higher
+investment." Read literally, that could mean either (a) rewrite the
+copy/positioning so the existing prices read as premium, or (b) actually
+raise the prices. Treated it as (a) only — the actual $199/$399/$699/
+$599/$899 figures are unchanged from the original master spec. Reasoning:
+this project's own rules (MASTER_PROMPT.md § Development Workflow Rules)
+say to flag rather than silently act on anything that "materially affects
+cost," and a pricing brief that's framed around tone/positioning
+("Optimised," "Managed," "Strategic," ROI framing) is a reasonable
+instruction to execute directly, but a real price increase is a business
+decision the user should make explicitly and knowingly — not one to infer
+from adjacent stylistic language. If real numbers should change, that's a
+one-line follow-up request, not something to guess at.
+
+## 2026-09-06 — SEO Growth's homepage_visible flag, not a new shortcode attribute pattern
+
+Adding the 5th plan (SEO Growth) revived a decision flagged back when the
+original 4 plans were built: MASTER_PROMPT.md says this tier "does not
+necessarily need to be publicly visible at launch... administrator must
+be able to activate it later." Rather than hard-coding "show 4 on the
+homepage, 5 on the Pricing page" in the templates, added a genuine
+per-plan `homepage_visible` checkbox (defaults to checked, so all 4
+original plans stay visible without any admin action) plus a `group`
+field (`launch`/`growth`) so the Pricing page can render two distinct
+sections. Both are read the same way as everything else in this plugin —
+through `[appiappi_pricing]` shortcode attributes (`homepage_only`,
+`group`) — rather than inventing a one-off filtering mechanism just for
+this plan, so the same toggles are available to any future plan the
+business owner adds.
+
 ## 2026-09-05 — Templates archive bypasses the native WP_Query loop on purpose
 
 Making `appiappi_template` a public CPT with `has_archive` gives WordPress

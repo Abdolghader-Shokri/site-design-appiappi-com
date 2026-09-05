@@ -238,6 +238,13 @@
 	margin-bottom: var(--space-1);
 }
 
+.pricing-card__tagline {
+	font-size: var(--fs-sm);
+	font-weight: var(--fw-semibold);
+	color: var(--plan-color);
+	margin-bottom: 0;
+}
+
 .pricing-card__price {
 	display: flex;
 	align-items: baseline;
@@ -259,6 +266,13 @@
 .pricing-card__note {
 	font-size: var(--fs-xs);
 	color: var(--color-text-muted);
+	margin-bottom: var(--space-3);
+}
+
+.pricing-card__audience {
+	font-size: var(--fs-xs);
+	font-style: italic;
+	color: var(--color-neutral-600);
 	margin-bottom: var(--space-6);
 }
 
@@ -285,6 +299,25 @@
 	flex-shrink: 0;
 	color: var(--plan-color);
 	margin-top: 2px;
+}
+
+.pricing-card__value-driver {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	font-size: var(--fs-xs);
+	font-weight: var(--fw-medium);
+	color: var(--color-neutral-800);
+	background: color-mix(in srgb, var(--plan-color) 10%, white);
+	border-radius: var(--radius-md);
+	padding: var(--space-3);
+	margin-bottom: var(--space-5);
+}
+
+.pricing-card__value-driver svg {
+	flex-shrink: 0;
+	color: var(--plan-color);
+	margin-top: 1px;
 }
 
 .pricing-card .btn {
