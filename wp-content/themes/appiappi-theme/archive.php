@@ -8,6 +8,7 @@ get_header();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<header class="page-header">
 		<div class="container">
 			<h1><?php echo wp_kses_post( get_the_archive_title() ); ?></h1>

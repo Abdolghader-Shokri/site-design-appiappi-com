@@ -9,6 +9,7 @@ while ( have_posts() ) :
 	the_post();
 	?>
 	<main id="main-content">
+		<?php appiappi_breadcrumbs(); ?>
 		<header class="page-header">
 			<div class="container">
 				<h1><?php the_title(); ?></h1>

@@ -10,6 +10,7 @@ $services = appiappi_get_services();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( 'Website design, hosting, SEO and support — everything your business website needs, in one place.', 'appiappi' ) ); ?>
 
 	<section class="section">

@@ -42,9 +42,14 @@ function appiappi_contact_handle_submission() {
 
 	$business           = isset( $_POST['appiappi_contact_business'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_business'] ) ) : '';
 	$phone              = isset( $_POST['appiappi_contact_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_phone'] ) ) : '';
+	$province           = isset( $_POST['appiappi_contact_province'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_province'] ) ) : '';
+	$website            = isset( $_POST['appiappi_contact_website'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_website'] ) ) : '';
 	$business_type      = isset( $_POST['appiappi_contact_business_type'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_business_type'] ) ) : '';
 	$interested_service = isset( $_POST['appiappi_contact_interested_service'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_interested_service'] ) ) : '';
 	$budget_range       = isset( $_POST['appiappi_contact_budget_range'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_budget_range'] ) ) : '';
+	$launch_date        = isset( $_POST['appiappi_contact_launch_date'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_launch_date'] ) ) : '';
+	$selected_design    = isset( $_POST['appiappi_contact_selected_design'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_selected_design'] ) ) : '';
+	$selected_plan      = isset( $_POST['appiappi_contact_selected_plan'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_selected_plan'] ) ) : '';
 
 	$post_id = wp_insert_post( array(
 		'post_type'   => 'appiappi_lead',
@@ -56,13 +61,19 @@ function appiappi_contact_handle_submission() {
 		update_post_meta( $post_id, '_appiappi_lead_email', $email );
 		update_post_meta( $post_id, '_appiappi_lead_business', $business );
 		update_post_meta( $post_id, '_appiappi_lead_phone', $phone );
+		update_post_meta( $post_id, '_appiappi_lead_province', $province );
+		update_post_meta( $post_id, '_appiappi_lead_website', $website );
 		update_post_meta( $post_id, '_appiappi_lead_business_type', $business_type );
 		update_post_meta( $post_id, '_appiappi_lead_interested_service', $interested_service );
 		update_post_meta( $post_id, '_appiappi_lead_budget_range', $budget_range );
+		update_post_meta( $post_id, '_appiappi_lead_launch_date', $launch_date );
+		update_post_meta( $post_id, '_appiappi_lead_selected_design', $selected_design );
+		update_post_meta( $post_id, '_appiappi_lead_selected_plan', $selected_plan );
 		update_post_meta( $post_id, '_appiappi_lead_message', $message );
 		update_post_meta( $post_id, '_appiappi_lead_status', 'new' );
+		update_post_meta( $post_id, '_appiappi_lead_source', $selected_design ? 'template_selection' : 'contact_form' );
 
-		appiappi_contact_send_notification_email( $name, $email, $business, $phone, $interested_service, $message, $post_id );
+		appiappi_contact_send_notification_email( $name, $email, $business, $phone, $interested_service, $message, $post_id, $selected_design, $selected_plan );
 	}
 
 	wp_safe_redirect( add_query_arg( 'appiappi_contact', 'success', $redirect_to ) . '#contact-form' );
@@ -70,21 +81,28 @@ function appiappi_contact_handle_submission() {
 }
 add_action( 'template_redirect', 'appiappi_contact_handle_submission' );
 
-function appiappi_contact_send_notification_email( $name, $email, $business, $phone, $interested_service, $message, $post_id ) {
+function appiappi_contact_send_notification_email( $name, $email, $business, $phone, $interested_service, $message, $post_id, $selected_design = '', $selected_plan = '' ) {
 	$to      = get_option( 'admin_email' );
-	$subject = sprintf( '[%s] New contact form submission from %s', get_bloginfo( 'name' ), $name );
-	$body    = implode( "\n", array(
+	$subject = $selected_design
+		? sprintf( '[%s] Design selected: %s (%s)', get_bloginfo( 'name' ), $selected_design, $name )
+		: sprintf( '[%s] New contact form submission from %s', get_bloginfo( 'name' ), $name );
+
+	$lines = array(
 		"Name: {$name}",
 		"Business: {$business}",
 		"Email: {$email}",
 		"Phone: {$phone}",
 		"Interested Service: {$interested_service}",
-		'',
-		'Message:',
-		$message,
-		'',
-		'View this lead: ' . admin_url( 'post.php?post=' . $post_id . '&action=edit' ),
-	) );
+	);
+	if ( $selected_design ) {
+		$lines[] = "Selected Design: {$selected_design}";
+		$lines[] = "Recommended Plan: {$selected_plan}";
+	}
+	$lines[] = '';
+	$lines[] = 'Message:';
+	$lines[] = $message;
+	$lines[] = '';
+	$lines[] = 'View this lead: ' . admin_url( 'post.php?post=' . $post_id . '&action=edit' );
 
-	wp_mail( $to, $subject, $body, array( 'Reply-To: ' . $email ) );
+	wp_mail( $to, $subject, implode( "\n", $lines ), array( 'Reply-To: ' . $email ) );
 }

@@ -120,3 +120,59 @@
 		} );
 	} );
 } )();
+
+/**
+ * Live search + style filtering for the template showcase (search box
+ * and style checkboxes only — category filtering stays a real page
+ * reload via query string + tax_query, see templates-preview.php /
+ * page-templates archive). Pure client-side: everything is already in
+ * the DOM, so no AJAX round trip is needed. No-ops entirely if the grid
+ * isn't on the page.
+ */
+( function () {
+	'use strict';
+
+	var grid = document.getElementById( 'templates-grid' );
+	if ( ! grid ) {
+		return;
+	}
+
+	var searchInput = document.getElementById( 'templates-search' );
+	var styleInputs = document.querySelectorAll( '.templates-style-filter' );
+	var countEl = document.getElementById( 'templates-count' );
+	var emptyEl = document.getElementById( 'templates-empty' );
+	var cards = grid.querySelectorAll( '.template-card' );
+
+	function apply() {
+		var query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+		var activeStyles = Array.prototype.filter
+			.call( styleInputs, function ( input ) { return input.checked; } )
+			.map( function ( input ) { return input.value; } );
+
+		var visibleCount = 0;
+		cards.forEach( function ( card ) {
+			var matchesSearch = ! query || ( card.dataset.search || '' ).indexOf( query ) !== -1;
+			var matchesStyle = ! activeStyles.length || activeStyles.indexOf( card.dataset.style || '' ) !== -1;
+			var visible = matchesSearch && matchesStyle;
+			card.hidden = ! visible;
+			if ( visible ) {
+				visibleCount++;
+			}
+		} );
+
+		if ( countEl ) {
+			var template = 1 === visibleCount ? countEl.dataset.singular : countEl.dataset.plural;
+			countEl.textContent = template.replace( '%d', visibleCount );
+		}
+		if ( emptyEl ) {
+			emptyEl.hidden = visibleCount !== 0;
+		}
+	}
+
+	if ( searchInput ) {
+		searchInput.addEventListener( 'input', apply );
+	}
+	styleInputs.forEach( function ( input ) {
+		input.addEventListener( 'change', apply );
+	} );
+} )();

@@ -10,6 +10,7 @@ get_header();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( 'News, guides and updates on websites, SEO and growing your business online.', 'appiappi' ) ); ?>
 
 	<section class="section">

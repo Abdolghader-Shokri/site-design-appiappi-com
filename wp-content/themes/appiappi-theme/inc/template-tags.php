@@ -355,7 +355,7 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 			<div class="card templates-sidebar__card">
 				<div class="templates-sidebar__search">
 					<?php echo appiappi_icon( 'search' ); ?>
-					<input type="search" placeholder="<?php esc_attr_e( 'Search templates…', 'appiappi' ); ?>" aria-label="<?php esc_attr_e( 'Search templates', 'appiappi' ); ?>">
+					<input type="search" id="templates-search" placeholder="<?php esc_attr_e( 'Search templates…', 'appiappi' ); ?>" aria-label="<?php esc_attr_e( 'Search templates', 'appiappi' ); ?>">
 				</div>
 
 				<?php if ( $categories ) : ?>
@@ -372,11 +372,11 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 				<?php endif; ?>
 
 				<?php if ( $styles ) : ?>
-					<div class="templates-sidebar__group">
+					<div class="templates-sidebar__group" id="templates-styles">
 						<p class="templates-sidebar__title"><?php esc_html_e( 'Style', 'appiappi' ); ?></p>
 						<?php foreach ( $styles as $style ) : ?>
 							<label class="templates-sidebar__checkbox">
-								<input type="checkbox"> <?php echo esc_html( $style ); ?>
+								<input type="checkbox" class="templates-style-filter" value="<?php echo esc_attr( $style ); ?>"> <?php echo esc_html( $style ); ?>
 							</label>
 						<?php endforeach; ?>
 					</div>
@@ -387,7 +387,7 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 
 		<div class="templates-main">
 			<div class="templates-main__toolbar">
-				<p class="templates-main__count">
+				<p class="templates-main__count" id="templates-count" data-singular="<?php esc_attr_e( 'Showing %d design', 'appiappi' ); ?>" data-plural="<?php esc_attr_e( 'Showing %d designs', 'appiappi' ); ?>">
 					<?php
 					printf(
 						/* translators: %d number of designs shown */
@@ -404,9 +404,9 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 			<?php if ( empty( $templates ) ) : ?>
 				<p><?php esc_html_e( 'No website designs published yet.', 'appiappi' ); ?></p>
 			<?php else : ?>
-				<div class="template-grid">
+				<div class="template-grid" id="templates-grid">
 					<?php foreach ( $templates as $template ) : ?>
-						<div class="card template-card">
+						<div class="card template-card" data-category="<?php echo esc_attr( $template['category'] ); ?>" data-style="<?php echo esc_attr( $template['style'] ?? '' ); ?>" data-search="<?php echo esc_attr( strtolower( $template['name'] . ' ' . $template['desc'] . ' ' . $template['category'] ) ); ?>">
 							<div class="template-card__media">
 								<?php if ( ! empty( $template['image'] ) ) : ?>
 									<img src="<?php echo esc_url( $template['image'] ); ?>" alt="<?php echo esc_attr( $template['name'] ); ?>" loading="lazy">
@@ -433,6 +433,7 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 						</div>
 					<?php endforeach; ?>
 				</div>
+				<p id="templates-empty" class="templates-empty-state" hidden><?php esc_html_e( 'No designs match your search/filters. Try clearing them.', 'appiappi' ); ?></p>
 			<?php endif; ?>
 
 			<div class="templates-preview__footer">

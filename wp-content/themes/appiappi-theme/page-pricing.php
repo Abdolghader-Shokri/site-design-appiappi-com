@@ -11,6 +11,7 @@ get_header();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( 'Compare plans and find the right fit for your business — from a one-time launch to ongoing growth.', 'appiappi' ) ); ?>
 
 	<section class="section" id="pricing">

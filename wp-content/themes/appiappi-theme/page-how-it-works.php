@@ -9,6 +9,7 @@ $steps = appiappi_get_how_it_works_steps();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( 'From choosing a design to ongoing growth — here is exactly what happens.', 'appiappi' ) ); ?>
 
 	<section class="section">

@@ -2,6 +2,37 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-05 — Phase 3 & 4: Template Library completion, SEO/Settings/Security
+
+### Added
+- `appiappi_template` CPT is now `public`, with `has_archive => 'templates'` and `rewrite => ['slug' => 'templates']` — `/templates/` and `/templates/{slug}/` are real WordPress URLs. Also gained `editor` support so admins can write a fuller detail-page description (falls back to the short "Short Description" meta if empty).
+- `archive-appiappi_template.php`: the full Website Designs library (every published design, always the full sidebar), driving off the same `appiappi_showcase_get_templates()`/`_get_categories()`/`_get_styles()` functions the shortcode uses.
+- `single-appiappi_template.php`: the design detail page (preview, description, rating/price, original vendor credit + source link, Live Demo, "Choose This Design").
+- `appiappi_showcase_map_post( $post )` (in the plugin) — the one place a template post gets mapped to the render-ready array shape, shared by the shortcode's query loop and both new templates.
+- Live, client-side style + search filtering on the templates archive (`assets/js/main.js`, new IIFE) — every card already carries `data-style`/`data-search` attributes from the shared render function, so no AJAX round trip is needed; the "Showing N designs" count and an empty-state message update live. Category filtering stays a real page reload (`?appiappi_category=`), unchanged.
+- Selection workflow: a design's "Choose This Design" button links to `/contact/?design=<name>&plan=<slug>`. The `appiappi-contact` plugin's shortcode reads those, shows a "You selected: X — Recommended plan: Y" banner, and carries them into the Lead as `selected_design`/`selected_plan` meta (`source` becomes `template_selection`). New Contact form fields to support this and the broader spec: Province (Canadian provinces/territories), Current Website, Preferred Launch Date.
+- New Settings → Appiappi Settings admin page (`inc/admin/settings-page.php`): Default SEO Title/Description, Google Analytics Measurement ID, Google Search Console verification code, Meta Pixel ID, Business Hours, Currency, and raw Header/Footer Scripts — stored as one option, read via `appiappi_get_setting( $key )`.
+- `inc/seo.php`: meta description, Open Graph + Twitter Card tags, `LocalBusiness` JSON-LD schema (from existing Customizer contact/social fields — no duplicate data entry), conditional GA/GSC/Meta Pixel/custom-script output (only when configured), and `appiappi_breadcrumbs()` — wired into every non-homepage template.
+- `inc/security.php`: removes the WP version generator tag, disables XML-RPC, adds baseline security response headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`), and a generic login error message.
+- Real "Primary Menu" nav item for Website Designs now points at `/templates/` instead of the homepage's `#templates` anchor.
+
+### Changed
+- `.gitignore`: no new plugin folders this round (all six already tracked).
+
+### Files Modified
+- `wp-content/plugins/appiappi-template-showcase/includes/cpt.php`, `includes/shortcode.php`
+- `wp-content/plugins/appiappi-contact/includes/shortcode.php`, `includes/handler.php`, `includes/cpt.php`
+- `wp-content/themes/appiappi-theme/archive-appiappi_template.php`, `single-appiappi_template.php` (new)
+- `wp-content/themes/appiappi-theme/inc/admin/settings-page.php`, `inc/seo.php`, `inc/security.php` (new), `functions.php`, `inc/template-tags.php`
+- `wp-content/themes/appiappi-theme/assets/css/home.css`, `assets/css/pages.css`, `assets/js/main.js`
+- 9 page templates + `home.php`/`archive.php`/`single.php`: added `appiappi_breadcrumbs()` calls
+- `PROJECT_MASTER.md`, `MASTER_PROMPT.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- Full-site smoke test: all 13 URLs (homepage, 7 static pages, blog index, templates archive, 3 template details) return HTTP 200 with no PHP errors in `debug.log`.
+- Verified: GA/tracking scripts genuinely absent by default and only appear once a Measurement ID is saved (tested via `wp option update` then reverted); a simulated Lead submission correctly stored the new selection-workflow meta fields; JSON-LD schema correctly omits fields the admin hasn't filled in (no fabricated address/phone).
+- Phase 3 and Phase 4 (per MASTER_PROMPT.md's Development Phases) are both now complete. Remaining: Phase 5 (customer portal, support system, staff architecture, payment architecture) and packaging theme + all 6 plugins as installable zips (still pending from Phase 1.5).
+
 ## 2026-09-05 — Phase 2: Services/How It Works/About/Contact/FAQ/Portfolio/Blog
 
 ### Added

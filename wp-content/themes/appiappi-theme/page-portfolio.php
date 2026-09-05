@@ -11,6 +11,7 @@ get_header();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( 'A look at websites we have designed, launched and managed for Canadian businesses.', 'appiappi' ) ); ?>
 
 	<section class="section">

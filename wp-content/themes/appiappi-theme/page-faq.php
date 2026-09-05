@@ -10,6 +10,7 @@ get_header();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( "Answers to the questions we hear most from Canadian business owners.", 'appiappi' ) ); ?>
 
 	<section class="section">

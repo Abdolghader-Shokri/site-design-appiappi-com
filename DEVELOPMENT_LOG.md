@@ -12,6 +12,73 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-05 — Templates archive bypasses the native WP_Query loop on purpose
+
+Making `appiappi_template` a public CPT with `has_archive` gives WordPress
+a real, working main query for `/templates/` automatically. Even so,
+`archive-appiappi_template.php` doesn't use `have_posts()`/`the_post()` —
+it calls `appiappi_showcase_get_templates( -1, $category_filter )`
+directly, the exact same function the `[appiappi_templates]` shortcode
+and the homepage teaser use. Reason: the homepage teaser, the shortcode,
+and this archive all need to agree on exactly how a template post becomes
+render-ready data (which meta keys, which image size, what the fallback
+values are) — routing the archive through WordPress's own query would
+mean re-implementing that mapping a second time (or hooking
+`pre_get_posts` to make the main query aware of `?appiappi_category=`,
+adding a second, subtler translation layer for no real benefit). Calling
+the same function directly is simpler and guarantees the three surfaces
+never drift apart. The only cost: `is_post_type_archive()` etc. still
+work for template-hierarchy purposes and (in `inc/seo.php`) breadcrumbs,
+since WordPress still resolves which *template file* to load the normal
+way — only the in-template data source changes.
+
+## 2026-09-05 — Selection workflow reuses the Contact form, not a new system
+
+MASTER_PROMPT.md describes "Choose This Design" as starting a distinct
+lead/onboarding flow with its own field set (province, website, industry,
+selected design, selected plan, notes, launch date) — reads like a
+separate form. Built it instead as an *extension* of the existing Contact
+form/Lead system: added Province, Current Website, and Preferred Launch
+Date as fields on the one Contact form (useful for any lead, not just
+design-selection ones), and made the form conditionally show a "You
+selected…" banner + two hidden fields when it's reached via
+`?design=&plan=` from a template's detail page. Reasoning: a second
+parallel form + a second data path into the same `appiappi_lead` CPT
+would double the surface area to maintain for a workflow that is, at the
+data level, "a contact form submission that happens to know which design
+prompted it." If the two flows' fields meaningfully diverge later
+(e.g. "Interested Service" makes sense for general contact but not really
+for a design-selection lead), split them then — not preemptively.
+
+## 2026-09-05 — Header/Footer Scripts field is unescaped by design, not an oversight
+
+`appiappi_settings_sanitize()` explicitly does NOT run the `header_scripts`/
+`footer_scripts` fields through any escaping/stripping function, while every
+other settings field does. This looks like a missed `sanitize_text_field()`
+call but isn't: the field's entire purpose is to let the site owner paste
+arbitrary tracking/verification snippets (GTM containers, chat widgets,
+etc.) into `<head>`/before `</body>`. Escaping it would break that use
+case outright. The actual security boundary is upstream: saving this
+option requires `manage_options` (enforced by the Settings API + nonce
+before `appiappi_settings_sanitize()` even runs), the same trust level as
+editing theme/plugin PHP files directly. Documented in both
+`PROJECT_MASTER.md` §8/§21 and inline in `settings-page.php` so it isn't
+"fixed" into a broken feature later.
+
+## 2026-09-05 — SEO output steps aside if a real SEO plugin is active
+
+`inc/seo.php`'s meta description, Open Graph, and JSON-LD output all check
+`appiappi_has_seo_plugin()` first (looks for Yoast/Rank Math/AIOSEO
+constants/classes) and do nothing if any is found. This project's own
+output is a lightweight baseline, not a competitor to those — if the
+business later installs a dedicated SEO plugin (likely, once real content
+marketing/SEO work starts per the Growth plan's ongoing-SEO promise), the
+theme's tags would otherwise either duplicate the plugin's (bad — search
+engines get confused by conflicting `<meta name="description">` tags) or
+silently fight over which one "wins" depending on hook priority. Stepping
+aside entirely is simpler and safer than trying to coordinate with an
+unknown future plugin's internals.
+
 ## 2026-09-05 — Contact form intentionally breaks the shared-render-function convention
 
 Every other companion plugin (Pricing Plans, Template Showcase, Hero

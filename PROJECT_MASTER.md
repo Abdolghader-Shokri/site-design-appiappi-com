@@ -113,13 +113,18 @@ site-design-appiappi-com/               (git repo root — NOT the WP root)
     │       ├── page-faq.php
     │       ├── page-portfolio.php
     │       ├── page-pricing.php
+    │       ├── archive-appiappi_template.php   Website Designs archive (/templates/) — see § 13
+    │       ├── single-appiappi_template.php    Website Design detail page — see § 13
     │       ├── header.php              <head>, wp_head, opens <body>, includes site-header part
     │       ├── footer.php              Includes site-footer part, wp_footer, closes </body></html>
     │       ├── inc/
     │       │   ├── setup.php           Theme supports, nav menu locations, image sizes, favicon, dequeues core block CSS
     │       │   ├── enqueue.php         All CSS/JS registration, in dependency order; Google Fonts preconnect+enqueue
     │       │   ├── customizer.php      Native Customizer: brand colour, header CTA, contact info, social links, footer tagline
-    │       │   └── template-tags.php   Icons, nav fallback, page header, pagination, placeholder data + shared render functions (see § 12, § 13, § 11a, § 14a, § 14b)
+    │       │   ├── template-tags.php   Icons, nav fallback, page header, pagination, placeholder data + shared render functions (see § 12, § 13, § 11a, § 14a, § 14b)
+    │       │   ├── seo.php             Meta/OG/Twitter tags, LocalBusiness JSON-LD, analytics/tracking output, breadcrumbs — see § 16
+    │       │   ├── security.php        Baseline hardening (generator tag, XML-RPC, security headers) — see § 15
+    │       │   └── admin/settings-page.php   Settings → Appiappi Settings (SEO defaults, analytics IDs, tracking scripts) — see § 8
     │       ├── template-parts/
     │       │   ├── header/site-header.php
     │       │   ├── footer/site-footer.php
@@ -172,6 +177,19 @@ Implemented now via the native Customizer (`inc/customizer.php`):
 Logo/favicon use core's built-in `custom-logo` theme support and Site Icon —
 no custom code needed; set both under **Appearance → Customize → Site
 Identity**.
+
+**Advanced/technical settings (Phase 4)** live on a separate native
+Settings API page — **Settings → Appiappi Settings**
+(`inc/admin/settings-page.php`), stored as one option (`appiappi_settings`)
+read via `appiappi_get_setting( $key, $default )`: Default SEO Title,
+Default Meta Description, Google Analytics Measurement ID, Google Search
+Console verification code, Meta Pixel ID, Business Hours, Currency
+Symbol/Code, and raw Header/Footer Scripts. Deliberately a separate page
+from the Customizer — these are back-office/technical fields with no live
+preview, not visual brand settings. The Header/Footer Scripts fields are
+saved and echoed **unescaped by design** (their whole purpose is to inject
+admin-supplied markup); access is gated by the Settings API's own
+`manage_options` capability check, not by escaping.
 
 Advanced settings (Analytics ID, Search Console verification, tracking
 scripts, currency/pricing display, cookie settings) are **not implemented**
@@ -278,17 +296,31 @@ placeholders otherwise), and both paths render through the shared
 `appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar )`
 function in `inc/template-tags.php`.
 
-**What's real:** category links in the sidebar work — clicking one sets
-`?appiappi_category=<slug>` and reloads the page, which the theme reads
-and passes to the shortcode's `category` attribute, which does a real
-`tax_query` against `appiappi_template_category`. No JavaScript involved.
+**Now complete (Phase 3).** `appiappi_template` is a **public** CPT with
+`has_archive => 'templates'` and `rewrite => ['slug' => 'templates']` — so
+`/templates/` and `/templates/{design-slug}/` are real WordPress URLs, not
+a shortcode embedded in a static Page.
 
-**What's still presentational only:** the style checkboxes and the search
-input don't filter anything yet — that would need client-side/AJAX
-behaviour, out of scope for this pass. A dedicated `/templates/` archive
-page (unbounded browsing, not just the homepage's 3-card teaser) and
-individual template detail pages don't exist yet — see
-[MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library).
+- **`archive-appiappi_template.php`** — the full browsable library. Calls
+  `appiappi_showcase_get_templates( -1, $category_filter )` directly
+  (bypassing the main WP archive query, same data function the shortcode
+  uses) so it always shows *every* published design, with the full
+  sidebar. Category links still work via `?appiappi_category=<slug>` +
+  `tax_query` (real page reload). **Style checkboxes and the search box
+  are now live, client-side JS** (`assets/js/main.js`, third IIFE) —
+  every card already carries `data-style`/`data-search` attributes from
+  the shared render function, so filtering needs no AJAX round trip; the
+  visible count and an empty-state message update live too.
+- **`single-appiappi_template.php`** — the detail page: category badge,
+  featured image, a real content-editor description (falls back to the
+  short "Short Description" meta field if the editor is empty — the CPT
+  gained `editor` support for this), rating/price, original vendor credit
+  + source link when set, Live Demo button, and **"Choose This Design"**
+  — the selection workflow entry point (§14c).
+- `appiappi_showcase_map_post( $post )` (in the plugin's `includes/shortcode.php`)
+  is the one place a template post gets turned into the render-ready
+  array shape — used by the shortcode's query loop AND both new
+  templates, so nothing is duplicated.
 
 The local site has the plugin active with 6 categories, 4 styles, and 3
 seeded designs (Construction Pro / Justice Law / Dental Clinic) matching
@@ -321,8 +353,9 @@ All three share a `.page-header` band (title + optional subtitle) via `appiappi_
 
 **Built as the `appiappi-contact` companion plugin** — the one companion plugin that does **not** follow the shared-theme-render-function pattern the other five use, on purpose: an inert placeholder form with no working handler behind it would be actively misleading, so when this plugin is inactive, `page-contact.php` shows a simple mailto/phone message (from the Customizer contact fields) instead of a fake copy of the form.
 
-- CPT `appiappi_lead` — every submission becomes one Lead (title `"{name} — {business}"`), fully visible/manageable in wp-admin (`_appiappi_lead_*` meta: email, business, phone, business_type, interested_service, budget_range, message, status). A meta box shows all fields read-only except **Status** (New/Contacted/Qualified/Proposal/Won/Lost — editable, saved via `save_post_appiappi_lead`).
-- Shortcode `[appiappi_contact_form]` renders the form (name, business, email, phone, business type, interested service, budget range, message — per [MASTER_PROMPT.md § Forms & Lead Management](MASTER_PROMPT.md#forms--lead-management)) with a honeypot field for basic spam protection.
+- CPT `appiappi_lead` — every submission becomes one Lead (title `"{name} — {business}"`), fully visible/manageable in wp-admin (`_appiappi_lead_*` meta: email, business, phone, province, website, business_type, interested_service, budget_range, launch_date, selected_design, selected_plan, source, message, status). A meta box shows all fields read-only except **Status** (New/Contacted/Qualified/Proposal/Won/Lost — editable, saved via `save_post_appiappi_lead`).
+- Shortcode `[appiappi_contact_form]` renders the form (name, business, email, phone, province, current website, business type, interested service, budget range, preferred launch date, message — per [MASTER_PROMPT.md § Forms & Lead Management](MASTER_PROMPT.md#forms--lead-management)) with a honeypot field for basic spam protection.
+- **Selection workflow (Phase 3, § Website Template Library)**: a template's detail page "Choose This Design" button links to `/contact/?design=<name>&plan=<slug>`. The shortcode reads those, shows a "You selected: X — Recommended plan: Y" banner above the form, and carries them through as hidden fields into the Lead's `selected_design`/`selected_plan` meta (`source` meta becomes `template_selection` instead of `contact_form`). No separate form/page was built for this — it reuses the same Contact form and Lead system, just pre-filled and tagged.
 - Submission handling lives on `template_redirect` (`includes/handler.php`), **not** in the shortcode callback — a shortcode runs too late in the page lifecycle to `wp_safe_redirect()` before output starts. Verifies the nonce, validates required fields (name/email/message), silently no-ops obvious bot submissions (honeypot filled) while still redirecting to the success state, creates the Lead + meta, sends an admin notification email (`wp_mail`, Reply-To set to the submitter), then does a Post/Redirect/Get redirect back to the referring page with `?appiappi_contact=success` or `=error` — so a page refresh never resubmits the form.
 - **Known UX gap:** on a validation error, the redirect does not preserve the visitor's entered values — they have to re-type the form. Acceptable for this pass; would need a transient or session to fix properly.
 
@@ -339,30 +372,54 @@ WordPress's default "Hello world!" post, "Sample Page", and the default comment 
 
 ## 15. Security
 
-Standard WordPress escaping/sanitization conventions are followed throughout
-the theme (`esc_html`, `esc_attr`, `esc_url`, `sanitize_text_field`,
-`sanitize_hex_color`, `esc_url_raw` on every Customizer setting). No forms,
-CPT admin screens, or AJAX endpoints exist yet, so nonce/capability
-review will happen when those are added (Phase 2+).
+Standard WordPress escaping/sanitization conventions are followed
+throughout the theme and every plugin (`esc_html`, `esc_attr`, `esc_url`,
+`sanitize_text_field`, `sanitize_hex_color`, `esc_url_raw`, nonces +
+`current_user_can()` checks on every meta box save and the contact form
+handler). `inc/security.php` (Phase 4) adds baseline hardening safe to set
+from theme code:
+
+- Removes the WordPress version generator meta tag (`wp_generator`) and empties `the_generator`.
+- Disables XML-RPC (`xmlrpc_enabled` filter) — this site uses neither Jetpack nor remote publishing clients.
+- Adds `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin` response headers via `send_headers`.
+- Generic (non-account-confirming) login error message.
+
+**Not settable from theme code — needs wp-config.php** (untracked, outside
+this repo, per environment): add `define( 'DISALLOW_FILE_EDIT', true );`
+(disables the wp-admin theme/plugin file editor) to the production
+wp-config.php when deploying. Real caching/HSTS/CSP policy belongs at the
+hosting/CDN layer, not hard-coded here.
 
 ## 16. SEO
 
-Semantic HTML (`<header>`, `<main>`, `<footer>`, single `<h1>` on the
-homepage, logical heading order), `title-tag` theme support (lets WordPress
-manage `<title>`), responsive images, no keyword stuffing. No SEO plugin,
-schema markup, sitemap, or meta-description system yet — planned for Phase
-4 per [MASTER_PROMPT.md § SEO](MASTER_PROMPT.md#seo).
+Semantic HTML (`<header>`, `<main>`, `<footer>`, single `<h1>` per page,
+logical heading order), `title-tag` theme support, responsive images, no
+keyword stuffing, clean permalink structure. Breadcrumbs
+(`appiappi_breadcrumbs()` in `inc/seo.php`) on every non-front-page
+template. WordPress core's built-in XML sitemaps (`/wp-sitemap.xml`,
+available since WP 5.5) are untouched/enabled.
+
+`inc/seo.php` (Phase 4) adds, **only when no SEO plugin is active**
+(`appiappi_has_seo_plugin()` checks for Yoast/Rank Math/AIOSEO and bails
+if found, to avoid duplicate/conflicting tags):
+- `<meta name="description">` (from the post excerpt on singular content, else the Settings page's Default Meta Description).
+- Open Graph (`og:type`, `og:title`, `og:description`, `og:url`, `og:site_name`, `og:image` when a featured image exists) + Twitter Card tags.
+- `LocalBusiness` JSON-LD schema built from the same Customizer contact/social fields the header/footer already use — no duplicate data entry, and nothing is output for fields the admin hasn't filled in (no fabricated address/phone).
+- Google Analytics (gtag.js), Search Console verification meta tag, and Meta Pixel — **only load if configured** in Settings → Appiappi Settings, so there's zero third-party request overhead by default.
 
 ## 17. Performance
 
 `wp-block-library`, `classic-theme-styles` and `global-styles` core CSS are
 dequeued (theme has no Gutenberg-frontend dependency). CSS is split into
 small, cacheable files loaded in dependency order; homepage-only CSS
-(`home.css`) is enqueued conditionally via `is_front_page()`. JS is a single
-small vanilla file, deferred via `wp_enqueue_script(..., true)` (footer).
-Fonts load from Google Fonts with a `preconnect` resource hint — flagged as
-a `TODO(perf)` in `inc/enqueue.php` to self-host once the design is locked.
-The hero visual is a hand-drawn inline-referenced SVG (no large photo yet).
+(`home.css`) vs. every-other-page CSS (`pages.css`) are enqueued
+conditionally via `is_front_page()`. JS is a small vanilla file (no
+framework), deferred via `wp_enqueue_script(..., true)` (footer). Fonts
+load from Google Fonts with a `preconnect` resource hint — flagged as a
+`TODO(perf)` in `inc/enqueue.php` to self-host once the design is locked.
+The hero visual is a hand-drawn inline-referenced SVG (no large photo
+yet). Analytics/tracking scripts (§16) only load when explicitly
+configured, so there's no unconditional third-party request cost.
 
 ## 18. Responsive Design
 
@@ -435,14 +492,15 @@ is committed to the repo since it's WordPress database state, not code.
 ## 21. Known Limitations
 
 - All six companion plugins (Pricing Plans, Template Showcase, Hero Slideshow, FAQ, Portfolio, Contact) are built — none are in the hard-coded-placeholder state anymore. Theme placeholder functions/fallbacks remain only for graceful degradation if a plugin gets deactivated.
-- Template Showcase's style checkboxes and search box are visual only — no filtering. Category links, however, do work (§13).
-- No admin Settings page — only Customizer options exist (advanced settings like Analytics ID, GTM, tracking scripts remain unbuilt, per MASTER_PROMPT.md § Site Settings, Phase 4).
+- Template Showcase's category links do a real filtered page reload; style checkboxes + search are live client-side JS (§13). Nothing presentational-only remains here.
+- `/templates/` archive + detail pages are real WordPress URLs now (§13) — the header nav's "Website Designs" link and `appiappi_nav_fallback()` both correctly point at `/templates/`.
 - Hero slides currently have no real photographs — the placeholder skyline SVG shows whenever a slide has no Featured Image set (§11a). Not itself a bug (it's the intended graceful fallback), but replace with real photos before launch.
 - Homepage hero's Google-rating card renders as an empty/neutral placeholder — `appiappi_get_google_rating()` returns `null` on purpose, do not hardcode a rating (see [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md)).
 - Portfolio has no real client projects yet — the 3 seeded entries are explicitly labelled "Concept" (§14b); replace with real work once available, and un-check "Concept Project" per entry when you do.
 - Contact form validation errors don't preserve the visitor's entered field values on redirect (§14c) — minor, documented UX gap.
-- No `/templates/` archive page or template detail pages yet (Template Showcase's shortcode/CPT exist, but the full browsable library with live search/filter doesn't) — the header nav's "Website Designs" link points at the homepage's `#templates` anchor instead, and `appiappi_nav_fallback()` still references a `/templates/` page slug that doesn't exist (only relevant if the real nav menu is ever removed).
 - No Case Study CPT yet (Portfolio Project exists; Case Studies were listed separately in the original spec and are deferred).
+- SEO/security (§15–16) are a solid baseline, not a full audit or a substitute for a dedicated SEO/security plugin if the business later wants one — `appiappi_has_seo_plugin()` already steps aside if Yoast/Rank Math/AIOSEO is installed.
+- The Settings → Appiappi Settings Header/Footer Scripts fields execute exactly what's pasted into them, unescaped, by design (see §15) — this is a capability-gated power-user field, not a bug; don't paste untrusted script into it.
 - No build step / asset bundling — files are enqueued individually; fine at current size, revisit if the CSS/JS footprint grows significantly.
 - No automated tests, no CI.
 - Not yet accessibility-audited beyond the manual measures in § 19.
@@ -485,8 +543,8 @@ than duplicated here — grep for `TODO` to find them all.
 | 1 | Architecture, design system, theme skeleton, Customizer settings, header, footer, homepage, responsive foundation, docs | **Done** — visuals approved by the user |
 | 1.5 | Companion Plugin Architecture: Pricing Plans, Template Showcase, Hero Slideshow plugins | **Done** — all three built, active, and seeded; next: packaging (§ below) or move to Phase 2 |
 | 2 | Services/How It Works/About/Contact pages, FAQ, Portfolio, Blog | **Done** — see §14–14d. Case Studies deferred (not in the original page list's CPT set) |
-| 3 | Template Showcase: live search/filters (JS), `/templates/` archive page, template detail pages, selection workflow | CPT + taxonomies + shortcode already done (§13); the rest not started |
-| 4 | Admin Settings page, SEO foundation, performance/security hardening | Lead management CPT/form done early as part of Phase 2 (§14c) since Contact needed it; the rest not started |
+| 3 | Template Showcase: live search/filters (JS), `/templates/` archive page, template detail pages, selection workflow | **Done** — see §13 |
+| 4 | Admin Settings page, SEO foundation, performance, security hardening | **Done** — see §8, §15–17. Lead management CPT/form was done early as part of Phase 2 (§14c) |
 | 5 | Customer portal, support system, staff accounts, payment architecture | Not started |
 
 ## 28. File Location Map
@@ -532,3 +590,11 @@ than duplicated here — grep for `TODO` to find them all.
 | Single post | `single.php` | Title, meta, featured image, content | Edit here |
 | Category/tag archives | `archive.php` | Same post grid as the blog index | Edit here |
 | Blog post card | `template-parts/content/post-card.php` | One card in the grid | Edit here (used by both `home.php` and `archive.php`) |
+| Website Designs archive | `archive-appiappi_template.php` (native CPT archive, `/templates/`) | Full sidebar + grid of every published design | Edit layout here; actual designs/categories/styles via **Website Designs** in wp-admin |
+| Website Design detail page | `single-appiappi_template.php` (native CPT single, `/templates/{slug}/`) | Preview, description, vendor credit, "Choose This Design" (selection workflow) | Edit here; content via the design's own edit screen |
+| Template card/detail data mapping | `wp-content/plugins/appiappi-template-showcase/includes/shortcode.php` | `appiappi_showcase_map_post( $post )` | The one place a template post → render-array mapping happens; used by the shortcode query loop and both new templates |
+| Live style/search filtering | `assets/js/main.js` | Client-side filter on `#templates-grid` | Fourth IIFE in the file; category filtering stays server-side (real page reload), see §13 |
+| Selection workflow | `single-appiappi_template.php` "Choose This Design" link → `wp-content/plugins/appiappi-contact/includes/shortcode.php` (reads `?design=`/`?plan=`) | Pre-fills + tags a Contact/Lead submission with the chosen design/plan | Edit the link's `plan` query value here; edit the banner/hidden-fields logic in the contact shortcode |
+| Admin Settings page | `inc/admin/settings-page.php` (Settings → Appiappi Settings) | SEO defaults, GA/GSC/Meta Pixel IDs, business hours, currency, header/footer scripts | Add new fields to `appiappi_settings_fields()`; read a value anywhere with `appiappi_get_setting( $key )` |
+| SEO output (meta/OG/schema/tracking/breadcrumbs) | `inc/seo.php` | `appiappi_output_meta_tags()`, `appiappi_output_schema()`, `appiappi_output_tracking_head()`/`_footer()`, `appiappi_breadcrumbs()` | Edit here; all skip themselves automatically if a real SEO plugin (Yoast/Rank Math/AIOSEO) is active |
+| Security hardening | `inc/security.php` | Generator tag removal, XML-RPC disable, security response headers | Edit here; `DISALLOW_FILE_EDIT` must go in wp-config.php instead, see §15 |

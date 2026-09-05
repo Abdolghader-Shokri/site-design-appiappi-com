@@ -516,6 +516,12 @@
 	flex: 1;
 }
 
+.templates-empty-state {
+	text-align: center;
+	color: var(--color-text-muted);
+	padding-block: var(--space-10);
+}
+
 .templates-preview__footer {
 	text-align: center;
 	margin-top: var(--space-10);

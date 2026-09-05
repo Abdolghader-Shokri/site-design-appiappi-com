@@ -11,6 +11,7 @@ get_header();
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header(); ?>
 
 	<article class="section">

@@ -22,8 +22,22 @@ function appiappi_contact_form_budget_ranges() {
 	return array( __( 'Under $500', 'appiappi-contact' ), __( '$500 – $1,000', 'appiappi-contact' ), __( '$1,000 – $2,500', 'appiappi-contact' ), __( '$2,500+', 'appiappi-contact' ) );
 }
 
+/**
+ * Canadian provinces & territories, for the selection-workflow's
+ * Province field (§ Website Template Library selection workflow).
+ */
+function appiappi_contact_form_provinces() {
+	return array( 'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Northwest Territories', 'Nunavut', 'Yukon' );
+}
+
 function appiappi_contact_form_shortcode() {
 	$services = function_exists( 'appiappi_get_services' ) ? wp_list_pluck( appiappi_get_services(), 'name' ) : array();
+
+	// Selection workflow: arrived via a template's "Choose This Design" link.
+	$selected_design = isset( $_GET['design'] ) ? sanitize_text_field( wp_unslash( $_GET['design'] ) ) : '';
+	$selected_plan   = isset( $_GET['plan'] ) ? sanitize_text_field( wp_unslash( $_GET['plan'] ) ) : '';
+	$plan_labels     = array( 'starter' => __( 'Starter', 'appiappi-contact' ), 'business' => __( 'Business', 'appiappi-contact' ), 'professional' => __( 'Professional', 'appiappi-contact' ), 'growth' => __( 'Growth', 'appiappi-contact' ) );
+	$selected_plan_label = $plan_labels[ strtolower( $selected_plan ) ] ?? $selected_plan;
 
 	ob_start();
 	?>
@@ -34,9 +48,26 @@ function appiappi_contact_form_shortcode() {
 			<div class="form-notice form-notice--error"><?php esc_html_e( 'Please fill in your name, email and message, then try again.', 'appiappi-contact' ); ?></div>
 		<?php endif; ?>
 
+		<?php if ( $selected_design ) : ?>
+			<div class="form-notice form-notice--success">
+				<?php
+				printf(
+					/* translators: 1: selected design name, 2: recommended plan name */
+					esc_html__( 'You selected: %1$s — Recommended plan: %2$s', 'appiappi-contact' ),
+					'<strong>' . esc_html( $selected_design ) . '</strong>',
+					'<strong>' . esc_html( $selected_plan_label ?: __( 'Not sure yet', 'appiappi-contact' ) ) . '</strong>'
+				);
+				?>
+			</div>
+		<?php endif; ?>
+
 		<form method="post" action="<?php echo esc_url( add_query_arg( null, null ) ); ?>">
 			<?php wp_nonce_field( 'appiappi_contact_submit', 'appiappi_contact_nonce' ); ?>
 			<input type="text" name="appiappi_contact_hp" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute; left:-9999px;">
+			<?php if ( $selected_design ) : ?>
+				<input type="hidden" name="appiappi_contact_selected_design" value="<?php echo esc_attr( $selected_design ); ?>">
+				<input type="hidden" name="appiappi_contact_selected_plan" value="<?php echo esc_attr( $selected_plan_label ); ?>">
+			<?php endif; ?>
 
 			<div class="form-grid">
 				<div class="form-field">
@@ -54,6 +85,19 @@ function appiappi_contact_form_shortcode() {
 				<div class="form-field">
 					<label for="appiappi_contact_phone"><?php esc_html_e( 'Phone', 'appiappi-contact' ); ?></label>
 					<input type="tel" id="appiappi_contact_phone" name="appiappi_contact_phone">
+				</div>
+				<div class="form-field">
+					<label for="appiappi_contact_province"><?php esc_html_e( 'Province', 'appiappi-contact' ); ?></label>
+					<select id="appiappi_contact_province" name="appiappi_contact_province">
+						<option value=""><?php esc_html_e( 'Select one', 'appiappi-contact' ); ?></option>
+						<?php foreach ( appiappi_contact_form_provinces() as $province ) : ?>
+							<option value="<?php echo esc_attr( $province ); ?>"><?php echo esc_html( $province ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="form-field">
+					<label for="appiappi_contact_website"><?php esc_html_e( 'Current Website (if any)', 'appiappi-contact' ); ?></label>
+					<input type="text" id="appiappi_contact_website" name="appiappi_contact_website" placeholder="yourbusiness.ca">
 				</div>
 				<div class="form-field">
 					<label for="appiappi_contact_business_type"><?php esc_html_e( 'Business Type', 'appiappi-contact' ); ?></label>
@@ -74,7 +118,7 @@ function appiappi_contact_form_shortcode() {
 						<option value="<?php esc_attr_e( 'Not sure yet', 'appiappi-contact' ); ?>"><?php esc_html_e( 'Not sure yet', 'appiappi-contact' ); ?></option>
 					</select>
 				</div>
-				<div class="form-field form-field--full">
+				<div class="form-field">
 					<label for="appiappi_contact_budget_range"><?php esc_html_e( 'Budget Range', 'appiappi-contact' ); ?></label>
 					<select id="appiappi_contact_budget_range" name="appiappi_contact_budget_range">
 						<option value=""><?php esc_html_e( 'Select one', 'appiappi-contact' ); ?></option>
@@ -82,6 +126,10 @@ function appiappi_contact_form_shortcode() {
 							<option value="<?php echo esc_attr( $range ); ?>"><?php echo esc_html( $range ); ?></option>
 						<?php endforeach; ?>
 					</select>
+				</div>
+				<div class="form-field">
+					<label for="appiappi_contact_launch_date"><?php esc_html_e( 'Preferred Launch Date', 'appiappi-contact' ); ?></label>
+					<input type="date" id="appiappi_contact_launch_date" name="appiappi_contact_launch_date">
 				</div>
 				<div class="form-field form-field--full">
 					<label for="appiappi_contact_message"><?php esc_html_e( 'Message', 'appiappi-contact' ); ?> *</label>

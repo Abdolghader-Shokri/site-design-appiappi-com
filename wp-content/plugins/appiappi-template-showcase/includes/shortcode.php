@@ -10,6 +10,40 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Maps one `appiappi_template` post to the array shape every renderer
+ * expects. Shared by the shortcode's query loop AND the theme's
+ * archive-appiappi_template.php / single-appiappi_template.php (which
+ * run the native WP loop rather than a second query) — see § 13 in
+ * PROJECT_MASTER.md.
+ */
+function appiappi_showcase_map_post( $post ) {
+	$categories  = get_the_terms( $post, 'appiappi_template_category' );
+	$styles      = get_the_terms( $post, 'appiappi_template_style' );
+	$category    = ( $categories && ! is_wp_error( $categories ) ) ? $categories[0] : null;
+	$style       = ( $styles && ! is_wp_error( $styles ) ) ? $styles[0] : null;
+	$details_url = get_post_meta( $post->ID, '_appiappi_template_details_url', true );
+
+	return array(
+		'id'           => $post->ID,
+		'name'         => get_the_title( $post ),
+		'category'     => $category ? $category->name : __( 'Design', 'appiappi-template-showcase' ),
+		'category_slug'=> $category ? $category->slug : '',
+		'style'        => $style ? $style->name : '',
+		'style_slug'   => $style ? $style->slug : '',
+		'desc'         => get_post_meta( $post->ID, '_appiappi_template_desc', true ),
+		'price'        => get_post_meta( $post->ID, '_appiappi_template_price', true ),
+		'rating'       => get_post_meta( $post->ID, '_appiappi_template_rating', true ),
+		'rating_count' => get_post_meta( $post->ID, '_appiappi_template_rating_count', true ),
+		'image'        => get_the_post_thumbnail_url( $post, 'appiappi-card' ),
+		'image_large'  => get_the_post_thumbnail_url( $post, 'appiappi-hero' ),
+		'vendor'       => get_post_meta( $post->ID, '_appiappi_template_vendor', true ),
+		'source_url'   => get_post_meta( $post->ID, '_appiappi_template_source_url', true ),
+		'demo_url'     => get_post_meta( $post->ID, '_appiappi_template_demo_url', true ) ?: '#',
+		'details_url'  => $details_url ?: get_permalink( $post ),
+	);
+}
+
 function appiappi_showcase_get_templates( $count = 3, $category_slug = '' ) {
 	$args = array(
 		'post_type'      => 'appiappi_template',
@@ -27,29 +61,10 @@ function appiappi_showcase_get_templates( $count = 3, $category_slug = '' ) {
 		) );
 	}
 
-	$posts    = get_posts( $args );
-	$defaults = array(
-		'category' => __( 'Design', 'appiappi-template-showcase' ),
-		'style'    => '',
-	);
-
+	$posts     = get_posts( $args );
 	$templates = array();
 	foreach ( $posts as $post ) {
-		$categories = get_the_terms( $post, 'appiappi_template_category' );
-		$styles     = get_the_terms( $post, 'appiappi_template_style' );
-
-		$templates[] = array(
-			'name'         => get_the_title( $post ),
-			'category'     => ( $categories && ! is_wp_error( $categories ) ) ? $categories[0]->name : $defaults['category'],
-			'style'        => ( $styles && ! is_wp_error( $styles ) ) ? $styles[0]->name : $defaults['style'],
-			'desc'         => get_post_meta( $post->ID, '_appiappi_template_desc', true ),
-			'price'        => get_post_meta( $post->ID, '_appiappi_template_price', true ),
-			'rating'       => get_post_meta( $post->ID, '_appiappi_template_rating', true ),
-			'rating_count' => get_post_meta( $post->ID, '_appiappi_template_rating_count', true ),
-			'image'        => get_the_post_thumbnail_url( $post, 'appiappi-card' ),
-			'demo_url'     => get_post_meta( $post->ID, '_appiappi_template_demo_url', true ) ?: '#',
-			'details_url'  => get_post_meta( $post->ID, '_appiappi_template_details_url', true ) ?: '#',
-		);
+		$templates[] = appiappi_showcase_map_post( $post );
 	}
 
 	return $templates;

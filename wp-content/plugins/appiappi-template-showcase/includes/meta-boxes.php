@@ -73,7 +73,7 @@ function appiappi_showcase_render_meta_box( $post ) {
 			<td><input type="url" id="appiappi_template_source_url" name="appiappi_template_source_url" value="<?php echo esc_attr( $source_url ); ?>" class="regular-text"></td>
 		</tr>
 	</table>
-	<p class="description"><?php esc_html_e( 'Set the Featured Image above as the design preview, and use Categories/Styles in the sidebar to classify it.', 'appiappi-template-showcase' ); ?></p>
+	<p class="description"><?php esc_html_e( 'Set the Featured Image above as the design preview, use Categories/Styles in the sidebar to classify it, and write a fuller description in the main content editor for the design\'s detail page (the "Short Description" above is only used in card/grid previews).', 'appiappi-template-showcase' ); ?></p>
 	<?php
 }
 

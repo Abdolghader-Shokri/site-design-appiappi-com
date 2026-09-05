@@ -373,8 +373,8 @@ Build a strong, simple foundation first.
 
 1. Architecture, design system, theme, global settings, header, footer, homepage, responsive foundation, docs — **done**
 2. Pricing system, Services, How It Works, About, Contact, FAQ, Portfolio, Blog — **done**
-3. Template Library (categories, search, filters, detail pages, selection workflow) — partially done (CPT/taxonomies/shortcode built in Phase 1.5; live search/filter, `/templates/` archive, detail pages, selection workflow remain)
-4. Admin settings page, SEO foundation, performance, security hardening — not started (Lead management CPT/form was pulled forward into Phase 2 since Contact needed it)
+3. Template Library (categories, search, filters, detail pages, selection workflow) — **done**
+4. Admin settings page, SEO foundation, performance, security hardening — **done** (Lead management CPT/form was pulled forward into Phase 2 since Contact needed it)
 5. Customer portal, support system, staff architecture, payment architecture — not started
 
 *(Status of each phase: PROJECT_MASTER.md §27.)*

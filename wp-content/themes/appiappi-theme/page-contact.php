@@ -15,6 +15,7 @@ $address = get_theme_mod( 'appiappi_address' );
 ?>
 
 <main id="main-content">
+	<?php appiappi_breadcrumbs(); ?>
 	<?php appiappi_page_header( __( 'Questions about a plan, a design, or your project? We would love to hear from you.', 'appiappi' ) ); ?>
 
 	<section class="section">
