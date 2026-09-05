@@ -19,6 +19,8 @@ function appiappi_enqueue_assets() {
 
 	if ( is_front_page() ) {
 		wp_enqueue_style( 'appiappi-home', $theme_uri . '/assets/css/home.css', array( 'appiappi-components' ), APPIAPPI_VERSION );
+	} else {
+		wp_enqueue_style( 'appiappi-pages', $theme_uri . '/assets/css/pages.css', array( 'appiappi-components' ), APPIAPPI_VERSION );
 	}
 
 	wp_enqueue_script( 'appiappi-main', $theme_uri . '/assets/js/main.js', array(), APPIAPPI_VERSION, true );

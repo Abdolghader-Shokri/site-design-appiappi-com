@@ -103,3 +103,20 @@
 
 	start();
 } )();
+
+/**
+ * FAQ accordion toggle. Multiple items can be open at once (no
+ * single-open enforcement) — simplest accessible pattern, no surprises
+ * when a user expects two answers open side by side.
+ */
+( function () {
+	'use strict';
+
+	document.querySelectorAll( '.faq-item__question' ).forEach( function ( button ) {
+		button.addEventListener( 'click', function () {
+			var item = button.closest( '.faq-item' );
+			var isOpen = item.classList.toggle( 'is-open' );
+			button.setAttribute( 'aria-expanded', isOpen ? 'true' : 'false' );
+		} );
+	} );
+} )();

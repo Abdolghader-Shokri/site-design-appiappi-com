@@ -554,3 +554,254 @@ function appiappi_render_hero_slides( array $slides ) {
 	<?php
 	return ob_get_clean();
 }
+
+/**
+ * Consistent inner-page header band (title + optional subtitle). Used by
+ * every non-homepage page template. Title comes from the_title() so the
+ * H1 stays admin-editable per page.
+ */
+function appiappi_page_header( $subtitle = '' ) {
+	?>
+	<header class="page-header">
+		<div class="container">
+			<h1><?php echo esc_html( single_post_title( '', false ) ); ?></h1>
+			<?php if ( $subtitle ) : ?>
+				<p><?php echo esc_html( $subtitle ); ?></p>
+			<?php endif; ?>
+		</div>
+	</header>
+	<?php
+}
+
+/**
+ * Services page content. Fixed offering descriptions, not "business
+ * data" in the pricing/contact-info sense — a static array here (rather
+ * than a CPT) matches how the trust bar's items are handled.
+ */
+function appiappi_get_services() {
+	return array(
+		array(
+			'icon'  => 'monitor',
+			'name'  => __( 'Website Design', 'appiappi' ),
+			'desc'  => __( 'Professional, responsive websites built around your business and your customers.', 'appiappi' ),
+		),
+		array(
+			'icon'  => 'refresh',
+			'name'  => __( 'Website Management', 'appiappi' ),
+			'desc'  => __( 'Ongoing updates, maintenance and changes so your site keeps working, safely.', 'appiappi' ),
+		),
+		array(
+			'icon'  => 'trending-up',
+			'name'  => __( 'SEO', 'appiappi' ),
+			'desc'  => __( 'Technical SEO, on-page SEO, keyword optimization and ongoing improvements.', 'appiappi' ),
+		),
+		array(
+			'icon'  => 'pencil',
+			'name'  => __( 'Content Management', 'appiappi' ),
+			'desc'  => __( 'Content updates, image updates, service pages and business information.', 'appiappi' ),
+		),
+		array(
+			'icon'  => 'shield',
+			'name'  => __( 'Managed Hosting', 'appiappi' ),
+			'desc'  => __( 'Reliable hosting, backups, security and technical management.', 'appiappi' ),
+		),
+		array(
+			'icon'  => 'headset',
+			'name'  => __( 'Website Support', 'appiappi' ),
+			'desc'  => __( 'A dedicated managed support process whenever you need help.', 'appiappi' ),
+		),
+	);
+}
+
+/**
+ * How It Works page content. Same "fixed offering, static array" logic
+ * as appiappi_get_services().
+ */
+function appiappi_get_how_it_works_steps() {
+	return array(
+		array(
+			'title' => __( 'Choose Your Design', 'appiappi' ),
+			'desc'  => __( 'Browse our curated library and pick a professionally designed website as your starting point.', 'appiappi' ),
+		),
+		array(
+			'title' => __( 'Choose Your Plan', 'appiappi' ),
+			'desc'  => __( 'Pick the plan that matches your business needs, from a one-time launch to ongoing Growth.', 'appiappi' ),
+		),
+		array(
+			'title' => __( 'Provide Your Business Information', 'appiappi' ),
+			'desc'  => __( 'Tell us about your business, services, branding, and the content you want on your site.', 'appiappi' ),
+		),
+		array(
+			'title' => __( 'We Customize Your Website', 'appiappi' ),
+			'desc'  => __( 'Our team builds out your branding, content, services and structure on the chosen design.', 'appiappi' ),
+		),
+		array(
+			'title' => __( 'We Launch Your Website', 'appiappi' ),
+			'desc'  => __( 'We handle the technical setup, domain connection, and go-live process.', 'appiappi' ),
+		),
+		array(
+			'title' => __( 'We Manage & Optimize It', 'appiappi' ),
+			'desc'  => __( 'On Growth, we keep managing hosting, security, content and SEO — every month.', 'appiappi' ),
+		),
+	);
+}
+
+/**
+ * TODO(Phase 2 follow-up): fallback content for the FAQ page/section
+ * when the appiappi-faq plugin isn't active — see appiappi_render_faq().
+ */
+function appiappi_get_faqs() {
+	$faqs = array(
+		__( 'What is included?', 'appiappi' )                         => __( 'Every plan includes a professionally customized website. Growth also adds ongoing hosting, maintenance, SEO and support — see the Pricing page for full details per plan.', 'appiappi' ),
+		__( 'Who owns my domain?', 'appiappi' )                        => __( 'You do. We can assist with connecting or registering a domain, but it stays registered in your name.', 'appiappi' ),
+		__( 'Who hosts my website?', 'appiappi' )                      => __( 'Professional and Growth plans include managed hosting through us. Starter and Business can be hosted anywhere you choose.', 'appiappi' ),
+		__( 'Can I choose my website design?', 'appiappi' )            => __( 'Yes — browse our curated Website Designs library and pick the one that fits your business.', 'appiappi' ),
+		__( 'Can you customize the design?', 'appiappi' )              => __( 'Yes. Every plan (except Starter) includes customization with your branding, content, colours and images.', 'appiappi' ),
+		__( 'Is SEO included?', 'appiappi' )                           => __( 'Basic on-page SEO is included from the Business plan up. Ongoing SEO management is part of the Growth plan.', 'appiappi' ),
+		__( 'How does monthly support work?', 'appiappi' )             => __( 'Growth customers get ongoing website changes, content updates and technical support as part of their monthly plan.', 'appiappi' ),
+		__( 'What happens if I cancel?', 'appiappi' )                  => __( 'You keep your website. We can help transfer hosting and files to a provider of your choice.', 'appiappi' ),
+		__( 'Can I change my website later?', 'appiappi' )             => __( 'Yes — Growth customers can request changes anytime; other plans can request paid updates as needed.', 'appiappi' ),
+		__( 'Do you support e-commerce?', 'appiappi' )                 => __( 'Our current focus is service-based Canadian businesses. Contact us to discuss e-commerce needs.', 'appiappi' ),
+		__( 'How long does a website take?', 'appiappi' )              => __( 'Timelines vary by plan and how quickly we receive your content — most launches take a few weeks.', 'appiappi' ),
+		__( 'What happens to my website if I leave?', 'appiappi' )     => __( 'Your website and content remain yours. We\'ll help you migrate to a new host or team.', 'appiappi' ),
+	);
+
+	$out = array();
+	foreach ( $faqs as $question => $answer ) {
+		$out[] = array( 'question' => $question, 'answer' => wpautop( $answer ) );
+	}
+	return $out;
+}
+
+/**
+ * Shared FAQ accordion markup. Renders a `.faq-list` from an array
+ * shaped like appiappi_get_faqs()'s return value — same pattern as the
+ * other section renderers: the theme's placeholder and the
+ * appiappi-faq plugin's [appiappi_faq] shortcode both render through
+ * this one function. Toggle behaviour lives in assets/js/main.js.
+ *
+ * @param array $faqs Each item: question, answer (may contain HTML).
+ */
+function appiappi_render_faq( array $faqs ) {
+	if ( empty( $faqs ) ) {
+		return '';
+	}
+
+	ob_start();
+	?>
+	<div class="faq-list">
+		<?php foreach ( $faqs as $index => $faq ) : ?>
+			<div class="faq-item">
+				<button type="button" class="faq-item__question" aria-expanded="false" aria-controls="faq-answer-<?php echo esc_attr( $index ); ?>">
+					<span><?php echo esc_html( $faq['question'] ); ?></span>
+					<?php echo appiappi_icon( 'close' ); ?>
+				</button>
+				<div class="faq-item__answer" id="faq-answer-<?php echo esc_attr( $index ); ?>">
+					<div class="faq-item__answer-inner"><?php echo wp_kses_post( $faq['answer'] ); ?></div>
+				</div>
+			</div>
+		<?php endforeach; ?>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * TODO(Phase 2 follow-up): fallback content for the Portfolio page when
+ * the appiappi-portfolio plugin isn't active. Clearly marked as concept
+ * projects — never fabricate real client results, per project rules.
+ */
+function appiappi_get_portfolio_projects() {
+	return array(
+		array(
+			'title'        => __( 'Concept: Regional Construction Company', 'appiappi' ),
+			'industry'     => __( 'Construction', 'appiappi' ),
+			'client'       => '',
+			'location'     => '',
+			'desc'         => __( 'An illustrative example of a construction-industry launch on the Professional plan.', 'appiappi' ),
+			'image'        => '',
+			'external_url' => '',
+			'is_concept'   => true,
+		),
+		array(
+			'title'        => __( 'Concept: Local Law Practice', 'appiappi' ),
+			'industry'     => __( 'Legal', 'appiappi' ),
+			'client'       => '',
+			'location'     => '',
+			'desc'         => __( 'An illustrative example of a law-firm site with ongoing Growth-plan management.', 'appiappi' ),
+			'image'        => '',
+			'external_url' => '',
+			'is_concept'   => true,
+		),
+		array(
+			'title'        => __( 'Concept: Dental Clinic', 'appiappi' ),
+			'industry'     => __( 'Dental & Medical', 'appiappi' ),
+			'client'       => '',
+			'location'     => '',
+			'desc'         => __( 'An illustrative example of a healthcare-practice launch on the Business plan.', 'appiappi' ),
+			'image'        => '',
+			'external_url' => '',
+			'is_concept'   => true,
+		),
+	);
+}
+
+/**
+ * Shared portfolio-grid markup. Renders a `.portfolio-grid` from an
+ * array shaped like appiappi_get_portfolio_projects()'s return value —
+ * same pattern as the other renderers.
+ */
+function appiappi_render_portfolio_grid( array $projects ) {
+	if ( empty( $projects ) ) {
+		return '';
+	}
+
+	ob_start();
+	?>
+	<div class="portfolio-grid">
+		<?php foreach ( $projects as $project ) : ?>
+			<div class="card portfolio-card">
+				<div class="portfolio-card__media">
+					<?php if ( ! empty( $project['image'] ) ) : ?>
+						<img src="<?php echo esc_url( $project['image'] ); ?>" alt="<?php echo esc_attr( $project['title'] ); ?>" loading="lazy">
+					<?php endif; ?>
+					<?php if ( ! empty( $project['is_concept'] ) ) : ?>
+						<span class="badge badge-dark portfolio-card__concept-badge"><?php esc_html_e( 'Concept', 'appiappi' ); ?></span>
+					<?php endif; ?>
+				</div>
+				<div class="portfolio-card__body">
+					<?php if ( ! empty( $project['industry'] ) ) : ?>
+						<p class="portfolio-card__meta"><?php echo esc_html( $project['industry'] ); ?><?php echo ! empty( $project['location'] ) ? ' · ' . esc_html( $project['location'] ) : ''; ?></p>
+					<?php endif; ?>
+					<h3><?php echo esc_html( $project['title'] ); ?></h3>
+					<p><?php echo esc_html( $project['desc'] ); ?></p>
+					<?php if ( ! empty( $project['external_url'] ) ) : ?>
+						<p style="margin-top: var(--space-3);"><a href="<?php echo esc_url( $project['external_url'] ); ?>" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View Website', 'appiappi' ); ?></a></p>
+					<?php endif; ?>
+				</div>
+			</div>
+		<?php endforeach; ?>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Blog pagination, styled to match the design system (paginate_links()
+ * wrapped in .appiappi-pagination rather than WP core's default markup).
+ */
+function appiappi_pagination() {
+	global $wp_query;
+
+	$links = paginate_links( array(
+		'total'   => $wp_query->max_num_pages,
+		'current' => max( 1, get_query_var( 'paged' ) ),
+		'mid_size'  => 1,
+		'prev_text' => __( '&larr; Previous', 'appiappi' ),
+		'next_text' => __( 'Next &rarr;', 'appiappi' ),
+	) );
+
+	if ( $links ) {
+		echo '<nav class="appiappi-pagination" aria-label="' . esc_attr__( 'Posts navigation', 'appiappi' ) . '">' . wp_kses_post( $links ) . '</nav>';
+	}
+}

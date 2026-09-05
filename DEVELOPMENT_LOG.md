@@ -12,6 +12,58 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-05 — Contact form intentionally breaks the shared-render-function convention
+
+Every other companion plugin (Pricing Plans, Template Showcase, Hero
+Slider, FAQ, Portfolio) follows the same shape: the theme owns a shared
+`appiappi_render_*()` function, and both the plugin's real data and the
+theme's placeholder data render through it, so the site looks identical
+whether or not the plugin is active. `appiappi-contact` deliberately does
+**not** do this. A contact form's only reason to exist is to actually
+submit somewhere — a "placeholder form" with no working handler behind it
+would visually look fine but silently do nothing when submitted, which is
+worse than showing nothing at all (a visitor believes their message was
+sent when it wasn't). Instead, `page-contact.php` checks
+`shortcode_exists( 'appiappi_contact_form' )` and shows a simple
+mailto/phone message (from the existing Customizer contact fields) when
+the plugin isn't active, rather than a fake copy of the form. This breaks
+the pattern on purpose — noted here so a future pass doesn't try to
+"fix" it into conformance.
+
+## 2026-09-05 — About page uses real Page content, not a static array
+
+Services and How It Works both use a static PHP array
+(`appiappi_get_services()` / `appiappi_get_how_it_works_steps()` in
+`inc/template-tags.php`) for their content, matching the trust bar's
+existing pattern — reasoned there as "fixed offering descriptions, not
+business data." About breaks that pattern on purpose: it renders the real
+WordPress Page's `the_content()`. The distinction: Services/How-It-Works
+describe *what the company always offers* (structural, rarely-changing,
+fine to require a code edit), while About is *editorial narrative copy*
+the business owner will plausibly want to rewrite on their own schedule —
+exactly the kind of content the project's "no hard-coded business data"
+rule is meant to keep out of PHP files. Given a choice between consistency
+with the other two pages and consistency with the project's actual data
+rule, the data rule won.
+
+## 2026-09-05 — CPT name length: WordPress silently truncates/fails past 20 chars
+
+`register_post_type( 'appiappi_portfolio_project', ... )` (26 characters)
+registered without error, but every `wp_insert_post()` against it failed
+with a `WP_Error` "post_type. The supplied value may be too long" — only
+visible because a debug script passed `wp_insert_post( $args, true )` to
+get a `WP_Error` back; the plugin's own handler code (matching every other
+plugin's convention) used the default single-argument form, which just
+returns `0` on failure, silently. `wp_posts.post_type` is `varchar(20)`;
+taxonomy names get `varchar(32)`, a different and larger limit, which is
+why `appiappi_portfolio_industry` (28 chars, a taxonomy) was never a
+problem. Renamed the post type to `appiappi_project`. Takeaway for the
+next CPT added to this project: **check post type name length against 20
+characters before registering it**, and prefer catching `wp_insert_post()`
+failures with the two-argument `true` form during any manual/debug
+testing, even though the plugins' production code paths don't need it
+(they insert known-good, already-validated data).
+
 ## 2026-09-05 — Only headline/subheadline/image/CTA rotate in the hero slider
 
 When building the `appiappi-hero-slider` plugin, the hero's other elements

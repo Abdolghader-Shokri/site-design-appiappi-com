@@ -289,6 +289,9 @@ of living inside the theme, so its content can later be placed anywhere
 | Hero Slideshow | `appiappi-hero-slider` | CPT `appiappi_slide` (headline, subheadline, image, CTA text/url, order) | `[appiappi_hero_slider]` |
 | Pricing Plans | `appiappi-pricing-plans` | CPT `appiappi_plan` (price, period, note, color, icon, featured flag, badge, CTA, features, order) | `[appiappi_pricing]` |
 | Template / Design Showcase | `appiappi-template-showcase` | CPT `appiappi_template` + taxonomy `appiappi_template_category` (price, vendor, source/demo URLs, rating, style) | `[appiappi_templates]` |
+| FAQ | `appiappi-faq` | CPT `appiappi_faq` (title=question, content=answer) + taxonomy `appiappi_faq_category` | `[appiappi_faq]` |
+| Portfolio | `appiappi-portfolio` | CPT `appiappi_project` (title, content=description, Featured Image) + taxonomy `appiappi_portfolio_industry`; meta for client/location/URL/services/results/concept-flag | `[appiappi_portfolio]` |
+| Contact / Leads | `appiappi-contact` | CPT `appiappi_lead` (submission data + status) — the one plugin that intentionally skips the shared-render-function convention below, since a non-working placeholder form would mislead rather than help | `[appiappi_contact_form]` |
 
 Rules for every companion plugin:
 - Self-contained folder under `wp-content/plugins/<slug>/`, own plugin header, **no third-party dependency** (native meta boxes, not ACF) — keeps with "avoid unnecessary plugins."
@@ -368,11 +371,11 @@ Build a strong, simple foundation first.
 
 ## Development Phases
 
-1. Architecture, design system, theme, global settings, header, footer, homepage, responsive foundation, docs
-2. Pricing system, Services, How It Works, About, Contact, FAQ, Portfolio, Blog
-3. Template Library (categories, search, filters, detail pages, selection workflow)
-4. Lead management, admin settings, SEO foundation, performance, security hardening
-5. Customer portal, support system, staff architecture, payment architecture
+1. Architecture, design system, theme, global settings, header, footer, homepage, responsive foundation, docs — **done**
+2. Pricing system, Services, How It Works, About, Contact, FAQ, Portfolio, Blog — **done**
+3. Template Library (categories, search, filters, detail pages, selection workflow) — partially done (CPT/taxonomies/shortcode built in Phase 1.5; live search/filter, `/templates/` archive, detail pages, selection workflow remain)
+4. Admin settings page, SEO foundation, performance, security hardening — not started (Lead management CPT/form was pulled forward into Phase 2 since Contact needed it)
+5. Customer portal, support system, staff architecture, payment architecture — not started
 
 *(Status of each phase: PROJECT_MASTER.md §27.)*
 

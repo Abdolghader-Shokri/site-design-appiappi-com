@@ -2,6 +2,35 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-05 — Phase 2: Services/How It Works/About/Contact/FAQ/Portfolio/Blog
+
+### Added
+- Three new static-content page templates (`page-services.php`, `page-how-it-works.php`, `page-about.php`), auto-applied via the `page-{slug}.php` convention, sharing a new `appiappi_page_header()` helper and `assets/css/pages.css` (loaded on every non-front-page page).
+- `page-pricing.php`: dedicated Pricing page reusing the existing Pricing Plans shortcode/fallback plus a Pricing-specific FAQ section.
+- New companion plugin `appiappi-faq`: CPT `appiappi_faq` (title=question, native content=answer) + taxonomy `appiappi_faq_category`, shortcode `[appiappi_faq category="" limit="-1"]`. Shared `appiappi_render_faq()` in the theme; accordion open/close via a new IIFE in `assets/js/main.js`. `page-faq.php` added; seeded the 12 launch FAQs.
+- New companion plugin `appiappi-portfolio`: CPT `appiappi_project` (title, native content=description, Featured Image) + taxonomy `appiappi_portfolio_industry`; meta box for client/location/external URL/services/results/a "Concept Project" flag (never fabricate results — a project can be explicitly marked as illustrative instead). Shortcode `[appiappi_portfolio count="6" industry=""]`. Shared `appiappi_render_portfolio_grid()`. `page-portfolio.php` added; seeded 3 concept projects.
+- New companion plugin `appiappi-contact`: CPT `appiappi_lead` (every submission stored + visible/manageable in wp-admin, with an editable Status field), shortcode `[appiappi_contact_form]` (name, business, email, phone, business type, interested service, budget range, message + honeypot spam field). Submission handling on `template_redirect` (not the shortcode — too late in the lifecycle to redirect from there): validates, creates the Lead, emails the admin, then Post/Redirect/Gets back with a success/error flag. `page-contact.php` added, showing the form when the plugin is active or a mailto/phone fallback when it isn't (deliberately not a fake copy of the form).
+- Native WordPress Blog support: `home.php` (paginated blog index, used as the `page_for_posts` page), `single.php`, `archive.php`, `template-parts/content/post-card.php`, and a new `appiappi_pagination()` helper (wraps `paginate_links()` in the design system's `.appiappi-pagination` markup instead of WP core's default).
+- 9 real WordPress Pages created (Home, Blog, Services, How It Works, About, Contact, FAQ, Portfolio, Pricing); Reading settings configured (`page_on_front`/`page_for_posts`) so `/blog/` shows the real posts index while `front-page.php` still owns the site root unconditionally.
+- A real "Primary Menu" nav menu, assigned to the theme's `primary` location — replaces reliance on `appiappi_nav_fallback()` for everyday navigation (the fallback function still exists for any site that hasn't set up a menu).
+
+### Changed
+- `.gitignore`: un-ignored `wp-content/plugins/appiappi-faq/`, `appiappi-portfolio/`, `appiappi-contact/`.
+- Deleted WordPress's default "Hello world!" post, "Sample Page", and default comment (one-time cleanup, not app behaviour).
+
+### Files Modified
+- `wp-content/plugins/appiappi-faq/**`, `appiappi-portfolio/**`, `appiappi-contact/**` (new)
+- `wp-content/themes/appiappi-theme/page-services.php`, `page-how-it-works.php`, `page-about.php`, `page-contact.php`, `page-faq.php`, `page-portfolio.php`, `page-pricing.php`, `home.php`, `single.php`, `archive.php` (new)
+- `wp-content/themes/appiappi-theme/template-parts/content/post-card.php` (new)
+- `wp-content/themes/appiappi-theme/assets/css/pages.css` (new), `inc/enqueue.php`, `inc/template-tags.php`, `assets/js/main.js`
+- `.gitignore`, `PROJECT_MASTER.md`, `MASTER_PROMPT.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- Hit and fixed a real bug during Portfolio plugin setup: `appiappi_portfolio_project` (26 chars) exceeded WordPress's 20-character `post_type` column limit, causing silent DB-level insert failures (`wp_insert_post()` returned `0`, not caught by a plain `is_wp_error()` check). Renamed to `appiappi_project`. Documented in `PROJECT_MASTER.md` §25 Troubleshooting.
+- Verified every new page (`/services/`, `/how-it-works/`, `/about/`, `/contact/`, `/faq/`, `/portfolio/`, `/pricing/`, `/blog/`) returns HTTP 200 with correct content via curl/WP-CLI/browser; verified Lead creation logic directly (test lead created then deleted); confirmed no PHP errors in `debug.log` throughout.
+- Browser-tool permissions became inconsistent partway through QA (some calls declined) — switched remaining verification to WP-CLI/curl, which covers the same ground without needing the browser.
+- Phase 2 (per MASTER_PROMPT.md's Development Phases) is now complete. Remaining known gaps: no `/templates/` archive/detail pages (Phase 3), no admin Settings page (Phase 4), Portfolio has only concept/placeholder projects until real client work exists.
+
 ## 2026-09-05 — Hero Slider companion plugin (third and last of the three)
 
 ### Added

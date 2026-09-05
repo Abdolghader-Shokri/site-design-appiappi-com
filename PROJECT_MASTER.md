@@ -57,13 +57,16 @@ for the full spec, and [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) for why.
 | Pricing Plans | `appiappi-pricing-plans` | `[appiappi_pricing]` | **Built** — CPT `appiappi_plan`, native meta box, active on the local site with 4 seeded plans |
 | Template / Design Showcase | `appiappi-template-showcase` | `[appiappi_templates count="3" category="" show_sidebar="1"]` | **Built** — CPT `appiappi_template` + taxonomies `appiappi_template_category`/`appiappi_template_style`, active with 3 seeded designs across 6 categories/4 styles; see §13 |
 | Hero Slideshow | `appiappi-hero-slider` | `[appiappi_hero_slider]` | **Built** — CPT `appiappi_slide`, native meta box, active with 2 seeded slides; see §11a |
+| FAQ | `appiappi-faq` | `[appiappi_faq category="" limit="-1"]` | **Built** — CPT `appiappi_faq` + taxonomy `appiappi_faq_category`, active with the 12 launch questions seeded; see §14a |
+| Portfolio | `appiappi-portfolio` | `[appiappi_portfolio count="6" industry=""]` | **Built** — CPT `appiappi_project` + taxonomy `appiappi_portfolio_industry`, active with 3 concept projects seeded; see §14b |
+| Contact / Leads | `appiappi-contact` | `[appiappi_contact_form]` | **Built** — CPT `appiappi_lead`, form + spam honeypot + email notification; the one plugin that intentionally does *not* use the shared-render-function pattern (see §14c) |
 
-Build order: theme visuals → **Pricing Plans plugin (done)** →
-**Template Showcase plugin (done)** → **Hero Slideshow plugin (done)** →
-package theme + all plugins as separate installable zips for a fresh
-WordPress install on real hosting. **All three companion plugins are now
-built** — next step is packaging, or moving on to Phase 2 (Services, How
-It Works, About, Contact, FAQ, Portfolio, Blog), per the user's direction.
+Phase 1.5 build order: theme visuals → Pricing Plans → Template Showcase
+→ Hero Slideshow → package as installable zips (not yet done). **Phase 2
+build order (this pass): Services/How It Works/About pages → FAQ plugin →
+Portfolio plugin → Contact plugin → Blog templates → real Pages + Reading
+settings + primary nav menu.** All six companion plugins plus the Blog
+templates are now built — see §27 for what Phase 2 leaves incomplete.
 Each plugin uses native meta boxes (no ACF/third-party dependency) and
 exposes both a shortcode and a plain PHP render function; the theme checks
 `shortcode_exists()`/`function_exists()` before calling a plugin so it
@@ -94,33 +97,52 @@ site-design-appiappi-com/               (git repo root — NOT the WP root)
 ├── design-reference/
 │   └── appiappiSimple.png              Photoshop layout reference (Persian; translated to English in the build)
 └── wp-content/
-    └── themes/
-        └── appiappi-theme/             The only tracked WP path — junctioned into the Local site, see § 20
-            ├── style.css               Theme header block ONLY — no rules (see file's own comment)
-            ├── functions.php           Bootstrap: requires /inc/ files only
-            ├── index.php               Fallback template (WP requirement)
-            ├── front-page.php          Homepage — assembles template-parts/sections/*
-            ├── header.php              <head>, wp_head, opens <body>, includes site-header part
-            ├── footer.php              Includes site-footer part, wp_footer, closes </body></html>
-            ├── inc/
-            │   ├── setup.php           Theme supports, nav menu locations, image sizes, dequeues core block CSS
-            │   ├── enqueue.php         All CSS/JS registration, in dependency order; Google Fonts preconnect+enqueue
-            │   ├── customizer.php      Native Customizer: brand colour, header CTA, contact info, social links, footer tagline
-            │   └── template-tags.php   appiappi_icon(), nav fallback, placeholder data providers (see § 12, § 13)
-            ├── template-parts/
-            │   ├── header/site-header.php
-            │   ├── footer/site-footer.php
-            │   └── sections/           hero.php, pricing-preview.php, templates-preview.php, trust-bar.php, final-cta.php
-            └── assets/
-                ├── css/                tokens.css → base.css → layout.css → components.css → home.css (load order matters, see enqueue.php)
-                ├── js/main.js          Mobile nav toggle + sticky header shadow, no dependencies
-                └── images/hero-placeholder.svg   Inline-drawn skyline placeholder — swap for a real photo, see § 21
+    ├── themes/
+    │   └── appiappi-theme/             Junctioned into the Local site, see § 20
+    │       ├── style.css               Theme header block ONLY — no rules (see file's own comment)
+    │       ├── functions.php           Bootstrap: requires /inc/ files only
+    │       ├── index.php               Fallback template (WP requirement)
+    │       ├── front-page.php          Homepage — assembles template-parts/sections/*
+    │       ├── home.php                Blog index (used for the `page_for_posts` page — see § 14d)
+    │       ├── single.php               Single blog post
+    │       ├── archive.php              Category/tag/date archives
+    │       ├── page-services.php        page-{slug}.php auto-applies by Page slug — see § 14
+    │       ├── page-how-it-works.php
+    │       ├── page-about.php
+    │       ├── page-contact.php
+    │       ├── page-faq.php
+    │       ├── page-portfolio.php
+    │       ├── page-pricing.php
+    │       ├── header.php              <head>, wp_head, opens <body>, includes site-header part
+    │       ├── footer.php              Includes site-footer part, wp_footer, closes </body></html>
+    │       ├── inc/
+    │       │   ├── setup.php           Theme supports, nav menu locations, image sizes, favicon, dequeues core block CSS
+    │       │   ├── enqueue.php         All CSS/JS registration, in dependency order; Google Fonts preconnect+enqueue
+    │       │   ├── customizer.php      Native Customizer: brand colour, header CTA, contact info, social links, footer tagline
+    │       │   └── template-tags.php   Icons, nav fallback, page header, pagination, placeholder data + shared render functions (see § 12, § 13, § 11a, § 14a, § 14b)
+    │       ├── template-parts/
+    │       │   ├── header/site-header.php
+    │       │   ├── footer/site-footer.php
+    │       │   ├── content/post-card.php    One blog post card, used by home.php + archive.php
+    │       │   └── sections/           hero.php, pricing-preview.php, templates-preview.php, trust-bar.php, final-cta.php
+    │       └── assets/
+    │           ├── css/                tokens → base → layout → components → home.css (front page only) / pages.css (everywhere else) — load order matters, see enqueue.php
+    │           ├── js/main.js          Mobile nav, sticky header, hero slider, FAQ accordion — no dependencies
+    │           └── images/hero-placeholder.svg, favicon.svg
+    └── plugins/                        Each junctioned into the Local site individually, see § 20
+        ├── appiappi-pricing-plans/     See § 12
+        ├── appiappi-template-showcase/ See § 13
+        ├── appiappi-hero-slider/       See § 11a
+        ├── appiappi-faq/               See § 14a
+        ├── appiappi-portfolio/         See § 14b
+        └── appiappi-contact/           See § 14c
 ```
 
 WordPress core (`wp-admin/`, `wp-includes/`, `wp-*.php`) and all non-custom
 themes/plugins are intentionally **not tracked** — see `.gitignore`. The repo
-root is not the WordPress root; only `wp-content/themes/appiappi-theme/`
-inside it corresponds to a real path on the running site.
+root is not the WordPress root; only `wp-content/themes/appiappi-theme/` and
+each individual `wp-content/plugins/appiappi-*/` folder inside it correspond
+to real paths on the running site.
 
 ## 7. Database Structure / Custom Post Types / Custom Taxonomies
 
@@ -128,10 +150,12 @@ inside it corresponds to a real path on the running site.
 - `appiappi_plan` CPT — registered in `wp-content/plugins/appiappi-pricing-plans/includes/cpt.php`. Not public (no single/archive template), managed entirely through wp-admin. Meta keys (all prefixed `_appiappi_plan_`): `price`, `period`, `note`, `color` (one of `starter`/`business`/`professional`/`growth`, mapped to the matching CSS token), `icon` (one of a curated set — see `appiappi_pricing_icon_options()`), `featured` (0/1), `badge`, `cta_text`, `cta_url`, `features` (newline-separated string, split on render). Ordering uses native `menu_order` (`page-attributes` support → the classic "Order" field).
 - `appiappi_template` CPT — registered in `wp-content/plugins/appiappi-template-showcase/includes/cpt.php`. Not public, uses the native Featured Image as the design preview (`post-thumbnails` support). Meta keys (prefixed `_appiappi_template_`): `desc`, `price`, `rating`, `rating_count`, `demo_url`, `details_url`, `vendor`, `source_url` (the last two exist specifically so third-party designs credit their real source, per [MASTER_PROMPT.md § Website Template Library](MASTER_PROMPT.md#website-template-library)). Two taxonomies: `appiappi_template_category` (hierarchical; each term has an `icon` term-meta field set via custom add/edit-term fields in `includes/taxonomy-meta.php`, from the same curated icon set as the theme) and `appiappi_template_style` (flat tags, e.g. Modern/Minimal/Bold/Classic).
 - `appiappi_slide` CPT — registered in `wp-content/plugins/appiappi-hero-slider/includes/cpt.php`. Not public, post Title = the slide's headline (H1), Featured Image = the slide's visual. Meta keys (prefixed `_appiappi_slide_`): `subheadline`, `cta_text`, `cta_url`, `image_alt` (optional — decorative images can leave this blank since the headline conveys the meaning). Ordering uses native `menu_order`.
+- `appiappi_faq` CPT — registered in `wp-content/plugins/appiappi-faq/includes/cpt.php`. Not public, post Title = question, native editor content = answer. Taxonomy `appiappi_faq_category` (flat). Ordering uses native `menu_order`.
+- `appiappi_project` CPT — registered in `wp-content/plugins/appiappi-portfolio/includes/cpt.php`. Not public, post Title = project name, native editor content = description, Featured Image = project photo. Meta keys (prefixed `_appiappi_portfolio_`): `client`, `location`, `external_url`, `services`, `results`, `is_concept`. Taxonomy `appiappi_portfolio_industry` (flat). **Note:** registered as `appiappi_project`, not the longer `appiappi_portfolio_project` — see §14b for why.
+- `appiappi_lead` CPT — registered in `wp-content/plugins/appiappi-contact/includes/cpt.php`. Not public, no front-end template (admin-only). Meta keys (prefixed `_appiappi_lead_`): `email`, `business`, `phone`, `business_type`, `interested_service`, `budget_range`, `message`, `status`. See §14c.
 
 Planned:
-- **Portfolio Project**, **Case Study**, **FAQ** CPTs (Phase 2/3)
-- **Lead** CPT or custom table (Phase 4) — see [MASTER_PROMPT.md § Lead Management](MASTER_PROMPT.md#lead-management)
+- **Case Study** CPT (Phase 2/3 follow-up, not built this pass)
 
 ## 8. Settings
 
@@ -271,9 +295,47 @@ seeded designs (Construction Pro / Justice Law / Dental Clinic) matching
 the original placeholder content — manage them under **Website Designs**
 in wp-admin (set the Featured Image there for the preview photo).
 
-## 14. Template Detail Pages / Portfolio / Case Studies / Blog / FAQ / Contact Forms / Lead Management
+## 14. Services / How It Works / About Pages
 
-Not yet built. Each is specified in [MASTER_PROMPT.md](MASTER_PROMPT.md) and scheduled per the phased plan (§ 19 below).
+Three static-content page templates in the theme root (auto-applied via the `page-{slug}.php` naming convention to Pages with matching slugs — no manual "Page Attributes → Template" selection needed, though each also declares a `Template Name:` header so it can be assigned to a differently-slugged page too):
+
+- **`page-services.php`** (slug `services`) — 6 service cards from `appiappi_get_services()` (a static array in `inc/template-tags.php`, same "fixed offering, not business data" reasoning as the trust bar).
+- **`page-how-it-works.php`** (slug `how-it-works`) — 6 numbered steps from `appiappi_get_how_it_works_steps()`, same pattern.
+- **`page-about.php`** (slug `about`) — genuinely admin-editable: renders `the_content()` from the real WordPress Page, not a static array, since this is editorial copy the business owner should be able to rewrite without touching code.
+
+All three share a `.page-header` band (title + optional subtitle) via `appiappi_page_header( $subtitle )` in `inc/template-tags.php`, and end with the homepage's `final-cta` section.
+
+## 14a. FAQ System
+
+**Built as the `appiappi-faq` companion plugin.** CPT `appiappi_faq` (post title = question, native editor content = answer — rich text, no custom meta field needed) + flat taxonomy `appiappi_faq_category`. Shortcode `[appiappi_faq category="" limit="-1"]`. `page-faq.php` (slug `faq`) and `page-pricing.php` both call it via `shortcode_exists()`, falling back to the theme's `appiappi_get_faqs()` placeholder (the original 12 launch questions) otherwise — both paths render through the shared `appiappi_render_faq( $faqs )` in `inc/template-tags.php`. Accordion open/close is a small IIFE in `assets/js/main.js` (multiple items can be open at once — no single-open enforcement).
+
+## 14b. Portfolio System
+
+**Built as the `appiappi-portfolio` companion plugin.** CPT `appiappi_project` (title, native editor content = description, Featured Image = project photo) + flat taxonomy `appiappi_portfolio_industry`. Meta (prefixed `_appiappi_portfolio_`): `client`, `location`, `external_url`, `services`, `results`, and `is_concept` (a checkbox — per the project rule to never fabricate results, a project can be explicitly marked as an illustrative concept rather than a real client engagement; the theme renders a "Concept" badge over the image when checked). Shortcode `[appiappi_portfolio count="6" industry=""]`. `page-portfolio.php` (slug `portfolio`) calls it via `shortcode_exists()`, falling back to `appiappi_get_portfolio_projects()` (3 concept placeholders) otherwise — both via the shared `appiappi_render_portfolio_grid( $projects )`.
+
+**Scope note:** before/after image pairs and a full screenshot gallery (both mentioned in the original spec) are deferred — a single Featured Image covers the MVP. Add a gallery meta field (array of attachment IDs) later if needed.
+
+**Note on the CPT name:** registered as `appiappi_project`, not `appiappi_portfolio_project` — WordPress silently fails to insert posts (`post_type` column overflow) for post-type names over 20 characters; the taxonomy name has no such limit (32 chars) so it kept its longer, clearer name.
+
+## 14c. Contact Form & Lead Management
+
+**Built as the `appiappi-contact` companion plugin** — the one companion plugin that does **not** follow the shared-theme-render-function pattern the other five use, on purpose: an inert placeholder form with no working handler behind it would be actively misleading, so when this plugin is inactive, `page-contact.php` shows a simple mailto/phone message (from the Customizer contact fields) instead of a fake copy of the form.
+
+- CPT `appiappi_lead` — every submission becomes one Lead (title `"{name} — {business}"`), fully visible/manageable in wp-admin (`_appiappi_lead_*` meta: email, business, phone, business_type, interested_service, budget_range, message, status). A meta box shows all fields read-only except **Status** (New/Contacted/Qualified/Proposal/Won/Lost — editable, saved via `save_post_appiappi_lead`).
+- Shortcode `[appiappi_contact_form]` renders the form (name, business, email, phone, business type, interested service, budget range, message — per [MASTER_PROMPT.md § Forms & Lead Management](MASTER_PROMPT.md#forms--lead-management)) with a honeypot field for basic spam protection.
+- Submission handling lives on `template_redirect` (`includes/handler.php`), **not** in the shortcode callback — a shortcode runs too late in the page lifecycle to `wp_safe_redirect()` before output starts. Verifies the nonce, validates required fields (name/email/message), silently no-ops obvious bot submissions (honeypot filled) while still redirecting to the success state, creates the Lead + meta, sends an admin notification email (`wp_mail`, Reply-To set to the submitter), then does a Post/Redirect/Get redirect back to the referring page with `?appiappi_contact=success` or `=error` — so a page refresh never resubmits the form.
+- **Known UX gap:** on a validation error, the redirect does not preserve the visitor's entered values — they have to re-type the form. Acceptable for this pass; would need a transient or session to fix properly.
+
+## 14d. Blog
+
+Native WordPress posts/categories/tags — no companion plugin needed, this is core WP functionality. Reading settings are configured so the site root stays `front-page.php` (via `page_on_front` pointed at an otherwise-empty "Home" page — `front-page.php` always wins over `home.php` for the literal site root regardless of this setting, so the homepage is unaffected) while a separate "Blog" page (`page_for_posts`) at `/blog/` shows the real posts index.
+
+- `home.php` — the blog index (used for the `page_for_posts` page). Paginated grid via `template-parts/content/post-card.php` (title, date, category, featured image, excerpt) + `appiappi_pagination()`.
+- `archive.php` — category/tag/date archives, same post-card grid, title via `get_the_archive_title()`.
+- `single.php` — individual post: title, date/author meta, featured image, `the_content()`.
+- `appiappi_pagination()` (`inc/template-tags.php`) wraps `paginate_links()` in `.appiappi-pagination` to match the design system instead of WP core's default pagination markup.
+
+WordPress's default "Hello world!" post, "Sample Page", and the default comment were deleted during setup — they're not somehow blocked from being recreated, just removed as one-time cleanup.
 
 ## 15. Security
 
@@ -348,21 +410,39 @@ aren't portable/committable — a second machine needs Local installed, a site
 created, and every junction (theme + each plugin) recreated manually.
 
 One-time data seeds (4 launch pricing plans; 6 template categories + 4
-styles + 3 sample designs) were run via `wp eval-file` against small
-scripts (not committed — dev-environment setup, not app code) using
-`wp_insert_post()` / `wp_insert_term()` + `update_post_meta()`/
-`update_term_meta()`, matching the values that used to live in the theme's
-placeholder functions. Recreate similarly on any new environment, or add
-content manually under **Pricing Plans** / **Website Designs** in wp-admin.
+styles + 3 sample designs; 2 hero slides; the 12 launch FAQs; 3 concept
+portfolio projects) were run via `wp eval-file` against small scripts (not
+committed — dev-environment setup, not app code) using `wp_insert_post()` /
+`wp_insert_term()` + `update_post_meta()`/`update_term_meta()`, matching
+the values that used to live in the theme's placeholder functions.
+Recreate similarly on any new environment, or add content manually in
+wp-admin.
+
+**Real Pages + Reading settings (Phase 2):** 9 real Pages now exist —
+Home (`home`, empty — exists only so `page_on_front` can point at
+*something*; `front-page.php` still owns the actual homepage output
+regardless), Blog (`blog`), Services, How It Works, About, Contact, FAQ,
+Portfolio, Pricing. Reading settings: `show_on_front=page`,
+`page_on_front=<Home page ID>`, `page_for_posts=<Blog page ID>`. A real
+"Primary Menu" nav menu was created and assigned to the `primary` theme
+location (replacing reliance on `appiappi_nav_fallback()` for the main
+site nav — the fallback function still exists and still fires for any
+site that hasn't set up a menu yet). All of this was done via
+`wp eval-file` against another small, uncommitted setup script — recreate
+manually (or write a fresh script) on a new environment; nothing about it
+is committed to the repo since it's WordPress database state, not code.
 
 ## 21. Known Limitations
 
-- All three companion plugins (Pricing Plans, Template Showcase, Hero Slideshow) are built — none are in the hard-coded-placeholder state anymore (§7, §11a, §12, §13). Theme placeholder functions remain only as the graceful fallback if a plugin gets deactivated.
+- All six companion plugins (Pricing Plans, Template Showcase, Hero Slideshow, FAQ, Portfolio, Contact) are built — none are in the hard-coded-placeholder state anymore. Theme placeholder functions/fallbacks remain only for graceful degradation if a plugin gets deactivated.
 - Template Showcase's style checkboxes and search box are visual only — no filtering. Category links, however, do work (§13).
-- No admin Settings page — only Customizer options exist.
+- No admin Settings page — only Customizer options exist (advanced settings like Analytics ID, GTM, tracking scripts remain unbuilt, per MASTER_PROMPT.md § Site Settings, Phase 4).
 - Hero slides currently have no real photographs — the placeholder skyline SVG shows whenever a slide has no Featured Image set (§11a). Not itself a bug (it's the intended graceful fallback), but replace with real photos before launch.
-- No nav menu created in wp-admin yet — header/mobile nav render via `appiappi_nav_fallback()` with best-guess page slugs (`/templates/`, `/services/`, `/pricing/`, etc.) that don't exist as real pages yet.
 - Homepage hero's Google-rating card renders as an empty/neutral placeholder — `appiappi_get_google_rating()` returns `null` on purpose, do not hardcode a rating (see [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md)).
+- Portfolio has no real client projects yet — the 3 seeded entries are explicitly labelled "Concept" (§14b); replace with real work once available, and un-check "Concept Project" per entry when you do.
+- Contact form validation errors don't preserve the visitor's entered field values on redirect (§14c) — minor, documented UX gap.
+- No `/templates/` archive page or template detail pages yet (Template Showcase's shortcode/CPT exist, but the full browsable library with live search/filter doesn't) — the header nav's "Website Designs" link points at the homepage's `#templates` anchor instead, and `appiappi_nav_fallback()` still references a `/templates/` page slug that doesn't exist (only relevant if the real nav menu is ever removed).
+- No Case Study CPT yet (Portfolio Project exists; Case Studies were listed separately in the original spec and are deferred).
 - No build step / asset bundling — files are enqueued individually; fine at current size, revisit if the CSS/JS footprint grows significantly.
 - No automated tests, no CI.
 - Not yet accessibility-audited beyond the manual measures in § 19.
@@ -390,6 +470,7 @@ local dev snapshots in the meantime.
 - **WP-CLI "missing MySQL extension" error**: you ran the bare `php.exe` without `-c <site php.ini>` — see § 20 for the exact invocation.
 - **New CSS/JS not showing**: bump `APPIAPPI_VERSION` in `inc/enqueue.php` (browser cache-busting).
 - **"Error Establishing a Database Connection" (WordPress serves this with an HTTP 200, so `curl`/basic checks can look "fine" when they aren't) / WP-CLI "Error establishing a database connection" even though the site loads**: `C:\Users\GHADER\AppData\Roaming\Local\run\` can contain more than one instance-id folder at once (e.g. after Local restarts). **The instance actually in use is whichever one the live `nginx.exe`/`php-cgi.exe`/`mysqld.exe` processes reference** — check with `Get-CimInstance Win32_Process -Filter "Name='mysqld.exe'"` (or `nginx.exe`/`php-cgi.exe`) and read the `CommandLine`'s `--defaults-file=`/`-c` path; that instance-id is the correct one to use in the `INI=`/`WPCLI` helper commands in § 20, not necessarily the most-recently-created folder. Confirmed on 2026-09-05: a stale `n5MS9u2mq` folder existed alongside the real, live `En5UgfWsJ`; assuming "newest folder = current" was wrong and caused an hour of misdiagnosis.
+- **A new CPT's posts silently fail to insert** (`wp_insert_post()` returns `0`, not a `WP_Error`, unless you pass `'wp_error' => true` — so a naive `is_wp_error()` check won't catch it): check the post type name length. WordPress's `wp_posts.post_type` column is `varchar(20)` — a post type name over 20 characters fails with "WordPress database error: Processing the value for the following field failed: post_type." Taxonomy names can be up to 32 characters (a different, longer limit), which is why e.g. `appiappi_portfolio_industry` (a taxonomy) is fine but `appiappi_portfolio_project` (would-be post type name, 26 chars) had to be shortened to `appiappi_project` (§14b). When debugging a `0`/silent-failure insert, call `wp_insert_post( $args, true )` (the second `true` param) to get a real `WP_Error` back instead of a bare `0`.
 
 ## 26. Known Limitations → Future Improvements
 
@@ -403,9 +484,9 @@ than duplicated here — grep for `TODO` to find them all.
 |---|---|---|
 | 1 | Architecture, design system, theme skeleton, Customizer settings, header, footer, homepage, responsive foundation, docs | **Done** — visuals approved by the user |
 | 1.5 | Companion Plugin Architecture: Pricing Plans, Template Showcase, Hero Slideshow plugins | **Done** — all three built, active, and seeded; next: packaging (§ below) or move to Phase 2 |
-| 2 | Services/How It Works/About/Contact pages, FAQ, Portfolio, Blog | Not started |
+| 2 | Services/How It Works/About/Contact pages, FAQ, Portfolio, Blog | **Done** — see §14–14d. Case Studies deferred (not in the original page list's CPT set) |
 | 3 | Template Showcase: live search/filters (JS), `/templates/` archive page, template detail pages, selection workflow | CPT + taxonomies + shortcode already done (§13); the rest not started |
-| 4 | Lead management, admin Settings page, SEO foundation, performance/security hardening | Not started |
+| 4 | Admin Settings page, SEO foundation, performance/security hardening | Lead management CPT/form done early as part of Phase 2 (§14c) since Contact needed it; the rest not started |
 | 5 | Customer portal, support system, staff accounts, payment architecture | Not started |
 
 ## 28. File Location Map
@@ -421,7 +502,7 @@ than duplicated here — grep for `TODO` to find them all.
 | Theme supports / nav locations / image sizes | `inc/setup.php` | `add_theme_support`, `register_nav_menus` | Add new image sizes or theme features here |
 | Asset loading | `inc/enqueue.php` | Registers/enqueues all CSS/JS, Google Fonts | Add new stylesheets/scripts here, respecting dependency order |
 | Global settings | `inc/customizer.php` | Brand colour, header CTA, contact info, social links, footer tagline | Add new Customizer sections/settings here |
-| Icons, nav fallback, placeholder data, shared renderers | `inc/template-tags.php` | `appiappi_icon()`, `appiappi_nav_fallback()`, `appiappi_get_pricing_plans()`/`appiappi_get_featured_templates()`/`appiappi_get_template_categories()`/`appiappi_get_template_styles()`/`appiappi_get_hero_slides()` (all fallback-only now), `appiappi_get_google_rating()`, `appiappi_render_pricing_cards( $plans )`, `appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar )`, `appiappi_render_hero_slides( $slides )` | Add icons to the `$icons` array; the three `appiappi_render_*()` functions are the only place their respective section's HTML lives — edit them, not a shortcode or a preview template, when changing card/section markup |
+| Icons, nav fallback, page header, pagination, placeholder data, shared renderers | `inc/template-tags.php` | `appiappi_icon()`, `appiappi_nav_fallback()`, `appiappi_page_header()`, `appiappi_pagination()`, `appiappi_get_*()` placeholder/fallback functions (pricing plans, featured templates + categories/styles, hero slides, services, how-it-works steps, FAQs, portfolio projects, Google rating), and the shared `appiappi_render_*()` functions (`pricing_cards`, `template_showcase`, `hero_slides`, `faq`, `portfolio_grid`) | Add icons to the `$icons` array; each `appiappi_render_*()` function is the only place its section's HTML lives — edit it, not a shortcode or a page template, when changing markup |
 | Homepage assembly | `front-page.php` | Section order | Add/remove `get_template_part()` calls |
 | Homepage hero | `template-parts/sections/hero.php` | Calls `[appiappi_hero_slider]` shortcode if active, else the theme placeholder — both via `appiappi_render_hero_slides()` | Edit the shortcode-vs-fallback logic here; edit actual slides via **Hero Slides** in wp-admin |
 | **Hero Slider plugin** | `wp-content/plugins/appiappi-hero-slider/` | CPT `appiappi_slide`, meta box admin UI, `[appiappi_hero_slider]` shortcode | `includes/cpt.php` (post type/admin columns), `includes/meta-boxes.php` (admin fields + save/sanitize), `includes/shortcode.php` (query + data mapping, plus fallback-to-theme-default when zero slides published) |
@@ -433,6 +514,21 @@ than duplicated here — grep for `TODO` to find them all.
 | Homepage trust bar | `template-parts/sections/trust-bar.php` | 4-item icon strip, per-item colour | Edit `$items` array in the file |
 | Homepage final CTA | `template-parts/sections/final-cta.php` | Closing conversion band | Edit copy/links here |
 | Favicon | `inc/setup.php` (`appiappi_favicon()`) + `assets/images/favicon.svg` | SVG favicon (maple-leaf mark), skipped if a Customizer Site Icon is set | Edit the SVG file or the fallback condition |
-| Site header | `template-parts/header/site-header.php` | Logo, nav, CTA, mobile toggle | Edit markup here; menu items via **Appearance → Menus** once created |
+| Site header | `template-parts/header/site-header.php` | Logo, nav, CTA, mobile toggle | Edit markup here; menu items via **Appearance → Menus → Primary Menu** (real menu, assigned to the `primary` location — see §20) |
 | Site footer | `template-parts/footer/site-footer.php` | 4-column footer | Edit link lists here; contact/social via Customizer |
 | Mobile nav + sticky header behaviour | `assets/js/main.js` | Toggle open/close, scroll shadow | Edit here; no dependencies to manage |
+| Services page | `page-services.php` (slug `services`) | 6 service cards | Edit `appiappi_get_services()` in `template-tags.php` |
+| How It Works page | `page-how-it-works.php` (slug `how-it-works`) | 6 numbered steps | Edit `appiappi_get_how_it_works_steps()` in `template-tags.php` |
+| About page | `page-about.php` (slug `about`) | Renders the real Page's `the_content()` | Edit the **About** page content in wp-admin — no code involved |
+| Pricing page | `page-pricing.php` (slug `pricing`) | Full plan comparison + FAQ | Reuses the Pricing Plans + FAQ shortcodes/fallbacks already documented above |
+| FAQ page | `page-faq.php` (slug `faq`) | Calls `[appiappi_faq]` if active, else theme placeholder — both via `appiappi_render_faq()` | Edit actual questions via **FAQs** in wp-admin |
+| **FAQ plugin** | `wp-content/plugins/appiappi-faq/` | CPT `appiappi_faq` + taxonomy `appiappi_faq_category`, `[appiappi_faq]` shortcode | `includes/cpt.php` (post type/taxonomy), `includes/shortcode.php` (query + data mapping) |
+| FAQ accordion toggle | `assets/js/main.js` | Open/close on click | Third IIFE in the file |
+| Portfolio page | `page-portfolio.php` (slug `portfolio`) | Calls `[appiappi_portfolio]` if active, else theme placeholder — both via `appiappi_render_portfolio_grid()` | Edit actual projects via **Portfolio** in wp-admin |
+| **Portfolio plugin** | `wp-content/plugins/appiappi-portfolio/` | CPT `appiappi_project` + taxonomy `appiappi_portfolio_industry`, meta box, `[appiappi_portfolio]` shortcode | `includes/cpt.php`, `includes/meta-boxes.php` (client/location/URL/services/results/concept-flag), `includes/shortcode.php` |
+| Contact page | `page-contact.php` (slug `contact`) | Contact info card + `[appiappi_contact_form]` if active, else a mailto/phone fallback | Edit info-card markup here; contact details via Customizer |
+| **Contact plugin** | `wp-content/plugins/appiappi-contact/` | CPT `appiappi_lead`, `[appiappi_contact_form]` shortcode, submission handler | `includes/cpt.php` (Lead admin UI + status meta box), `includes/handler.php` (validation, spam honeypot, email, PRG redirect — on `template_redirect`, not the shortcode), `includes/shortcode.php` (form markup only) |
+| Blog index | `home.php` | Paginated post grid (the `page_for_posts` page) | Edit layout here; posts themselves are normal wp-admin **Posts** |
+| Single post | `single.php` | Title, meta, featured image, content | Edit here |
+| Category/tag archives | `archive.php` | Same post grid as the blog index | Edit here |
+| Blog post card | `template-parts/content/post-card.php` | One card in the grid | Edit here (used by both `home.php` and `archive.php`) |

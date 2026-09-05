@@ -15,6 +15,9 @@
 !/wp-content/plugins/appiappi-pricing-plans/
 !/wp-content/plugins/appiappi-template-showcase/
 !/wp-content/plugins/appiappi-hero-slider/
+!/wp-content/plugins/appiappi-faq/
+!/wp-content/plugins/appiappi-portfolio/
+!/wp-content/plugins/appiappi-contact/
 /wp-content/mu-plugins/*
 !/wp-content/mu-plugins/.gitkeep
 /wp-content/themes/*
