@@ -11,6 +11,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+function appiappi_contact_sanitize_phone_type( $value ) {
+	$allowed = array( 'call', 'sms', 'whatsapp', 'none' );
+	return in_array( $value, $allowed, true ) ? $value : 'call';
+}
+
 function appiappi_customize_register( $wp_customize ) {
 
 	// ---- Brand colour ----
@@ -77,6 +82,96 @@ function appiappi_customize_register( $wp_customize ) {
 			'type'    => 'text',
 		) );
 	}
+
+	// ---- Contact page info box ----
+	// Deliberately separate from "Contact Information" above (footer +
+	// schema.org LocalBusiness data, § inc/seo.php): this section only
+	// drives the info card next to the form on the Contact page, per the
+	// user's brief — map on top, address/phone/support email below, each
+	// independently optional, the whole card hidden if all are empty.
+	$wp_customize->add_section( 'appiappi_contact_page_box', array(
+		'title'       => __( 'Contact Page Info Box', 'appiappi' ),
+		'description' => __( 'The info box shown beside the form on the Contact page. Leave everything below empty to hide the box entirely and show just the form.', 'appiappi' ),
+		'priority'    => 36,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_map_embed', array(
+		'default'           => '',
+		'sanitize_callback' => 'esc_url_raw',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_map_embed', array(
+		'label'       => __( 'Google Maps Embed URL', 'appiappi' ),
+		'description' => __( 'In Google Maps: Share → Embed a map, then copy just the URL inside the src="..." attribute of the code it gives you.', 'appiappi' ),
+		'section'     => 'appiappi_contact_page_box',
+		'type'        => 'url',
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_address_label', array(
+		'default'           => __( 'Address', 'appiappi' ),
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_address_label', array(
+		'label'   => __( 'Address Label', 'appiappi' ),
+		'section' => 'appiappi_contact_page_box',
+		'type'    => 'text',
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_address_value', array(
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_address_value', array(
+		'label'   => __( 'Address', 'appiappi' ),
+		'section' => 'appiappi_contact_page_box',
+		'type'    => 'text',
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_phone_label', array(
+		'default'           => __( 'Phone', 'appiappi' ),
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_phone_label', array(
+		'label'       => __( 'Phone Label', 'appiappi' ),
+		'description' => __( 'Whatever this number actually is — e.g. "Phone", "Fax", or "WhatsApp Support".', 'appiappi' ),
+		'section'     => 'appiappi_contact_page_box',
+		'type'        => 'text',
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_phone_value', array(
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_phone_value', array(
+		'label'   => __( 'Phone Number', 'appiappi' ),
+		'section' => 'appiappi_contact_page_box',
+		'type'    => 'text',
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_phone_type', array(
+		'default'           => 'call',
+		'sanitize_callback' => 'appiappi_contact_sanitize_phone_type',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_phone_type', array(
+		'label'   => __( 'Phone Number Links To', 'appiappi' ),
+		'section' => 'appiappi_contact_page_box',
+		'type'    => 'select',
+		'choices' => array(
+			'call'     => __( 'Phone Call', 'appiappi' ),
+			'sms'      => __( 'Text Message (SMS)', 'appiappi' ),
+			'whatsapp' => __( 'WhatsApp', 'appiappi' ),
+			'none'     => __( 'None — just show the number', 'appiappi' ),
+		),
+	) );
+
+	$wp_customize->add_setting( 'appiappi_contact_support_email', array(
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_email',
+	) );
+	$wp_customize->add_control( 'appiappi_contact_support_email', array(
+		'label'   => __( 'Support Email', 'appiappi' ),
+		'section' => 'appiappi_contact_page_box',
+		'type'    => 'email',
+	) );
 
 	// ---- Social links ----
 	$wp_customize->add_section( 'appiappi_social', array(

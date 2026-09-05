@@ -42,12 +42,8 @@ function appiappi_contact_handle_submission() {
 
 	$business           = isset( $_POST['appiappi_contact_business'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_business'] ) ) : '';
 	$phone              = isset( $_POST['appiappi_contact_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_phone'] ) ) : '';
-	$province           = isset( $_POST['appiappi_contact_province'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_province'] ) ) : '';
 	$website            = isset( $_POST['appiappi_contact_website'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_website'] ) ) : '';
-	$business_type      = isset( $_POST['appiappi_contact_business_type'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_business_type'] ) ) : '';
 	$interested_service = isset( $_POST['appiappi_contact_interested_service'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_interested_service'] ) ) : '';
-	$budget_range       = isset( $_POST['appiappi_contact_budget_range'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_budget_range'] ) ) : '';
-	$launch_date        = isset( $_POST['appiappi_contact_launch_date'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_launch_date'] ) ) : '';
 	$selected_design    = isset( $_POST['appiappi_contact_selected_design'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_selected_design'] ) ) : '';
 	$selected_plan      = isset( $_POST['appiappi_contact_selected_plan'] ) ? sanitize_text_field( wp_unslash( $_POST['appiappi_contact_selected_plan'] ) ) : '';
 
@@ -61,12 +57,8 @@ function appiappi_contact_handle_submission() {
 		update_post_meta( $post_id, '_appiappi_lead_email', $email );
 		update_post_meta( $post_id, '_appiappi_lead_business', $business );
 		update_post_meta( $post_id, '_appiappi_lead_phone', $phone );
-		update_post_meta( $post_id, '_appiappi_lead_province', $province );
 		update_post_meta( $post_id, '_appiappi_lead_website', $website );
-		update_post_meta( $post_id, '_appiappi_lead_business_type', $business_type );
 		update_post_meta( $post_id, '_appiappi_lead_interested_service', $interested_service );
-		update_post_meta( $post_id, '_appiappi_lead_budget_range', $budget_range );
-		update_post_meta( $post_id, '_appiappi_lead_launch_date', $launch_date );
 		update_post_meta( $post_id, '_appiappi_lead_selected_design', $selected_design );
 		update_post_meta( $post_id, '_appiappi_lead_selected_plan', $selected_plan );
 		update_post_meta( $post_id, '_appiappi_lead_message', $message );

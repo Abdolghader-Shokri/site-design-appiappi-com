@@ -14,22 +14,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-function appiappi_contact_form_business_types() {
-	return array( __( 'Construction / Contracting', 'appiappi-contact' ), __( 'Legal', 'appiappi-contact' ), __( 'Dental / Medical', 'appiappi-contact' ), __( 'Real Estate', 'appiappi-contact' ), __( 'Restaurant / Retail', 'appiappi-contact' ), __( 'Professional Services', 'appiappi-contact' ), __( 'Other', 'appiappi-contact' ) );
-}
-
-function appiappi_contact_form_budget_ranges() {
-	return array( __( 'Under $500', 'appiappi-contact' ), __( '$500 – $1,000', 'appiappi-contact' ), __( '$1,000 – $2,500', 'appiappi-contact' ), __( '$2,500+', 'appiappi-contact' ) );
-}
-
-/**
- * Canadian provinces & territories, for the selection-workflow's
- * Province field (§ Website Template Library selection workflow).
- */
-function appiappi_contact_form_provinces() {
-	return array( 'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Northwest Territories', 'Nunavut', 'Yukon' );
-}
-
 function appiappi_contact_form_shortcode() {
 	$services = function_exists( 'appiappi_get_services' ) ? wp_list_pluck( appiappi_get_services(), 'name' ) : array();
 
@@ -87,26 +71,8 @@ function appiappi_contact_form_shortcode() {
 					<input type="tel" id="appiappi_contact_phone" name="appiappi_contact_phone">
 				</div>
 				<div class="form-field">
-					<label for="appiappi_contact_province"><?php esc_html_e( 'Province', 'appiappi-contact' ); ?></label>
-					<select id="appiappi_contact_province" name="appiappi_contact_province">
-						<option value=""><?php esc_html_e( 'Select one', 'appiappi-contact' ); ?></option>
-						<?php foreach ( appiappi_contact_form_provinces() as $province ) : ?>
-							<option value="<?php echo esc_attr( $province ); ?>"><?php echo esc_html( $province ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="form-field">
 					<label for="appiappi_contact_website"><?php esc_html_e( 'Current Website (if any)', 'appiappi-contact' ); ?></label>
 					<input type="text" id="appiappi_contact_website" name="appiappi_contact_website" placeholder="yourbusiness.ca">
-				</div>
-				<div class="form-field">
-					<label for="appiappi_contact_business_type"><?php esc_html_e( 'Business Type', 'appiappi-contact' ); ?></label>
-					<select id="appiappi_contact_business_type" name="appiappi_contact_business_type">
-						<option value=""><?php esc_html_e( 'Select one', 'appiappi-contact' ); ?></option>
-						<?php foreach ( appiappi_contact_form_business_types() as $type ) : ?>
-							<option value="<?php echo esc_attr( $type ); ?>"><?php echo esc_html( $type ); ?></option>
-						<?php endforeach; ?>
-					</select>
 				</div>
 				<div class="form-field">
 					<label for="appiappi_contact_interested_service"><?php esc_html_e( 'Interested Service', 'appiappi-contact' ); ?></label>
@@ -117,19 +83,6 @@ function appiappi_contact_form_shortcode() {
 						<?php endforeach; ?>
 						<option value="<?php esc_attr_e( 'Not sure yet', 'appiappi-contact' ); ?>"><?php esc_html_e( 'Not sure yet', 'appiappi-contact' ); ?></option>
 					</select>
-				</div>
-				<div class="form-field">
-					<label for="appiappi_contact_budget_range"><?php esc_html_e( 'Budget Range', 'appiappi-contact' ); ?></label>
-					<select id="appiappi_contact_budget_range" name="appiappi_contact_budget_range">
-						<option value=""><?php esc_html_e( 'Select one', 'appiappi-contact' ); ?></option>
-						<?php foreach ( appiappi_contact_form_budget_ranges() as $range ) : ?>
-							<option value="<?php echo esc_attr( $range ); ?>"><?php echo esc_html( $range ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="form-field">
-					<label for="appiappi_contact_launch_date"><?php esc_html_e( 'Preferred Launch Date', 'appiappi-contact' ); ?></label>
-					<input type="date" id="appiappi_contact_launch_date" name="appiappi_contact_launch_date">
 				</div>
 				<div class="form-field form-field--full">
 					<label for="appiappi_contact_message"><?php esc_html_e( 'Message', 'appiappi-contact' ); ?> *</label>

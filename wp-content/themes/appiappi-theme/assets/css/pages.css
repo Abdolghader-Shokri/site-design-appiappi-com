@@ -375,10 +375,42 @@
 	gap: var(--space-10);
 }
 
+/* No info card configured (Customizer → Contact Page Info Box all
+   empty) — the form is the only thing on the page, so give it a
+   comfortable reading width instead of stretching edge to edge. */
+.contact-layout--form-only {
+	max-width: 720px;
+	margin-inline: auto;
+}
+
 .contact-info-card {
-	padding: var(--space-8);
+	padding: 0;
+	overflow: hidden;
 	background: var(--color-navy-900);
 	color: var(--color-text-on-dark-muted);
+	display: flex;
+	flex-direction: column;
+}
+
+/* The "top half": a Google Maps embed, when configured. */
+.contact-info-card__map {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	background: var(--color-neutral-100);
+}
+
+.contact-info-card__map iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+/* The "bottom half": address / phone / support email. */
+.contact-info-card__details {
+	padding: var(--space-8);
 }
 
 .contact-info-card h3 {
@@ -390,6 +422,10 @@
 	align-items: flex-start;
 	gap: var(--space-3);
 	margin-bottom: var(--space-4);
+}
+
+.contact-info-card ul li:last-child {
+	margin-bottom: 0;
 }
 
 .contact-form-card {
@@ -421,6 +457,10 @@
 @media (min-width: 1024px) {
 	.contact-layout {
 		grid-template-columns: 1fr 1.5fr;
+	}
+
+	.contact-layout--form-only {
+		grid-template-columns: 1fr;
 	}
 
 	.form-grid {

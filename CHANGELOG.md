@@ -2,6 +2,20 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Contact form trimmed; new configurable info box (map/address/phone/email)
+
+### Removed
+- Contact form: dropped the Province, Business Type, Budget Range and Preferred Launch Date fields per explicit request. Removed from the form itself (`appiappi-contact/includes/shortcode.php`), the submission handler (`includes/handler.php` — no longer captured or saved to Lead meta), and the Lead Details admin meta box (`includes/cpt.php`). The now-unused `appiappi_contact_form_provinces()`/`_business_types()`/`_budget_ranges()` helper functions were deleted too.
+
+### Added
+- New **Contact Page Info Box** Customizer section (`inc/customizer.php`), separate from the existing sitewide "Contact Information" (footer + schema.org data): Google Maps Embed URL, an Address label + value pair, a Phone label + value pair with a "links to" type (Phone Call / SMS / WhatsApp / None), and a Support Email.
+- `page-contact.php`'s left info card now renders these: the map on top (only when the URL's host is `google.com`, as a lightweight safety check), address/phone/email below. Each row renders only when its value is filled in; if every field is empty, the whole card is omitted and the form takes the full width (capped at a comfortable reading width) instead of leaving an empty box.
+- Phone links build their `href` from the selected type: `tel:`, `sms:`, or `https://wa.me/<digits>` for WhatsApp; "None" shows the number as plain text.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/customizer.php`, `page-contact.php`, `assets/css/pages.css`
+- `wp-content/plugins/appiappi-contact/includes/shortcode.php`, `includes/handler.php`, `includes/cpt.php`
+
 ## 2026-09-06 — Website Designs page: matches homepage layout, configurable grid, real pagination
 
 ### Fixed
