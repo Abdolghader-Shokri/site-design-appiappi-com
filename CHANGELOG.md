@@ -2,6 +2,19 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Fix: pricing card styles weren't loading on the Pricing page at all
+
+### Fixed
+- Root cause of "buttons are all blue, no styled box, colours don't match" on `/pricing/`: every pricing-card CSS rule lived in `home.css`, which is only enqueued when `is_front_page()` — the Pricing page is a regular Page template, so it never loaded that stylesheet at all. Moved the full pricing-card CSS block (~200 lines: `.pricing-grid`, `.pricing-card` and all its `__*` elements, the colour-driving `--plan-color` rules, the button overrides) from `home.css` to `components.css`, which loads on every page. See DEVELOPMENT_LOG.md for the full root-cause writeup and the testing-method lesson (markup being correct doesn't prove the CSS that styles it is actually loaded).
+- Feature descriptions (the `Name | Description` textarea format) were rendering on the homepage teaser too — now gated behind `$show_description` (same flag as the plan's own full description), so they only show on the Pricing page as intended.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/assets/css/home.css`, `assets/css/components.css`, `inc/template-tags.php`
+- `DEVELOPMENT_LOG.md`
+
+### Notes
+- Verified this time by checking the actual `<link>` tags served on both pages (not just HTML class names): `/pricing/` now loads `appiappi-components-css` containing the pricing rules; `/` (homepage) still loads its own `appiappi-home-css` for hero/template-showcase/trust-bar/final-cta, with pricing rules also available via components.css. Feature-description count confirmed 0 on homepage, 1 on the Pricing page (the one real example seeded on the Growth plan).
+
 ## 2026-09-06 — Pricing: per-feature descriptions, 12 colours, yearly billing, configurable columns
 
 ### Added

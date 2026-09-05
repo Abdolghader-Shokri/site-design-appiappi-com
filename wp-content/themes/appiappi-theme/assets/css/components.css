@@ -1,6 +1,8 @@
 /**
- * Reusable UI components: buttons, badges, icon chips, cards, forms.
- * Keep these generic — page/section-specific layout belongs in home.css.
+ * Reusable UI components: buttons, badges, icon chips, cards, forms,
+ * pricing cards. Loaded on every page (unlike home.css/pages.css, which
+ * are conditional on is_front_page()) — so anything used in more than
+ * one template context belongs here, not in one of those two.
  */
 
 /* ---------- Buttons ---------- */
@@ -211,5 +213,218 @@
 	.chip-list {
 		grid-template-columns: repeat(2, 1fr);
 		gap: var(--space-5);
+	}
+}
+
+/**
+ * ---------- Pricing cards ----------
+ * Lives here (not home.css) because appiappi_render_pricing_cards() is
+ * shared between the homepage teaser AND the dedicated /pricing/ page —
+ * home.css is only enqueued on is_front_page(), so any of this in that
+ * file would silently vanish on the Pricing page. See DEVELOPMENT_LOG.md.
+ */
+
+.pricing-grid {
+	--cols: 1;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: stretch;
+	gap: var(--space-6);
+}
+
+.pricing-card {
+	--plan-color: var(--color-primary);
+	width: calc((100% - (var(--cols) - 1) * var(--space-6)) / var(--cols));
+	display: flex;
+	flex-direction: column;
+	padding: var(--space-8) var(--space-6);
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--color-border);
+	background: var(--color-white);
+	position: relative;
+	scroll-margin-top: calc(var(--header-height) + var(--space-6));
+}
+
+.pricing-card--featured {
+	border-color: var(--plan-color);
+	box-shadow: var(--shadow-lg);
+}
+
+.pricing-card__badge {
+	position: absolute;
+	top: -14px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: var(--plan-color);
+	color: var(--color-white);
+	font-size: var(--fs-xs);
+	font-weight: var(--fw-semibold);
+	padding: var(--space-1) var(--space-4);
+	border-radius: var(--radius-full);
+	white-space: nowrap;
+}
+
+.pricing-card__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: var(--radius-md);
+	background: color-mix(in srgb, var(--plan-color) 14%, white);
+	color: var(--plan-color);
+	margin-bottom: var(--space-4);
+}
+
+.pricing-card__name {
+	font-size: var(--fs-lg);
+	margin-bottom: var(--space-1);
+}
+
+.pricing-card__tagline {
+	font-size: var(--fs-sm);
+	font-weight: var(--fw-semibold);
+	color: var(--plan-color);
+	margin-bottom: 0;
+}
+
+.pricing-card__price {
+	display: flex;
+	align-items: baseline;
+	gap: var(--space-1);
+	color: var(--plan-color);
+	margin: var(--space-2) 0 var(--space-1);
+}
+
+.pricing-card__price-amount {
+	font-size: var(--fs-3xl);
+	font-weight: var(--fw-bold);
+}
+
+.pricing-card__price-period {
+	font-size: var(--fs-sm);
+	color: var(--color-text-muted);
+}
+
+.pricing-card__note {
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	margin-bottom: var(--space-3);
+}
+
+.pricing-card__audience {
+	font-size: var(--fs-xs);
+	font-style: italic;
+	color: var(--color-neutral-600);
+	margin-bottom: var(--space-6);
+}
+
+.pricing-card__description {
+	font-size: var(--fs-sm);
+	color: var(--color-neutral-800);
+	line-height: var(--lh-normal);
+	margin-bottom: var(--space-6);
+	padding: var(--space-5);
+	background: color-mix(in srgb, var(--plan-color) 8%, white);
+	border: 1px solid color-mix(in srgb, var(--plan-color) 22%, white);
+	border-radius: var(--radius-lg);
+}
+
+.pricing-card__description p:last-child {
+	margin-bottom: 0;
+}
+
+.pricing-card__description-label {
+	font-size: var(--fs-xs);
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--plan-color);
+	margin-bottom: var(--space-2);
+}
+
+.pricing-card__features {
+	flex: 1;
+	margin-bottom: var(--space-6);
+}
+
+.pricing-card__features li {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	font-size: var(--fs-sm);
+	color: var(--color-neutral-800);
+	padding-block: var(--space-2);
+	border-top: 1px solid var(--color-border);
+}
+
+.pricing-card__features li:first-child {
+	border-top: none;
+}
+
+.pricing-card__features svg {
+	flex-shrink: 0;
+	color: var(--plan-color);
+	margin-top: 2px;
+}
+
+.pricing-card__feature-name {
+	display: block;
+}
+
+.pricing-card__feature-desc {
+	display: block;
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	margin-top: 2px;
+}
+
+.pricing-card__value-driver {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	font-size: var(--fs-xs);
+	font-weight: var(--fw-medium);
+	color: var(--color-neutral-800);
+	background: color-mix(in srgb, var(--plan-color) 10%, white);
+	border-radius: var(--radius-md);
+	padding: var(--space-3);
+	margin-bottom: var(--space-5);
+}
+
+.pricing-card__value-driver svg {
+	flex-shrink: 0;
+	color: var(--plan-color);
+	margin-top: 1px;
+}
+
+.pricing-card .btn {
+	border-color: var(--plan-color);
+}
+
+.pricing-card .btn-primary {
+	background: var(--plan-color);
+}
+
+.pricing-card .btn-secondary {
+	color: var(--plan-color);
+}
+
+@media (min-width: 640px) {
+	.pricing-grid {
+		/* Tablet always caps at 2 regardless of the admin's desktop setting —
+		   these cards are too content-heavy to comfortably fit 3+ at this width. */
+		--cols: min(var(--pricing-cols, 4), 2);
+	}
+}
+
+@media (min-width: 1024px) {
+	.pricing-grid {
+		--cols: var(--pricing-cols, 4);
+	}
+
+	.pricing-card--featured {
+		transform: translateY(-var(--space-4));
 	}
 }

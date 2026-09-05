@@ -426,7 +426,7 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 							<?php echo appiappi_icon( 'check' ); ?>
 							<span>
 								<span class="pricing-card__feature-name"><?php echo wp_kses_post( $feature_name ); ?></span>
-								<?php if ( $feature_desc ) : ?>
+								<?php if ( $show_description && $feature_desc ) : ?>
 									<span class="pricing-card__feature-desc"><?php echo esc_html( $feature_desc ); ?></span>
 								<?php endif; ?>
 							</span>

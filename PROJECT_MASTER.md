@@ -595,8 +595,8 @@ than duplicated here — grep for `TODO` to find them all.
 | Design tokens | `assets/css/tokens.css` | Colour/type/spacing/radius/shadow source of truth | Change a variable once, it cascades everywhere |
 | Base reset/typography | `assets/css/base.css` | Global element defaults | Edit for site-wide type/element changes |
 | Header/footer/site shell layout | `assets/css/layout.css` | `.site-header`, `.mobile-nav`, `.site-footer`, `.container`, `.section` | Edit for structural/shell changes |
-| Buttons, badges, chips, cards, forms | `assets/css/components.css` | Reusable UI pieces | Edit for a component used on multiple pages |
-| Homepage section styling | `assets/css/home.css` | Hero, pricing cards, template cards, trust bar, final CTA | Edit for homepage-specific visual changes |
+| Buttons, badges, chips, cards, forms, **pricing cards** | `assets/css/components.css` | Reusable UI pieces used on more than one page — loaded on *every* page, unlike `home.css`/`pages.css` | Edit for a component used on multiple pages. Pricing card styles live here specifically because the homepage teaser and the dedicated Pricing page share `appiappi_render_pricing_cards()` — see DEVELOPMENT_LOG.md 2026-09-06 for why this matters (a component styled only in a conditionally-loaded file can silently have no effect on a page that doesn't load it) |
+| Homepage-only section styling | `assets/css/home.css` | Hero, template cards, trust bar, final CTA (only enqueued on `is_front_page()`) | Edit for homepage-specific visual changes. **Do not** put styles here for anything rendered outside the homepage (like pricing cards) — it silently won't apply on other pages |
 | Theme supports / nav locations / image sizes | `inc/setup.php` | `add_theme_support`, `register_nav_menus` | Add new image sizes or theme features here |
 | Asset loading | `inc/enqueue.php` | Registers/enqueues all CSS/JS, Google Fonts | Add new stylesheets/scripts here, respecting dependency order |
 | Global settings | `inc/customizer.php` | Brand colour, header CTA, contact info, social links, footer tagline | Add new Customizer sections/settings here |

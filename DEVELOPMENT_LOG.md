@@ -12,6 +12,37 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Root-caused: pricing card styles never loaded on the Pricing page at all
+
+The user reported (after clearing cache) that the Pricing page's buttons
+were plain blue, there was no themed description box, and asked again for
+per-plan colour matching I'd already claimed was verified. It was: the
+HTML was always correct (inline `--plan-color` set on every card, right
+CSS classes present — confirmed by direct markup inspection in an earlier
+pass). What I hadn't checked was whether the *stylesheet containing the
+rules that use `--plan-color`* was even being loaded on that page. It
+wasn't: every `.pricing-card`/`.pricing-grid`/`.pricing-card__*` rule
+lived in `home.css`, which `inc/enqueue.php` only enqueues when
+`is_front_page()` is true. `/pricing/` is a regular Page template, not
+the front page — so on that page, `.pricing-card` had **zero** CSS at
+all (no flex layout, no border-radius, no colour rules, nothing), and
+buttons fell back to `components.css`'s generic `.btn-primary` (the
+site's default blue). Class-name/markup verification via `curl` had
+repeatedly looked "correct" this whole time because it never checked
+*which stylesheet actually got requested* — a real gap in the testing
+method, not just a one-off miss.
+
+**Fix:** moved the entire pricing-card CSS block (all ~200 lines) from
+`home.css` to `components.css`, which is unconditionally enqueued on
+every page. This is also the architecturally correct home for it now
+regardless of the bug — `appiappi_render_pricing_cards()` has been a
+shared, cross-page component since the Pricing page was built, so it
+never belonged in a homepage-only file. **Lesson for next time:** when
+a component's markup looks right but its *visual* effect is in doubt,
+check `<link>` tags / enqueued handles for the page in question before
+concluding a CSS rule "should" apply — don't infer it from the class
+names being present in the HTML.
+
 ## 2026-09-06 — Flexbox, not CSS Grid, for the configurable pricing columns
 
 Making the number of pricing cards per row admin-configurable, with the
