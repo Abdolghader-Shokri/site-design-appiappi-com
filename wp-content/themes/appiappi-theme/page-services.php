@@ -5,13 +5,17 @@
  * page-services.php template-hierarchy convention.
  *
  * Each service is a Hook (short benefit statement) + a Precision
- * Breakdown (4-6 concrete sub-tasks) + a closing line bridging
- * "service" to "partner" — content lives in appiappi_get_services()
- * (inc/template-tags.php), not hard-coded here.
+ * Breakdown (however many concrete sub-tasks) + a closing line
+ * bridging "service" to "partner". Uses the appiappi-services plugin's
+ * [appiappi_services] shortcode via shortcode_exists() when active,
+ * falling back to the theme's appiappi_get_services() placeholder
+ * otherwise — both paths render through the shared
+ * appiappi_render_services() in inc/template-tags.php, so markup never
+ * duplicates and the footer's per-service links (site-footer.php) work
+ * against either source.
  */
 
 get_header();
-$services = appiappi_get_services();
 ?>
 
 <main id="main-content">
@@ -20,26 +24,11 @@ $services = appiappi_get_services();
 
 	<section class="section">
 		<div class="container">
-			<div class="service-list">
-				<?php foreach ( $services as $service ) : ?>
-					<article class="service-block">
-						<div class="service-block__header">
-							<span class="service-card__icon"><?php echo appiappi_icon( $service['icon'] ); ?></span>
-							<h2><?php echo esc_html( $service['name'] ); ?></h2>
-						</div>
-
-						<p class="service-block__hook"><?php echo esc_html( $service['hook'] ); ?></p>
-
-						<ul class="service-block__breakdown">
-							<?php foreach ( $service['breakdown'] as $item ) : ?>
-								<li><?php echo appiappi_icon( 'check' ); ?><span><?php echo esc_html( $item ); ?></span></li>
-							<?php endforeach; ?>
-						</ul>
-
-						<p class="service-block__closing"><?php echo esc_html( $service['closing'] ); ?></p>
-					</article>
-				<?php endforeach; ?>
-			</div>
+			<?php if ( shortcode_exists( 'appiappi_services' ) ) : ?>
+				<?php echo do_shortcode( '[appiappi_services]' ); ?>
+			<?php else : ?>
+				<?php echo appiappi_render_services( appiappi_get_services() ); ?>
+			<?php endif; ?>
 		</div>
 	</section>
 

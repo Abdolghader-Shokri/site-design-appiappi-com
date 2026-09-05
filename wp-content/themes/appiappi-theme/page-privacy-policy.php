@@ -17,6 +17,7 @@ get_header();
 
 $company_legal_name = appiappi_get_setting( 'company_legal_name' );
 $display_name        = $company_legal_name ?: 'Appiappi';
+$site_domain          = appiappi_get_setting( 'site_domain' ) ?: 'appiappi.com';
 $company_address      = appiappi_get_setting( 'company_address' );
 $privacy_email        = appiappi_get_setting( 'privacy_email' ) ?: appiappi_get_setting( 'general_email' );
 $privacy_officer_name = appiappi_get_setting( 'privacy_officer_name' );
@@ -36,18 +37,19 @@ $data_retention_period = appiappi_get_setting( 'data_retention_period' );
 				<p>
 					<?php
 					printf(
-						/* translators: %s: website URL */
+						/* translators: %s: website domain */
 						esc_html__( 'This Privacy Policy explains how Appiappi collects, uses, discloses, stores and protects personal information when you visit %s, contact us, request a consultation, purchase or subscribe to our services, or otherwise interact with us.', 'appiappi' ),
-						'<code>https://appiappi.com</code>'
+						'<code>' . esc_html( $site_domain ) . '</code>'
 					);
 					?>
 				</p>
 				<p>
 					<?php
 					printf(
-						/* translators: %s: full legal company name */
-						esc_html__( 'For the purposes of this Privacy Policy, "Appiappi," "we," "us" and "our" refer to %s, operating the website at https://appiappi.com.', 'appiappi' ),
-						'<strong>' . esc_html( $display_name ) . '</strong>'
+						/* translators: 1: full legal company name, 2: website domain */
+						esc_html__( 'For the purposes of this Privacy Policy, "Appiappi," "we," "us" and "our" refer to %1$s, operating the website at %2$s.', 'appiappi' ),
+						'<strong>' . esc_html( $display_name ) . '</strong>',
+						esc_html( $site_domain )
 					);
 					?>
 				</p>
@@ -236,7 +238,7 @@ $data_retention_period = appiappi_get_setting( 'data_retention_period' );
 				<p><?php esc_html_e( 'If you have questions about this Privacy Policy, wish to request access or correction, or want to withdraw consent, please contact us:', 'appiappi' ); ?></p>
 				<p class="legal-contact-block">
 					<strong><?php echo esc_html( $display_name ); ?></strong><br>
-					<?php esc_html_e( 'Website:', 'appiappi' ); ?> <code>https://appiappi.com</code><br>
+					<?php esc_html_e( 'Website:', 'appiappi' ); ?> <code><?php echo esc_html( $site_domain ); ?></code><br>
 					<?php if ( $privacy_email ) : ?>
 						<?php esc_html_e( 'Email:', 'appiappi' ); ?> <a href="mailto:<?php echo esc_attr( $privacy_email ); ?>"><?php echo esc_html( $privacy_email ); ?></a><br>
 					<?php endif; ?>

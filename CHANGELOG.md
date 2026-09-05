@@ -2,6 +2,21 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Services companion plugin; dynamic footer links/contact; Site Domain setting
+
+### Added
+- New `appiappi-services` companion plugin: CPT `appiappi_service` (icon, Hook, Breakdown Items — any count, Closing Line, drag-orderable), shortcode `[appiappi_services]`. `page-services.php` now calls it via `shortcode_exists()`, falling back to the theme's `appiappi_get_services()` placeholder otherwise — both render through the new shared `appiappi_render_services()` in `inc/template-tags.php`. Local site seeded with the existing 6 services as real, editable posts.
+- Each service block now gets `id="service-{id}"`. The footer's Services column is now built dynamically from the same data (real CPT data when the plugin's active, else the placeholder) instead of a hard-coded list that was actually missing 2 of the 6 services and pointed at anchors that didn't exist on the page.
+- `appiappi_contact_phone_href( $value, $type )` — a shared helper (`inc/template-tags.php`) building the `tel:`/`sms:`/`https://wa.me/` href from the Contact Page Info Box's phone value + type. Extracted from `page-contact.php`'s inline switch so the footer could reuse the exact same logic without duplicating it.
+- New **Site Domain** field (Settings → Appiappi Settings → General), default `appiappi.com` when empty. Used for the domain mentions in the Privacy Policy/Terms of Service "Website:" rows and intro paragraphs — not for internal links, which keep using `home_url()`.
+
+### Changed
+- Footer's Contact column now reuses the same Customizer fields as the Contact page's info box (address, phone+type, support email — not the map) instead of the older, separate `appiappi_phone`/`appiappi_email`/`appiappi_address` Customizer fields. Those older fields are untouched and still drive `inc/seo.php`'s LocalBusiness schema — they're just no longer what the footer reads. If none of the info-box fields are set, the footer falls back to the new **General Public Email** setting; if that's empty too, the whole footer Contact column is omitted instead of showing "Add contact details in Customizer > Contact Information."
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `page-services.php`, `page-contact.php`, `page-privacy-policy.php`, `page-terms.php`, `template-parts/footer/site-footer.php`, `inc/admin/settings-page.php`, `assets/css/pages.css`, `.gitignore`
+- New: `wp-content/plugins/appiappi-services/` (whole plugin)
+
 ## 2026-09-06 — About / Privacy Policy / Terms of Service pages
 
 ### Added

@@ -18,6 +18,15 @@ defined( 'ABSPATH' ) || exit;
 
 function appiappi_settings_fields() {
 	return array(
+		'site_domain'      => array(
+			'label'       => __( 'Site Domain', 'appiappi' ),
+			'type'        => 'text',
+			'placeholder' => 'appiappi.com',
+			'description' => __( 'Used anywhere the domain is mentioned as plain text (footer, legal pages, etc.) — not for internal links, which always use the real site URL automatically. Leave empty to use appiappi.com.', 'appiappi' ),
+			'group'       => 'general',
+		),
+
+		// ---- SEO, Analytics & Technical ----
 		'seo_title'        => array( 'label' => __( 'Default SEO Title', 'appiappi' ), 'type' => 'text', 'group' => 'seo' ),
 		'seo_description'  => array( 'label' => __( 'Default Meta Description', 'appiappi' ), 'type' => 'textarea', 'group' => 'seo' ),
 		'ga_measurement_id'=> array( 'label' => __( 'Google Analytics Measurement ID', 'appiappi' ), 'type' => 'text', 'placeholder' => 'G-XXXXXXXXXX', 'group' => 'seo' ),
@@ -80,8 +89,9 @@ function appiappi_settings_fields() {
 
 function appiappi_settings_groups() {
 	return array(
-		'seo'   => __( 'SEO, Analytics & Technical', 'appiappi' ),
-		'legal' => __( 'Legal & Company Information', 'appiappi' ),
+		'general' => __( 'General', 'appiappi' ),
+		'seo'     => __( 'SEO, Analytics & Technical', 'appiappi' ),
+		'legal'   => __( 'Legal & Company Information', 'appiappi' ),
 	);
 }
 

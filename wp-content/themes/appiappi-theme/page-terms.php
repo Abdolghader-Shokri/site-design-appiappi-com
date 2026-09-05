@@ -12,6 +12,7 @@
 get_header();
 
 $company_legal_name    = appiappi_get_setting( 'company_legal_name' );
+$site_domain           = appiappi_get_setting( 'site_domain' ) ?: 'appiappi.com';
 $display_name          = $company_legal_name ?: 'Appiappi';
 $incorporation_province = appiappi_get_setting( 'incorporation_province' );
 $company_address       = appiappi_get_setting( 'company_address' );
@@ -32,7 +33,7 @@ $ownership_details     = appiappi_get_setting( 'ownership_details' );
 			<div class="single-post__content">
 				<p class="legal-updated"><?php esc_html_e( 'Last Updated: September 6, 2026', 'appiappi' ); ?></p>
 
-				<p><?php printf( esc_html__( 'These Terms of Service govern your access to and use of %s and any website design, hosting, SEO, maintenance, content management, support or related services provided by Appiappi.', 'appiappi' ), '<code>https://appiappi.com</code>' ); ?></p>
+				<p><?php printf( esc_html__( 'These Terms of Service govern your access to and use of %s and any website design, hosting, SEO, maintenance, content management, support or related services provided by Appiappi.', 'appiappi' ), '<code>' . esc_html( $site_domain ) . '</code>' ); ?></p>
 				<p><?php esc_html_e( 'By accessing our website, submitting a request, approving a proposal, purchasing a plan, subscribing to a service or using our services, you agree to these Terms of Service. If you do not agree with these terms, you should not use the website or services.', 'appiappi' ); ?></p>
 				<p>
 					<?php
@@ -312,7 +313,7 @@ $ownership_details     = appiappi_get_setting( 'ownership_details' );
 				<p><?php esc_html_e( 'If you have questions about these Terms of Service, please contact us:', 'appiappi' ); ?></p>
 				<p class="legal-contact-block">
 					<strong><?php echo esc_html( $display_name ); ?></strong><br>
-					<?php esc_html_e( 'Website:', 'appiappi' ); ?> <code>https://appiappi.com</code><br>
+					<?php esc_html_e( 'Website:', 'appiappi' ); ?> <code><?php echo esc_html( $site_domain ); ?></code><br>
 					<?php if ( $general_email ) : ?>
 						<?php esc_html_e( 'Email:', 'appiappi' ); ?> <a href="mailto:<?php echo esc_attr( $general_email ); ?>"><?php echo esc_html( $general_email ); ?></a><br>
 					<?php endif; ?>

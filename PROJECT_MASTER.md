@@ -60,6 +60,7 @@ for the full spec, and [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) for why.
 | FAQ | `appiappi-faq` | `[appiappi_faq category="" limit="-1"]` | **Built** — CPT `appiappi_faq` + taxonomy `appiappi_faq_category`, active with the 12 launch questions seeded; see §14a |
 | Portfolio | `appiappi-portfolio` | `[appiappi_portfolio count="6" industry=""]` | **Built** — CPT `appiappi_project` + taxonomy `appiappi_portfolio_industry`, active with 3 concept projects seeded; see §14b |
 | Contact / Leads | `appiappi-contact` | `[appiappi_contact_form]` | **Built** — CPT `appiappi_lead`, form + spam honeypot + email notification; the one plugin that intentionally does *not* use the shared-render-function pattern (see §14c) |
+| Services | `appiappi-services` | `[appiappi_services]` | **Built** (2026-09-06) — CPT `appiappi_service`, native meta box (icon, Hook, Breakdown Items, Closing Line), active with the 6 seeded services; see §14 |
 
 Phase 1.5 build order: theme visuals → Pricing Plans → Template Showcase
 → Hero Slideshow → package as installable zips (not yet done). **Phase 2
@@ -140,7 +141,8 @@ site-design-appiappi-com/               (git repo root — NOT the WP root)
         ├── appiappi-hero-slider/       See § 11a
         ├── appiappi-faq/               See § 14a
         ├── appiappi-portfolio/         See § 14b
-        └── appiappi-contact/           See § 14c
+        ├── appiappi-contact/           See § 14c
+        └── appiappi-services/          See § 14
 ```
 
 WordPress core (`wp-admin/`, `wp-includes/`, `wp-*.php`) and all non-custom
@@ -158,11 +160,14 @@ to real paths on the running site.
 - `appiappi_faq` CPT — registered in `wp-content/plugins/appiappi-faq/includes/cpt.php`. Not public, post Title = question, native editor content = answer. Taxonomy `appiappi_faq_category` (flat). Ordering uses native `menu_order`.
 - `appiappi_project` CPT — registered in `wp-content/plugins/appiappi-portfolio/includes/cpt.php`. Not public, post Title = project name, native editor content = description, Featured Image = project photo. Meta keys (prefixed `_appiappi_portfolio_`): `client`, `location`, `external_url`, `services`, `results`, `is_concept`. Taxonomy `appiappi_portfolio_industry` (flat). **Note:** registered as `appiappi_project`, not the longer `appiappi_portfolio_project` — see §14b for why.
 - `appiappi_lead` CPT — registered in `wp-content/plugins/appiappi-contact/includes/cpt.php`. Not public, no front-end template (admin-only). Meta keys (prefixed `_appiappi_lead_`): `email`, `business`, `phone`, `website`, `interested_service`, `selected_design`, `selected_plan`, `source`, `message`, `status`. See §14c.
+- `appiappi_service` CPT — registered in `wp-content/plugins/appiappi-services/includes/cpt.php`. Not public, no `editor` support (every field, including the "Hook", renders as plain escaped text, so a plain textarea fits better than the rich-text editor). Meta keys (prefixed `_appiappi_service_`): `icon` (curated set — `appiappi_services_icon_options()`), `hook`, `breakdown` (newline-separated string, any number of items, split on render), `closing`. Ordering uses native `menu_order`. Added 2026-09-06.
 
 Planned:
 - **Case Study** CPT (Phase 2/3 follow-up, not built this pass)
 
 ## 8. Settings
+
+**Site Domain** (Settings → Appiappi Settings, added 2026-09-06): plain text, default `appiappi.com` when empty. Used anywhere the domain needs to appear as plain display text (currently: the Privacy Policy and Terms of Service pages' "Website:" mentions) — deliberately **not** used for internal links, which always go through `home_url()`/`site_url()` so they keep working regardless of environment (local dev vs. the real production domain).
 
 Implemented now via the native Customizer (`inc/customizer.php`):
 
@@ -241,8 +246,21 @@ icons to the `$icons` array there; keep them simple/stroke-based/on-brand.
 - **Footer** (`template-parts/footer/site-footer.php`): 4-column grid (brand
   + social, Quick Links, Services, Contact) collapsing to 2 columns ≥640px
   and 1 column below that, plus a bottom bar (copyright + legal links).
-  Contact/social fields pull from the Customizer and simply don't render
-  when empty (with a hint prompting the admin to fill them in).
+  Social fields pull from the Customizer and simply don't render when empty.
+  **Services column (rewritten 2026-09-06):** built dynamically from
+  `appiappi_services_get_services()` (real CPT data, §14) or the theme's
+  `appiappi_get_services()` placeholder — each link is `/services/#service-{id}`,
+  landing exactly on that service's block. Replaces a previously
+  hard-coded, incomplete 4-of-6 link list whose anchors didn't even exist
+  on the page yet. **Contact column (rewritten 2026-09-06):** reuses the
+  same Customizer fields as the Contact page's info box ("Contact Page
+  Info Box" — address, phone with its "links to" type, support email;
+  the map is Contact-page-only) via the shared `appiappi_contact_phone_href()`
+  helper (`inc/template-tags.php`), so both places always show identical
+  details. If none of those are set, falls back to just the **General
+  Public Email** (Settings → Appiappi Settings → Legal & Company
+  Information); if that's empty too, the whole column is omitted rather
+  than showing a "please configure this" placeholder.
 
 ## 11a. Homepage Hero
 
@@ -412,7 +430,7 @@ homepage teaser and the archive render with the sidebar shown.
 
 Static-content page templates in the theme root (auto-applied via the `page-{slug}.php` naming convention to Pages with matching slugs — no manual "Page Attributes → Template" selection needed, though each also declares a `Template Name:` header so it can be assigned to a differently-slugged page too):
 
-- **`page-services.php`** (slug `services`) — 6 full-width service blocks from `appiappi_get_services()` (a static array in `inc/template-tags.php`, same "fixed offering, not business data" reasoning as the trust bar). Each service carries 4 pieces of copy: `hook` (a punchy ~30–40 word benefit statement), `breakdown` (4–6 concrete sub-task bullets, written to sound premium/specific rather than generic — "Schema markup for services, reviews and local business data", not "SEO stuff"), and `closing` (a short line bridging "service" to "partner", rendered as a tinted callout). Rewritten 2026-09-06 per the user's copywriting brief — Canadian spelling (optimisation, colour where it comes up), "we"/"you" partnership framing, "foundational business infrastructure" positioning in the page intro.
+- **`page-services.php`** (slug `services`) — full-width service blocks, one per service. **Converted to the `appiappi-services` companion plugin (2026-09-06)**: calls `[appiappi_services]` via `shortcode_exists()` when active, falling back to the theme's `appiappi_get_services()` placeholder otherwise — both paths render through the shared `appiappi_render_services( $services )` in `inc/template-tags.php`, same pattern as every other section. Each service carries `icon`, `hook` (a punchy ~30–40 word benefit statement), `breakdown` (as many concrete sub-task bullets as that service needs — no fixed count, unlike the original 4–6-item static array), and `closing` (a short line bridging "service" to "partner", rendered as a tinted callout). Every service block gets `id="service-{id}"` (the CPT post's slug, or the placeholder's hand-set `id` key) so the footer's Services column (`site-footer.php`) can link straight to the right one — `href="/services/#service-{id}"`, built dynamically from the same data source instead of a hard-coded, previously-incomplete/mismatched link list. Content rewritten 2026-09-06 per the user's copywriting brief before the plugin conversion — Canadian spelling (optimisation, colour where it comes up), "we"/"you" partnership framing, "foundational business infrastructure" positioning in the page intro; the local site has all 6 services seeded as real posts (Website Design, Website Management, SEO, Content Management, Managed Hosting, Website Support), manageable under **Services** in wp-admin.
 - **`page-how-it-works.php`** (slug `how-it-works`) — 6 numbered steps from `appiappi_get_how_it_works_steps()`, same pattern. Each step carries 4 fields: `title`, `we_do` (the specific actions the agency takes), `you_provide` (what the client needs to hand over, or "nothing further" where true), and `benefit` (why the step matters to the client, styled as a highlighted callout) — rewritten 2026-09-06 per the user's UX-copywriter brief. Ends with a page-specific closing CTA ("Ready to Get Started?") rather than the generic shared one.
 - **`page-about.php`** (slug `about`) — genuinely admin-editable: renders `the_content()` from the real WordPress Page, not a static array, since this is editorial copy the business owner should be able to rewrite without touching code. Content rewritten 2026-09-06 from the user's draft (cleaned up a handful of copy-paste corruption/duplication bugs in that draft — a garbled "What We Do" bullet list, a doubled "Practical Strategy" sentence — while keeping the structure and wording otherwise as given).
 - **`page-privacy-policy.php`** (slug `privacy-policy`, publishes over WordPress core's own auto-created draft Privacy Policy page) and **`page-terms.php`** (slug `terms`, new Page created 2026-09-06) — added 2026-09-06. Unlike About, these are **hard-coded PHP templates, not `the_content()`** — this is legal boilerplate, not marketing copy — but every business-specific fact (legal name, incorporation province, address, emails, privacy officer, payment method/provider, exact cancellation policy, support response time, data retention period, portfolio display policy, final ownership details) is pulled live from **Settings → Appiappi Settings → Legal & Company Information** via `appiappi_get_setting()` (see §8), never hard-coded. A field left empty omits the sentence/row that depends on it (e.g. no "Privacy Contact:" row) rather than shipping a `[Insert ...]` placeholder in a published legal page; a few fields (governing law, cancellation policy, portfolio policy) fall back to generic-but-still-legally-sound wording instead. Both Page objects' own `post_content` just holds an admin-facing note explaining that the real copy lives in these templates, not the editor — editing the Page content in wp-admin does nothing to the front-end output. Content originally drafted by the user; cleaned up a few copy-paste corruption bugs in that draft in the same pass (a merged sentence/heading, a duplicated bullet, a dropped word) while keeping the wording and structure otherwise as given.
@@ -657,7 +675,8 @@ than duplicated here — grep for `TODO` to find them all.
 | Site header | `template-parts/header/site-header.php` | Logo, nav, CTA, mobile toggle | Edit markup here; menu items via **Appearance → Menus → Primary Menu** (real menu, assigned to the `primary` location — see §20) |
 | Site footer | `template-parts/footer/site-footer.php` | 4-column footer | Edit link lists here; contact/social via Customizer |
 | Mobile nav + sticky header behaviour | `assets/js/main.js` | Toggle open/close, scroll shadow | Edit here; no dependencies to manage |
-| Services page | `page-services.php` (slug `services`) | 6 service cards | Edit `appiappi_get_services()` in `template-tags.php` |
+| Services page | `page-services.php` (slug `services`) | Calls `[appiappi_services]` if active, else theme placeholder — both via `appiappi_render_services()` | Edit actual services via **Services** in wp-admin |
+| **Services plugin** | `wp-content/plugins/appiappi-services/` | CPT `appiappi_service`, meta box, `[appiappi_services]` shortcode | `includes/cpt.php`, `includes/meta-boxes.php` (icon/Hook/Breakdown Items/Closing Line), `includes/shortcode.php` |
 | How It Works page | `page-how-it-works.php` (slug `how-it-works`) | 6 numbered steps | Edit `appiappi_get_how_it_works_steps()` in `template-tags.php` |
 | About page | `page-about.php` (slug `about`) | Renders the real Page's `the_content()` | Edit the **About** page content in wp-admin — no code involved |
 | Pricing page | `page-pricing.php` (slug `pricing`) | Full plan comparison + FAQ | Reuses the Pricing Plans + FAQ shortcodes/fallbacks already documented above |

@@ -18,6 +18,7 @@
 !/wp-content/plugins/appiappi-faq/
 !/wp-content/plugins/appiappi-portfolio/
 !/wp-content/plugins/appiappi-contact/
+!/wp-content/plugins/appiappi-services/
 /wp-content/mu-plugins/*
 !/wp-content/mu-plugins/.gitkeep
 /wp-content/themes/*

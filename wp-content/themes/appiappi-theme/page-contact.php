@@ -29,21 +29,7 @@ $phone_label = get_theme_mod( 'appiappi_contact_phone_label', __( 'Phone', 'appi
 $phone_value = get_theme_mod( 'appiappi_contact_phone_value' );
 $phone_type  = get_theme_mod( 'appiappi_contact_phone_type', 'call' );
 $has_phone   = (bool) $phone_value;
-$phone_digits = preg_replace( '/[^0-9+]/', '', (string) $phone_value );
-$phone_href   = '';
-if ( $has_phone ) {
-	switch ( $phone_type ) {
-		case 'call':
-			$phone_href = 'tel:' . $phone_digits;
-			break;
-		case 'sms':
-			$phone_href = 'sms:' . $phone_digits;
-			break;
-		case 'whatsapp':
-			$phone_href = 'https://wa.me/' . ltrim( $phone_digits, '+' );
-			break;
-	}
-}
+$phone_href  = appiappi_contact_phone_href( $phone_value, $phone_type );
 
 $support_email = get_theme_mod( 'appiappi_contact_support_email' );
 $has_email     = (bool) $support_email;

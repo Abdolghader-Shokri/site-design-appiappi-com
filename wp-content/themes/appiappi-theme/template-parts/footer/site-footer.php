@@ -1,13 +1,25 @@
 <?php
 /**
  * Four-column footer: brand, quick links, services, contact + social.
- * Contact/social values come from the Customizer (inc/customizer.php)
- * so they're editable without touching code.
+ *
+ * The Contact column reuses the exact same Customizer fields as the
+ * Contact page's info box ("Contact Page Info Box") — address, phone
+ * (with its label/"links to" type) and support email — minus the map,
+ * so both places always show the same details without re-entering them.
+ * If none of those are set, it falls back to just the General Public
+ * Email (Settings → Appiappi Settings → Legal & Company Information);
+ * if that's empty too, the whole column is omitted rather than showing
+ * a "please configure this" placeholder in production.
  */
 
-$phone   = get_theme_mod( 'appiappi_phone' );
-$email   = get_theme_mod( 'appiappi_email' );
-$address = get_theme_mod( 'appiappi_address' );
+$footer_services = function_exists( 'appiappi_services_get_services' ) ? appiappi_services_get_services() : appiappi_get_services();
+
+$footer_address_value = get_theme_mod( 'appiappi_contact_address_value' );
+$footer_phone_value    = get_theme_mod( 'appiappi_contact_phone_value' );
+$footer_phone_href     = appiappi_contact_phone_href( $footer_phone_value, get_theme_mod( 'appiappi_contact_phone_type', 'call' ) );
+$footer_support_email  = get_theme_mod( 'appiappi_contact_support_email' );
+$footer_has_contact_box = $footer_address_value || $footer_phone_value || $footer_support_email;
+$footer_fallback_email  = $footer_has_contact_box ? '' : appiappi_get_setting( 'general_email' );
 
 $social = array(
 	'facebook'  => get_theme_mod( 'appiappi_social_facebook' ),
@@ -49,33 +61,44 @@ $social = array(
 				</ul>
 			</div>
 
-			<div class="footer-col">
-				<p class="footer-col__title"><?php esc_html_e( 'Services', 'appiappi' ); ?></p>
-				<ul class="footer-col__list">
-					<li><a href="<?php echo esc_url( home_url( '/services/#design' ) ); ?>"><?php esc_html_e( 'Website Design', 'appiappi' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/services/#management' ) ); ?>"><?php esc_html_e( 'Website Management', 'appiappi' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/services/#seo' ) ); ?>"><?php esc_html_e( 'SEO', 'appiappi' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/services/#hosting' ) ); ?>"><?php esc_html_e( 'Managed Hosting', 'appiappi' ); ?></a></li>
-				</ul>
-			</div>
+			<?php if ( $footer_services ) : ?>
+				<div class="footer-col">
+					<p class="footer-col__title"><?php esc_html_e( 'Services', 'appiappi' ); ?></p>
+					<ul class="footer-col__list">
+						<?php foreach ( $footer_services as $service ) : ?>
+							<li><a href="<?php echo esc_url( home_url( '/services/#service-' . $service['id'] ) ); ?>"><?php echo esc_html( $service['name'] ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+			<?php endif; ?>
 
-			<div class="footer-col">
-				<p class="footer-col__title"><?php esc_html_e( 'Contact', 'appiappi' ); ?></p>
-				<ul class="footer-col__list footer-contact">
-					<?php if ( $address ) : ?>
-						<li><?php echo appiappi_icon( 'map-pin' ); ?><span><?php echo esc_html( $address ); ?></span></li>
-					<?php endif; ?>
-					<?php if ( $phone ) : ?>
-						<li><?php echo appiappi_icon( 'phone' ); ?><a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a></li>
-					<?php endif; ?>
-					<?php if ( $email ) : ?>
-						<li><?php echo appiappi_icon( 'mail' ); ?><a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></li>
-					<?php endif; ?>
-					<?php if ( ! $address && ! $phone && ! $email ) : ?>
-						<li><?php esc_html_e( 'Add contact details in Customizer > Contact Information.', 'appiappi' ); ?></li>
-					<?php endif; ?>
-				</ul>
-			</div>
+			<?php if ( $footer_has_contact_box || $footer_fallback_email ) : ?>
+				<div class="footer-col">
+					<p class="footer-col__title"><?php esc_html_e( 'Contact', 'appiappi' ); ?></p>
+					<ul class="footer-col__list footer-contact">
+						<?php if ( $footer_has_contact_box ) : ?>
+							<?php if ( $footer_address_value ) : ?>
+								<li><?php echo appiappi_icon( 'map-pin' ); ?><span><?php echo esc_html( $footer_address_value ); ?></span></li>
+							<?php endif; ?>
+							<?php if ( $footer_phone_value ) : ?>
+								<li>
+									<?php echo appiappi_icon( 'phone' ); ?>
+									<?php if ( $footer_phone_href ) : ?>
+										<a href="<?php echo esc_url( $footer_phone_href ); ?>"><?php echo esc_html( $footer_phone_value ); ?></a>
+									<?php else : ?>
+										<span><?php echo esc_html( $footer_phone_value ); ?></span>
+									<?php endif; ?>
+								</li>
+							<?php endif; ?>
+							<?php if ( $footer_support_email ) : ?>
+								<li><?php echo appiappi_icon( 'mail' ); ?><a href="mailto:<?php echo esc_attr( $footer_support_email ); ?>"><?php echo esc_html( $footer_support_email ); ?></a></li>
+							<?php endif; ?>
+						<?php else : ?>
+							<li><?php echo appiappi_icon( 'mail' ); ?><a href="mailto:<?php echo esc_attr( $footer_fallback_email ); ?>"><?php echo esc_html( $footer_fallback_email ); ?></a></li>
+						<?php endif; ?>
+					</ul>
+				</div>
+			<?php endif; ?>
 		</div>
 
 		<div class="footer-bottom">

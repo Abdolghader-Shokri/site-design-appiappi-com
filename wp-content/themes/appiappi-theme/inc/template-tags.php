@@ -722,16 +722,43 @@ function appiappi_page_header( $subtitle = '' ) {
 }
 
 /**
- * Services page content. Fixed offering descriptions, not "business
- * data" in the pricing/contact-info sense — a static array here (rather
- * than a CPT) matches how the trust bar's items are handled.
+ * Builds a mailto/tel/sms/wa.me href for the Contact page info box and
+ * the footer's Contact column, which share the same Customizer fields
+ * (Contact Page Info Box → Phone Number + "Phone Number Links To").
+ * Returns '' for $type 'none' (or anything unrecognised) so the caller
+ * can render the number as plain text instead of a link.
+ */
+function appiappi_contact_phone_href( $value, $type ) {
+	if ( ! $value ) {
+		return '';
+	}
+	$digits = preg_replace( '/[^0-9+]/', '', (string) $value );
+	switch ( $type ) {
+		case 'call':
+			return 'tel:' . $digits;
+		case 'sms':
+			return 'sms:' . $digits;
+		case 'whatsapp':
+			return 'https://wa.me/' . ltrim( $digits, '+' );
+		default:
+			return '';
+	}
+}
+
+/**
+ * Services page content — the theme's placeholder/fallback array, used
+ * when the appiappi-services companion plugin isn't active. Same
+ * shared-render-function pattern as pricing/templates/etc: both this
+ * placeholder and the plugin's [appiappi_services] shortcode build a
+ * $services array in this shape and render through
+ * appiappi_render_services() below, so markup never duplicates.
  */
 function appiappi_get_services() {
 	return array(
 		array(
+			'id'      => 'website-design',
 			'icon'    => 'monitor',
 			'name'    => __( 'Website Design', 'appiappi' ),
-			'desc'    => __( 'Professional, responsive websites built around your business and your customers.', 'appiappi' ),
 			'hook'    => __( 'Your website is the first impression most customers will ever have of your business — we design it to convert visitors into calls, bookings and customers, not just look good on a screen.', 'appiappi' ),
 			'breakdown' => array(
 				__( 'Custom design tailored to your brand, services and target customer', 'appiappi' ),
@@ -744,9 +771,9 @@ function appiappi_get_services() {
 			'closing' => __( "A website built like this isn't a one-time project — it's the foundational business infrastructure everything else on this page builds on. Let's build yours properly, the first time.", 'appiappi' ),
 		),
 		array(
+			'id'      => 'website-management',
 			'icon'    => 'refresh',
 			'name'    => __( 'Website Management', 'appiappi' ),
-			'desc'    => __( 'Ongoing updates, maintenance and changes so your site keeps working, safely.', 'appiappi' ),
 			'hook'    => __( "Software doesn't stand still, and neither should your website — we handle every update, patch and change behind the scenes so it keeps running safely without ever landing on your to-do list.", 'appiappi' ),
 			'breakdown' => array(
 				__( 'Regular WordPress core, theme and plugin updates', 'appiappi' ),
@@ -759,9 +786,9 @@ function appiappi_get_services() {
 			'closing' => __( "Think of us as the technical team you don't have to hire — quietly keeping things running while you focus on your business.", 'appiappi' ),
 		),
 		array(
+			'id'      => 'seo',
 			'icon'    => 'trending-up',
 			'name'    => __( 'SEO', 'appiappi' ),
-			'desc'    => __( 'Technical SEO, on-page SEO, keyword optimisation and ongoing improvements.', 'appiappi' ),
 			'hook'    => __( "Ranking on Google isn't luck — it's the result of deliberate, ongoing technical and content work, and we handle all of it so your business shows up when local customers are searching.", 'appiappi' ),
 			'breakdown' => array(
 				__( 'Technical SEO audits — site speed, crawlability, mobile usability', 'appiappi' ),
@@ -774,9 +801,9 @@ function appiappi_get_services() {
 			'closing' => __( "SEO isn't a checkbox — it's a quarter-over-quarter relationship. We stay on it so your ranking doesn't quietly slip the moment someone stops paying attention.", 'appiappi' ),
 		),
 		array(
+			'id'      => 'content-management',
 			'icon'    => 'pencil',
 			'name'    => __( 'Content Management', 'appiappi' ),
-			'desc'    => __( 'Content updates, image updates, service pages and business information.', 'appiappi' ),
 			'hook'    => __( 'Your website should always reflect where your business actually is today — new services, new pricing, new team members — and we make sure it does, without you needing to learn WordPress.', 'appiappi' ),
 			'breakdown' => array(
 				__( 'Text and image updates across any page, on request', 'appiappi' ),
@@ -789,9 +816,9 @@ function appiappi_get_services() {
 			'closing' => __( "A website that's never updated starts to look abandoned. We keep yours current, so it keeps working as hard as you do.", 'appiappi' ),
 		),
 		array(
+			'id'      => 'managed-hosting',
 			'icon'    => 'shield',
 			'name'    => __( 'Managed Hosting', 'appiappi' ),
-			'desc'    => __( 'Reliable hosting, backups, security and technical management.', 'appiappi' ),
 			'hook'    => __( 'A slow or insecure host quietly costs you customers every day — our managed hosting is built for speed, security and reliability, monitored continuously so problems get caught before your customers ever notice.', 'appiappi' ),
 			'breakdown' => array(
 				__( 'Performance-optimised hosting infrastructure', 'appiappi' ),
@@ -804,9 +831,9 @@ function appiappi_get_services() {
 			'closing' => __( 'Hosting is infrastructure, not an afterthought. We treat it that way — so you never have to think about it at all.', 'appiappi' ),
 		),
 		array(
+			'id'      => 'website-support',
 			'icon'    => 'headset',
 			'name'    => __( 'Website Support', 'appiappi' ),
-			'desc'    => __( 'A dedicated managed support process whenever you need help.', 'appiappi' ),
 			'hook'    => __( "When something needs fixing or changing, you shouldn't have to figure out who to call — you have a dedicated support process and a real team that knows your website, ready when you need them.", 'appiappi' ),
 			'breakdown' => array(
 				__( 'Direct access to a dedicated support process — not a ticket black hole', 'appiappi' ),
@@ -819,6 +846,42 @@ function appiappi_get_services() {
 			'closing' => __( "Support shouldn't feel like a favour. It's part of the partnership — and it's there every time you need it.", 'appiappi' ),
 		),
 	);
+}
+
+/**
+ * Shared service-block markup (icon + name + hook + breakdown + closing).
+ * Same pattern as appiappi_render_pricing_cards(): the theme's own
+ * placeholder (appiappi_get_services()) and the appiappi-services
+ * plugin's [appiappi_services] shortcode both build a $services array
+ * in this shape and render through this one function. Each block gets
+ * an id="service-{id}" anchor so the footer's Services links
+ * (site-footer.php) can jump straight to the right one.
+ */
+function appiappi_render_services( array $services ) {
+	ob_start();
+	?>
+	<div class="service-list">
+		<?php foreach ( $services as $service ) : ?>
+			<article class="service-block" id="service-<?php echo esc_attr( $service['id'] ); ?>">
+				<div class="service-block__header">
+					<span class="service-card__icon"><?php echo appiappi_icon( $service['icon'] ); ?></span>
+					<h2><?php echo esc_html( $service['name'] ); ?></h2>
+				</div>
+
+				<p class="service-block__hook"><?php echo esc_html( $service['hook'] ); ?></p>
+
+				<ul class="service-block__breakdown">
+					<?php foreach ( $service['breakdown'] as $item ) : ?>
+						<li><?php echo appiappi_icon( 'check' ); ?><span><?php echo esc_html( $item ); ?></span></li>
+					<?php endforeach; ?>
+				</ul>
+
+				<p class="service-block__closing"><?php echo esc_html( $service['closing'] ); ?></p>
+			</article>
+		<?php endforeach; ?>
+	</div>
+	<?php
+	return ob_get_clean();
 }
 
 /**
