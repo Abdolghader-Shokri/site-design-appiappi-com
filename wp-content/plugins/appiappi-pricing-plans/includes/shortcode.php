@@ -9,6 +9,32 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Parses the Features textarea (one item per line) into
+ * `[ ['name' => ..., 'desc' => ...], ... ]`. A line may optionally
+ * include a description after a pipe: "Feature Name | Description".
+ * Lines with no pipe get an empty `desc`. See meta-boxes.php for the
+ * admin-facing explanation of this format.
+ */
+function appiappi_pricing_parse_features( $raw_text ) {
+	if ( ! $raw_text ) {
+		return array();
+	}
+
+	$lines    = array_filter( array_map( 'trim', explode( "\n", $raw_text ) ) );
+	$features = array();
+	foreach ( $lines as $line ) {
+		if ( false !== strpos( $line, '|' ) ) {
+			list( $name, $desc ) = array_map( 'trim', explode( '|', $line, 2 ) );
+		} else {
+			$name = $line;
+			$desc = '';
+		}
+		$features[] = array( 'name' => $name, 'desc' => $desc );
+	}
+	return $features;
+}
+
 function appiappi_pricing_get_plans() {
 	$posts = get_posts( array(
 		'post_type'      => 'appiappi_plan',
@@ -24,6 +50,13 @@ function appiappi_pricing_get_plans() {
 		'professional' => 'var(--color-plan-professional)',
 		'growth'       => 'var(--color-plan-growth)',
 		'seo-growth'   => 'var(--color-plan-seo-growth)',
+		'red'          => 'var(--color-plan-red)',
+		'pink'         => 'var(--color-plan-pink)',
+		'indigo'       => 'var(--color-plan-indigo)',
+		'amber'        => 'var(--color-plan-amber)',
+		'cyan'         => 'var(--color-plan-cyan)',
+		'lime'         => 'var(--color-plan-lime)',
+		'slate'        => 'var(--color-plan-slate)',
 	);
 
 	$plans = array();
@@ -48,7 +81,7 @@ function appiappi_pricing_get_plans() {
 			'color'    => isset( $color_map[ $color_key ] ) ? $color_map[ $color_key ] : $color_map['business'],
 			'featured' => (bool) get_post_meta( $post->ID, '_appiappi_plan_featured', true ),
 			'badge'    => get_post_meta( $post->ID, '_appiappi_plan_badge', true ),
-			'features' => $features ? array_filter( array_map( 'trim', explode( "\n", $features ) ) ) : array(),
+			'features' => appiappi_pricing_parse_features( $features ),
 			'cta_text' => get_post_meta( $post->ID, '_appiappi_plan_cta_text', true ) ?: __( 'Choose Plan', 'appiappi-pricing-plans' ),
 			'cta_url'  => get_post_meta( $post->ID, '_appiappi_plan_cta_url', true ) ?: '#contact',
 		);
@@ -59,10 +92,11 @@ function appiappi_pricing_get_plans() {
 
 function appiappi_pricing_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
-		'homepage_only'   => '0',
-		'group'           => '',
+		'homepage_only'    => '0',
+		'group'            => '',
 		'show_description' => '0',
-		'link_to_pricing' => '0',
+		'link_to_pricing'  => '0',
+		'columns'          => '',
 	), $atts, 'appiappi_pricing' );
 
 	$plans = appiappi_pricing_get_plans();
@@ -90,7 +124,8 @@ function appiappi_pricing_shortcode( $atts ) {
 		return appiappi_render_pricing_cards(
 			$plans,
 			filter_var( $atts['show_description'], FILTER_VALIDATE_BOOLEAN ),
-			filter_var( $atts['link_to_pricing'], FILTER_VALIDATE_BOOLEAN )
+			filter_var( $atts['link_to_pricing'], FILTER_VALIDATE_BOOLEAN ),
+			'' === $atts['columns'] ? null : (int) $atts['columns']
 		);
 	}
 

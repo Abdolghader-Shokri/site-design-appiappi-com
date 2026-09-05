@@ -12,6 +12,29 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Flexbox, not CSS Grid, for the configurable pricing columns
+
+Making the number of pricing cards per row admin-configurable, with the
+requirement that a short last row *centres* (rather than stretching to
+fill the row, or leaving a lopsided gap on one side), ruled out plain CSS
+Grid: `repeat(N, 1fr)` always reserves N column tracks whether or not N
+items exist, leaving blank space on the right for an incomplete row
+without any built-in way to centre just the actual items. `auto-fit` (used
+in an earlier pass to fix the 3-card/2-card grouping) solves a related but
+different problem — it collapses *empty* tracks and lets existing items'
+`1fr` grow to fill the freed space, which stretches cards wider rather
+than centring them at a fixed width. Neither gives "fixed-width cards,
+centred as a group when they don't fill the row" — which is exactly what
+flexbox with `flex-wrap: wrap; justify-content: center` does natively
+(each wrapped line centres its own leftover items). Switched the whole
+`.pricing-grid`/`.pricing-card` layout to flexbox, with each card's width
+computed from a `--pricing-cols` custom property (set inline by PHP from
+the new admin setting) via `calc((100% - (cols-1)*gap)/cols)`, and a
+CSS-side `--cols` variable per breakpoint (1 on mobile, `min(cols,2)` on
+tablet, the raw setting on desktop) so the *inline* `--pricing-cols` value
+doesn't itself get overridden by media queries — only the computed `--cols`
+that derives from it does.
+
 ## 2026-09-06 — Homepage → Pricing anchor linking, and the future-checkout CTA
 
 The user reframed the Pricing page's purpose: it will eventually host real

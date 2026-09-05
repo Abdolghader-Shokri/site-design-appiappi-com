@@ -186,14 +186,17 @@
 /* ---------- Pricing preview ---------- */
 
 .pricing-grid {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--space-6);
+	--cols: 1;
+	display: flex;
+	flex-wrap: wrap;
 	justify-content: center;
+	align-items: stretch;
+	gap: var(--space-6);
 }
 
 .pricing-card {
 	--plan-color: var(--color-primary);
+	width: calc((100% - (var(--cols) - 1) * var(--space-6)) / var(--cols));
 	display: flex;
 	flex-direction: column;
 	padding: var(--space-8) var(--space-6);
@@ -283,12 +286,23 @@
 	color: var(--color-neutral-800);
 	line-height: var(--lh-normal);
 	margin-bottom: var(--space-6);
-	padding-bottom: var(--space-6);
-	border-bottom: 1px solid var(--color-border);
+	padding: var(--space-5);
+	background: color-mix(in srgb, var(--plan-color) 8%, white);
+	border: 1px solid color-mix(in srgb, var(--plan-color) 22%, white);
+	border-radius: var(--radius-lg);
 }
 
 .pricing-card__description p:last-child {
 	margin-bottom: 0;
+}
+
+.pricing-card__description-label {
+	font-size: var(--fs-xs);
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--plan-color);
+	margin-bottom: var(--space-2);
 }
 
 .pricing-card__features {
@@ -313,6 +327,17 @@
 .pricing-card__features svg {
 	flex-shrink: 0;
 	color: var(--plan-color);
+	margin-top: 2px;
+}
+
+.pricing-card__feature-name {
+	display: block;
+}
+
+.pricing-card__feature-desc {
+	display: block;
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
 	margin-top: 2px;
 }
 
@@ -349,13 +374,15 @@
 
 @media (min-width: 640px) {
 	.pricing-grid {
-		grid-template-columns: repeat(auto-fit, minmax(240px, 260px));
+		/* Tablet always caps at 2 regardless of the admin's desktop setting —
+		   these cards are too content-heavy to comfortably fit 3+ at this width. */
+		--cols: min(var(--pricing-cols, 4), 2);
 	}
 }
 
 @media (min-width: 1024px) {
 	.pricing-grid {
-		grid-template-columns: repeat(auto-fit, minmax(260px, 280px));
+		--cols: var(--pricing-cols, 4);
 	}
 
 	.pricing-card--featured {

@@ -20,3 +20,4 @@ define( 'APPIAPPI_PRICING_PLANS_DIR', plugin_dir_path( __FILE__ ) );
 require APPIAPPI_PRICING_PLANS_DIR . 'includes/cpt.php';
 require APPIAPPI_PRICING_PLANS_DIR . 'includes/meta-boxes.php';
 require APPIAPPI_PRICING_PLANS_DIR . 'includes/shortcode.php';
+require APPIAPPI_PRICING_PLANS_DIR . 'includes/settings.php';

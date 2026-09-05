@@ -357,19 +357,29 @@ function appiappi_get_hero_slides() {
  *                      badge, features (array of strings), cta_text,
  *                      cta_url.
  */
-function appiappi_render_pricing_cards( array $plans, $show_description = false, $link_to_pricing = false ) {
+function appiappi_render_pricing_cards( array $plans, $show_description = false, $link_to_pricing = false, $columns = null ) {
 	if ( empty( $plans ) ) {
 		return '';
 	}
 
+	if ( null === $columns ) {
+		$columns = (int) get_option( 'appiappi_pricing_columns', 4 );
+	}
+	$columns = max( 1, min( 6, (int) $columns ) );
+
 	ob_start();
 	?>
-	<div class="pricing-grid">
+	<div class="pricing-grid" style="--pricing-cols: <?php echo esc_attr( $columns ); ?>">
 		<?php foreach ( $plans as $plan ) : ?>
 			<?php
 			$cta_url = $link_to_pricing
 				? home_url( '/pricing/#plan-' . $plan['id'] )
 				: $plan['cta_url'];
+			// On the full Pricing page (show_description true), every plan's
+			// button is solid-filled in its own colour, not just the featured
+			// one — the "future checkout button" per plan should read as a
+			// real, equally-weighted action, not a secondary/outline one.
+			$cta_class = ( $show_description || ! empty( $plan['featured'] ) ) ? 'btn-primary' : 'btn-secondary';
 			?>
 			<div id="plan-<?php echo esc_attr( $plan['id'] ); ?>" class="pricing-card <?php echo ! empty( $plan['featured'] ) ? 'pricing-card--featured' : ''; ?>" style="--plan-color: <?php echo esc_attr( $plan['color'] ); ?>">
 				<?php if ( ! empty( $plan['badge'] ) ) : ?>
@@ -392,12 +402,35 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 				<?php endif; ?>
 
 				<?php if ( $show_description && ! empty( $plan['description'] ) ) : ?>
-					<div class="pricing-card__description"><?php echo wp_kses_post( $plan['description'] ); ?></div>
+					<div class="pricing-card__description">
+						<p class="pricing-card__description-label"><?php esc_html_e( 'About This Plan', 'appiappi' ); ?></p>
+						<?php echo wp_kses_post( $plan['description'] ); ?>
+					</div>
 				<?php endif; ?>
 
 				<ul class="pricing-card__features">
 					<?php foreach ( $plan['features'] as $feature ) : ?>
-						<li><?php echo appiappi_icon( 'check' ); ?><span><?php echo wp_kses_post( $feature ); ?></span></li>
+						<?php
+						if ( is_array( $feature ) ) {
+							$feature_name = $feature['name'] ?? '';
+							$feature_desc = $feature['desc'] ?? '';
+						} else {
+							$feature_name = $feature;
+							$feature_desc = '';
+						}
+						if ( '' === trim( (string) $feature_name ) ) {
+							continue;
+						}
+						?>
+						<li>
+							<?php echo appiappi_icon( 'check' ); ?>
+							<span>
+								<span class="pricing-card__feature-name"><?php echo wp_kses_post( $feature_name ); ?></span>
+								<?php if ( $feature_desc ) : ?>
+									<span class="pricing-card__feature-desc"><?php echo esc_html( $feature_desc ); ?></span>
+								<?php endif; ?>
+							</span>
+						</li>
 					<?php endforeach; ?>
 				</ul>
 
@@ -405,7 +438,7 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 					<p class="pricing-card__value-driver"><?php echo appiappi_icon( 'trending-up' ); ?><span><?php echo esc_html( $plan['value_driver'] ); ?></span></p>
 				<?php endif; ?>
 
-				<a href="<?php echo esc_url( $cta_url ); ?>" class="btn <?php echo ! empty( $plan['featured'] ) ? 'btn-primary' : 'btn-secondary'; ?> btn-block">
+				<a href="<?php echo esc_url( $cta_url ); ?>" class="btn <?php echo esc_attr( $cta_class ); ?> btn-block">
 					<?php echo esc_html( $plan['cta_text'] ); ?>
 				</a>
 			</div>

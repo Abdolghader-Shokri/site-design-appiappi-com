@@ -2,6 +2,24 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Pricing: per-feature descriptions, 12 colours, yearly billing, configurable columns
+
+### Added
+- **Per-feature descriptions**: the Features textarea now supports `Feature Name | Optional description` (one per line) — `appiappi_pricing_parse_features()` splits on the first pipe; the renderer shows the description as smaller muted text under the feature name when present, and still supports plain-string features (no description) for backward compatibility.
+- **7 new plan colours** (12 total): red, pink, indigo, amber, cyan, lime, slate, alongside the original 5. New tokens in `tokens.css`.
+- **Billing Frequency dropdown** (One-time / Monthly / Yearly) replacing the free-text "Billing Period" field — selecting an option writes the display suffix into the existing `_appiappi_plan_period` meta, so the renderer needed no changes. Plans saved before this existed get an inferred frequency shown as the pre-selected value.
+- **Configurable columns-per-row**: new **Pricing Plans → Display Settings** page (1–6, default 4). `.pricing-grid` switched from CSS Grid to flexbox with a `--pricing-cols`-driven card width, so an incomplete last row (e.g. 2 cards when the setting is 4) centres on the page instead of stretching or leaving a lopsided gap — card *text* stays left-aligned, only the card box centres. Tablet always caps at 2 regardless of the desktop setting.
+- **Solid-colour CTA buttons on the Pricing page**: every plan's button is now `btn-primary` (filled with that plan's colour) when shown with its full description (i.e. on the Pricing page) — not just the featured plan. Homepage teaser behaviour (only featured = solid) is unchanged.
+- **Themed description box**: `.pricing-card__description` restyled as a tinted callout (background/border colour-mixed from `--plan-color`) with an "About This Plan" label in the plan's colour, instead of a plain bordered paragraph.
+
+### Files Modified
+- `wp-content/plugins/appiappi-pricing-plans/includes/cpt.php`, `meta-boxes.php`, `shortcode.php`, `settings.php` (new), `appiappi-pricing-plans.php`
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `assets/css/home.css`, `assets/css/tokens.css`
+- `PROJECT_MASTER.md`, `DEVELOPMENT_LOG.md`
+
+### Notes
+- Verified via direct HTML fetch + WP-CLI: `appiappi_pricing_color_options()` returns 12 entries; billing-frequency inference/display helpers return correct values; a real feature description renders correctly on the Growth plan; `--pricing-cols` reflects the configured setting (tested at 3, reset to the documented default of 4); every Pricing-page CTA button is `btn-primary` while the homepage teaser keeps `btn-secondary` on non-featured plans; no PHP errors.
+
 ## 2026-09-06 — Pricing page: per-plan description + homepage anchor linking
 
 ### Added

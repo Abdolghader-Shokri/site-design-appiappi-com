@@ -8,6 +8,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * 12 colour choices total. The first 5 keep their original plan-tied
+ * keys/labels for backward compatibility with plans already saved
+ * against them; the other 7 are generic so any plan (current or future)
+ * can use them.
+ */
 function appiappi_pricing_color_options() {
 	return array(
 		'starter'      => __( 'Green (Starter)', 'appiappi-pricing-plans' ),
@@ -15,7 +21,52 @@ function appiappi_pricing_color_options() {
 		'professional' => __( 'Purple (Professional)', 'appiappi-pricing-plans' ),
 		'growth'       => __( 'Orange (Growth)', 'appiappi-pricing-plans' ),
 		'seo-growth'   => __( 'Teal (SEO Growth)', 'appiappi-pricing-plans' ),
+		'red'          => __( 'Red', 'appiappi-pricing-plans' ),
+		'pink'         => __( 'Pink', 'appiappi-pricing-plans' ),
+		'indigo'       => __( 'Indigo', 'appiappi-pricing-plans' ),
+		'amber'        => __( 'Amber', 'appiappi-pricing-plans' ),
+		'cyan'         => __( 'Cyan', 'appiappi-pricing-plans' ),
+		'lime'         => __( 'Lime', 'appiappi-pricing-plans' ),
+		'slate'        => __( 'Slate', 'appiappi-pricing-plans' ),
 	);
+}
+
+/**
+ * Billing frequency → the actual display suffix stored in
+ * `_appiappi_plan_period` (kept as the single source the renderer
+ * reads, so adding this dropdown required no changes to
+ * appiappi_render_pricing_cards() or the data shape it expects).
+ */
+function appiappi_pricing_billing_frequency_options() {
+	return array(
+		'one_time' => __( 'One-time', 'appiappi-pricing-plans' ),
+		'monthly'  => __( 'Monthly', 'appiappi-pricing-plans' ),
+		'yearly'   => __( 'Yearly', 'appiappi-pricing-plans' ),
+	);
+}
+
+function appiappi_pricing_billing_frequency_display( $frequency ) {
+	$display = array(
+		'one_time' => __( 'one-time', 'appiappi-pricing-plans' ),
+		'monthly'  => __( '/ month', 'appiappi-pricing-plans' ),
+		'yearly'   => __( '/ year', 'appiappi-pricing-plans' ),
+	);
+	return $display[ $frequency ] ?? $display['one_time'];
+}
+
+/**
+ * Best-guess billing frequency for plans saved before this dropdown
+ * existed (they only have free-text `_appiappi_plan_period`).
+ */
+function appiappi_pricing_infer_billing_frequency( $period_text ) {
+	$period_text = strtolower( $period_text );
+	if ( false !== strpos( $period_text, 'year' ) ) {
+		return 'yearly';
+	}
+	if ( false !== strpos( $period_text, 'month' ) ) {
+		return 'monthly';
+	}
+	return 'one_time';
 }
 
 function appiappi_pricing_icon_options() {
@@ -49,6 +100,7 @@ function appiappi_pricing_render_meta_box( $post ) {
 
 	$price    = get_post_meta( $post->ID, '_appiappi_plan_price', true );
 	$period   = get_post_meta( $post->ID, '_appiappi_plan_period', true );
+	$billing_frequency = get_post_meta( $post->ID, '_appiappi_plan_billing_frequency', true ) ?: appiappi_pricing_infer_billing_frequency( $period );
 	$note     = get_post_meta( $post->ID, '_appiappi_plan_note', true );
 	$tagline  = get_post_meta( $post->ID, '_appiappi_plan_tagline', true );
 	$audience = get_post_meta( $post->ID, '_appiappi_plan_audience', true );
@@ -93,8 +145,15 @@ function appiappi_pricing_render_meta_box( $post ) {
 			<td><input type="text" id="appiappi_plan_price" name="appiappi_plan_price" value="<?php echo esc_attr( $price ); ?>" placeholder="199" class="regular-text"></td>
 		</tr>
 		<tr>
-			<th><label for="appiappi_plan_period"><?php esc_html_e( 'Billing Period', 'appiappi-pricing-plans' ); ?></label></th>
-			<td><input type="text" id="appiappi_plan_period" name="appiappi_plan_period" value="<?php echo esc_attr( $period ); ?>" placeholder="<?php esc_attr_e( 'one-time or / month', 'appiappi-pricing-plans' ); ?>" class="regular-text"></td>
+			<th><label for="appiappi_plan_billing_frequency"><?php esc_html_e( 'Billing Frequency', 'appiappi-pricing-plans' ); ?></label></th>
+			<td>
+				<select id="appiappi_plan_billing_frequency" name="appiappi_plan_billing_frequency">
+					<?php foreach ( appiappi_pricing_billing_frequency_options() as $value => $label ) : ?>
+						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $billing_frequency, $value ); ?>><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+				<p class="description"><?php esc_html_e( 'Sets the price suffix shown on the card (one-time / month / year) automatically.', 'appiappi-pricing-plans' ); ?></p>
+			</td>
 		</tr>
 		<tr>
 			<th><label for="appiappi_plan_note"><?php esc_html_e( 'Short Note', 'appiappi-pricing-plans' ); ?></label></th>
@@ -148,8 +207,8 @@ function appiappi_pricing_render_meta_box( $post ) {
 		<tr>
 			<th><label for="appiappi_plan_features"><?php esc_html_e( 'Features', 'appiappi-pricing-plans' ); ?></label></th>
 			<td>
-				<textarea id="appiappi_plan_features" name="appiappi_plan_features" rows="6" class="large-text" placeholder="<?php esc_attr_e( 'One feature per line', 'appiappi-pricing-plans' ); ?>"><?php echo esc_textarea( $features ); ?></textarea>
-				<p class="description"><?php esc_html_e( 'One feature per line.', 'appiappi-pricing-plans' ); ?></p>
+				<textarea id="appiappi_plan_features" name="appiappi_plan_features" rows="8" class="large-text" placeholder="<?php esc_attr_e( 'Feature name | Optional description shown underneath it', 'appiappi-pricing-plans' ); ?>"><?php echo esc_textarea( $features ); ?></textarea>
+				<p class="description"><?php esc_html_e( 'One feature per line. Add an optional description after a pipe character, e.g. "Managed Hosting | Daily backups and 24/7 uptime monitoring" — it renders in smaller text under that feature on the Pricing page. Leave off the pipe for a feature with no description.', 'appiappi-pricing-plans' ); ?></p>
 			</td>
 		</tr>
 	</table>
@@ -169,7 +228,6 @@ function appiappi_pricing_save_meta_box( $post_id ) {
 
 	$fields = array(
 		'_appiappi_plan_price'        => 'sanitize_text_field',
-		'_appiappi_plan_period'       => 'sanitize_text_field',
 		'_appiappi_plan_note'         => 'sanitize_text_field',
 		'_appiappi_plan_badge'        => 'sanitize_text_field',
 		'_appiappi_plan_cta_text'     => 'sanitize_text_field',
@@ -195,6 +253,12 @@ function appiappi_pricing_save_meta_box( $post_id ) {
 
 	if ( isset( $_POST['appiappi_plan_group'] ) && array_key_exists( $_POST['appiappi_plan_group'], appiappi_pricing_group_options() ) ) {
 		update_post_meta( $post_id, '_appiappi_plan_group', sanitize_key( $_POST['appiappi_plan_group'] ) );
+	}
+
+	if ( isset( $_POST['appiappi_plan_billing_frequency'] ) && array_key_exists( $_POST['appiappi_plan_billing_frequency'], appiappi_pricing_billing_frequency_options() ) ) {
+		$frequency = sanitize_key( $_POST['appiappi_plan_billing_frequency'] );
+		update_post_meta( $post_id, '_appiappi_plan_billing_frequency', $frequency );
+		update_post_meta( $post_id, '_appiappi_plan_period', appiappi_pricing_billing_frequency_display( $frequency ) );
 	}
 
 	update_post_meta( $post_id, '_appiappi_plan_featured', isset( $_POST['appiappi_plan_featured'] ) ? 1 : 0 );
