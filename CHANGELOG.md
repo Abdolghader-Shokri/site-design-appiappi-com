@@ -2,6 +2,20 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — About / Privacy Policy / Terms of Service pages
+
+### Added
+- New **Legal & Company Information** field group on Settings → Appiappi Settings (`inc/admin/settings-page.php`): Full Legal Company Name, Province/Territory of Incorporation (dropdown), Official Business Address, General Public Email, Privacy Email, Privacy Officer Name, Payment Method & Provider, Exact Cancellation Policy, Support Response Time, Data Retention Period, Client Portfolio Display Policy, and Final Ownership Details. Added `select` as a new supported field type (alongside the existing text/textarea/code) and grouped the settings page into "SEO, Analytics & Technical" and "Legal & Company Information" sections.
+- `page-privacy-policy.php` (slug `privacy-policy`) and `page-terms.php` (slug `terms`, new Page) — hard-coded legal-boilerplate templates (not `the_content()`, unlike About) that pull every business-specific detail from the settings above via `appiappi_get_setting()`. Empty fields omit the dependent sentence/row rather than showing a placeholder; a few (governing law, cancellation policy, portfolio policy) fall back to generic-but-legally-sound wording instead. WordPress core's own auto-created draft Privacy Policy page (post ID 3) was published rather than duplicated.
+- `.single-post__content` (shared by About and blog posts) gained real bullet/numbered list styling — `base.css` strips list markers sitewide for the component system, which left plain editor-content lists invisible; restored specifically for long-form prose pages.
+
+### Changed
+- `page-about.php`'s Page content rewritten from the user's draft: fixed a handful of copy-paste corruption bugs (a merged sentence/heading, a duplicated/garbled "What We Do" bullet list, a doubled "Practical Strategy" sentence) while keeping the wording and structure otherwise as given. Still fully `the_content()`-editable, unchanged architecture.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/admin/settings-page.php`, `page-about.php` (Page content only, via `wp_update_post()` — no template change), `assets/css/pages.css`
+- New: `wp-content/themes/appiappi-theme/page-privacy-policy.php`, `page-terms.php`
+
 ## 2026-09-06 — Contact form trimmed; new configurable info box (map/address/phone/email)
 
 ### Removed
