@@ -334,13 +334,13 @@
 
 @media (min-width: 640px) {
 	.pricing-grid {
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	}
 }
 
 @media (min-width: 1024px) {
 	.pricing-grid {
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 	}
 
 	.pricing-card--featured {

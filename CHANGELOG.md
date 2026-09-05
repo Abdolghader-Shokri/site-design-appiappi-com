@@ -2,6 +2,14 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Fix: pricing grid didn't balance for 3- or 2-card groups
+
+### Fixed
+- `.pricing-grid`'s desktop/tablet breakpoints used a hard `repeat(4, 1fr)` / `repeat(2, 1fr)` column count. That's fine when there are exactly 4 (or 2) plans, but the new Pricing page renders the Launch group (3 plans) and Growth group (2 plans) separately — 3 items in a 4-column grid left an empty trailing column and squeezed the cards narrow; 2 items in a 4-column grid left half the row blank. Switched both breakpoints to `repeat(auto-fit, minmax(240px|260px, 1fr))`, which sizes columns to fit the container and collapses unused tracks — any card count (2, 3, 4, 5...) now fills the row evenly with no lopsided gaps, on the homepage teaser (4), the Launch section (3), and the Growth section (2) alike.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/assets/css/home.css`
+
 ## 2026-09-06 — Pricing page rewrite: premium positioning + new SEO Growth plan
 
 ### Added
