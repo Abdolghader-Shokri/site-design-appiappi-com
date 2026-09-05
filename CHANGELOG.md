@@ -2,6 +2,14 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Fix: Envato rating field was silently never syncing
+
+### Fixed
+- `appiappi_showcase_parse_envato_item()` assumed `rating`/`rating_count` lived in a nested `{ rating: { rating, count } }` object per the v3 API docs; a real response (confirmed once the user provided their Personal Token) shows `rating` as a flat float and `rating_count` as a separate top-level field. The old code's array-shape check silently skipped both fields with no error, so a sync could report "updated" for the price while leaving a stale rating in place. Fixed to read the real flat fields — confirmed end-to-end on `Construction Pro`'s actual Envato listing: price `$59 → $22`, rating `4.9 → 4.4`, rating count `128 → 5`. See DEVELOPMENT_LOG.md.
+
+### Files Modified
+- `wp-content/plugins/appiappi-template-showcase/includes/price-sync.php`
+
 ## 2026-09-06 — Website Designs: automatic price/rating sync against Envato
 
 ### Added

@@ -460,14 +460,17 @@ Envato API** (`api.envato.com/v3/market/catalog/item`) directly:
   run at that scale. 50-per-15-minutes cycles a ~2,000-item catalogue
   roughly every 10 hours without ever making more than a few dozen API
   calls (with 1-second pacing between them) in one PHP request.
-- **Not yet verified against a live response** — the exact field
-  mapping in `appiappi_showcase_parse_envato_item()` (`rating.rating`,
-  `rating.count`, `price_cents`) is Envato's documented v3 catalogue
-  schema, but hasn't been confirmed against a real API call yet since
-  that requires the user's own Personal Token. If a real response is
-  ever missing one of those fields, adjust the mapping in that one
-  function — everything else (item-ID extraction, the sync loop, the
-  cron, the admin UI) doesn't need to change.
+- **Verified against a live response (2026-09-06).** The real schema
+  differs from what the v3 docs implied: `rating` is a **flat float**
+  and `rating_count` a **separate top-level int** — not the nested
+  `{ rating: { rating, count } }` object originally guessed.
+  `appiappi_showcase_parse_envato_item()` was corrected to match; see
+  DEVELOPMENT_LOG.md. `price_cents` was correct as originally written.
+  Confirmed end-to-end on `Construction Pro`'s real listing (Envato
+  item 61829280 — "Inotek", a different theme than its `demo_url`
+  happens to point at, which is fine: `demo_url` and `details_url` are
+  independent fields and only `details_url` drives this sync): price
+  corrected `$59 → $22`, rating `4.9 → 4.4`, rating count `128 → 5`.
 
 ## 14. Services / How It Works / About / Privacy Policy / Terms Pages
 

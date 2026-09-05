@@ -114,13 +114,15 @@ function appiappi_showcase_fetch_envato_item( $item_id, $token ) {
 function appiappi_showcase_parse_envato_item( array $data ) {
 	$result = array( 'price' => null, 'rating' => null, 'rating_count' => null );
 
-	if ( isset( $data['rating'] ) && is_array( $data['rating'] ) ) {
-		if ( isset( $data['rating']['rating'] ) ) {
-			$result['rating'] = round( (float) $data['rating']['rating'], 1 );
-		}
-		if ( isset( $data['rating']['count'] ) ) {
-			$result['rating_count'] = (int) $data['rating']['count'];
-		}
+	// Confirmed 2026-09-06 against a real API response: `rating` is a
+	// flat float and `rating_count` a separate top-level int — not the
+	// nested { rating: { rating, count } } object originally guessed
+	// from the docs. See DEVELOPMENT_LOG.md.
+	if ( isset( $data['rating'] ) && is_numeric( $data['rating'] ) ) {
+		$result['rating'] = round( (float) $data['rating'], 1 );
+	}
+	if ( isset( $data['rating_count'] ) && is_numeric( $data['rating_count'] ) ) {
+		$result['rating_count'] = (int) $data['rating_count'];
 	}
 
 	if ( isset( $data['price_cents'] ) && is_numeric( $data['price_cents'] ) ) {

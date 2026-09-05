@@ -50,13 +50,21 @@ catalogue cycles fully roughly every 10 hours this way, and no single run
 risks a timeout. A separate "Run Sync Now" button processes everything in
 one pass for manual/small-scale use.
 
-**Known gap:** the exact Envato API response field mapping
-(`appiappi_showcase_parse_envato_item()` — `rating.rating`, `rating.count`,
-`price_cents`) is written against Envato's documented v3 schema but
-hasn't been exercised against a real response yet, since that requires
-the user's own Personal Token (not something I can generate on their
-behalf). Once they provide one, the first real sync run will confirm
-whether that mapping needs adjusting — see PROJECT_MASTER.md §13.
+**Update (same day, once the user provided a real token):** the guessed
+schema was half wrong. `price_cents` was correct, but `rating` is a
+**flat float** on the item object and `rating_count` a **separate
+top-level field** — not the nested `{ rating: { rating, count } }`
+shape the v3 docs implied. The bug was silent in the worst way: the
+original code's `is_array( $data['rating'] )` check simply evaluated
+false and skipped the rating fields entirely, with no error — a sync
+run reported "updated" (for the price) while quietly leaving a wrong
+rating in place. Caught by deliberately dumping and reading the raw
+JSON response after the first live run, rather than trusting that
+"no error thrown" meant "worked correctly." Fixed in
+`appiappi_showcase_parse_envato_item()`; confirmed end-to-end against
+`Construction Pro`'s real listing (Envato item 61829280): price
+`$59 → $22`, rating `4.9 → 4.4`, rating count `128 → 5`. See
+PROJECT_MASTER.md §13.
 
 ## 2026-09-06 — Root-caused: pricing card styles never loaded on the Pricing page at all
 
