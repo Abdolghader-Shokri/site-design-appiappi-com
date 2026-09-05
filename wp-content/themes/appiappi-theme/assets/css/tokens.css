@@ -106,14 +106,21 @@
 	--shadow-lg: 0 20px 48px rgba(16, 21, 29, 0.14);
 
 	/* ---- Layout ---- */
-	--container-max: 1200px;
+	--container-max: 1600px;
 	--container-pad: var(--space-5);
 	--header-height: 76px;
 	--transition-base: 180ms ease;
 }
 
+/* Desktop gutter is deliberately tight (~10px, like themeforest.net)
+   rather than a wide margin — combined with the wider --container-max
+   above, content uses most of the viewport on typical desktop widths
+   instead of sitting in a narrow centred column. Per-row item counts
+   in grids (pricing cards, template grid, etc.) are controlled by
+   their own --cols custom properties, not by container width, so this
+   only changes how wide each column/card is, never how many fit per row. */
 @media (min-width: 768px) {
 	:root {
-		--container-pad: var(--space-8);
+		--container-pad: 10px;
 	}
 }

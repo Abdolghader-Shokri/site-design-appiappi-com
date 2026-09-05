@@ -2,6 +2,15 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Sitewide: tighter desktop gutters (like themeforest.net)
+
+### Changed
+- `--container-max` (1200px → 1600px) and desktop `--container-pad` (32px → 10px) in `tokens.css`, per explicit request to match themeforest.net's tight edge gutters on desktop. Applies everywhere via the single `.container` class — every page and section. Mobile padding (20px) is untouched. Per-row column counts in every grid are driven by separate `--cols`-style custom properties (not container width), so this only widens each card/column, never changes how many sit per row.
+- Bumped `APPIAPPI_VERSION` (0.1.0 → 0.1.1) in `inc/enqueue.php` so browsers pick up the new CSS instead of a cached copy — this constant hadn't actually been bumped for any of today's earlier CSS changes either, so this catches all of them up at once.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/assets/css/tokens.css`, `inc/enqueue.php`
+
 ## 2026-09-06 — Content: 10 real Real Estate designs seeded from ThemeForest
 
 ### Added

@@ -215,6 +215,7 @@ a token. See that file for the full list. Key groups:
 - **Spacing**: 4px-based scale, `--space-1` … `--space-24`
 - **Radius**: `--radius-sm/md/lg/xl/full`
 - **Shadow**: `--shadow-sm/md/lg`
+- **Layout**: `--container-max` (1600px), `--container-pad` (mobile `--space-5`/20px; desktop, ≥768px, a deliberately tight **10px** — sitewide gutters were widened 2026-09-06 from a 1200px/32px combo to hug the viewport edges like themeforest.net, per explicit request. Per-row item counts in every grid (pricing cards, template grid, etc.) are controlled by their own `--cols`/`--pricing-cols`/`--template-cols` custom properties, not by container width — widening the container only makes each column/card wider, never changes how many fit per row.) Both drive the single `.container` class (`layout.css`), used by every section/page.
 
 The admin-chosen primary colour (Customizer) overrides `--color-primary` at
 runtime via an inline `<style>` block injected in `wp_head` — see
