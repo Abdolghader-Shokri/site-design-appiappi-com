@@ -426,6 +426,49 @@ since there it was a redundant self-link now superseded by real
 pagination — this check is independent of `$show_sidebar` since both the
 homepage teaser and the archive render with the sidebar shown.
 
+**Price & Rating Sync (added 2026-09-06):** each design's `price`/`rating`/`rating_count`
+meta can drift out of date against its real third-party listing (currently
+only `Construction Pro` has a real Details Page URL — a ThemeForest item;
+the other two seeded designs' Details/Demo URLs are still `#` placeholders).
+Rather than opening the listing page in a browser to check — which sits
+behind ThemeForest's own Cloudflare bot-protection and cannot and should
+not be automated around — `includes/price-sync.php` calls the **official
+Envato API** (`api.envato.com/v3/market/catalog/item`) directly:
+- `appiappi_showcase_extract_envato_item_id( $url )` pulls the numeric
+  item ID from a Details Page URL, validated against a known list of
+  Envato marketplace domains (`appiappi_showcase_envato_domains()`) —
+  anything else (a `#` placeholder, a non-Envato URL) is silently
+  skipped, not treated as an error.
+- `appiappi_showcase_sync_one_item( $post_id, $token )` fetches that
+  item and updates `_appiappi_template_price`/`_appiappi_template_rating`/
+  `_appiappi_template_rating_count` only where they actually differ,
+  logging what changed.
+- **Website Designs → Price & Rating Sync** (new admin page): stores
+  the Envato Personal Token (`appiappi_showcase_envato_token` — the
+  user generates this free at build.envato.com; default scopes are
+  enough, it only reads public catalogue data), a "Run Sync Now"
+  button (checks every design in one pass — fine at the current small
+  scale), and a table of the last run's per-design results.
+- **Automatic background sync**: a custom 15-minute WP-Cron interval
+  (`appiappi_showcase_price_sync_cron`, registered on plugin activation
+  and re-armed on `admin_init` if somehow unscheduled) processes
+  `APPIAPPI_SHOWCASE_SYNC_BATCH_SIZE` (50) designs per run from a
+  saved, wrapping cursor — this was the whole point: the user explicitly
+  flagged that the catalogue may grow to ~2,000 designs and manually
+  checking each one daily isn't feasible, and a naive "check everything
+  every night" job risks timing out a normal page-load-triggered cron
+  run at that scale. 50-per-15-minutes cycles a ~2,000-item catalogue
+  roughly every 10 hours without ever making more than a few dozen API
+  calls (with 1-second pacing between them) in one PHP request.
+- **Not yet verified against a live response** — the exact field
+  mapping in `appiappi_showcase_parse_envato_item()` (`rating.rating`,
+  `rating.count`, `price_cents`) is Envato's documented v3 catalogue
+  schema, but hasn't been confirmed against a real API call yet since
+  that requires the user's own Personal Token. If a real response is
+  ever missing one of those fields, adjust the mapping in that one
+  function — everything else (item-ID extraction, the sync loop, the
+  cron, the admin UI) doesn't need to change.
+
 ## 14. Services / How It Works / About / Privacy Policy / Terms Pages
 
 Static-content page templates in the theme root (auto-applied via the `page-{slug}.php` naming convention to Pages with matching slugs — no manual "Page Attributes → Template" selection needed, though each also declares a `Template Name:` header so it can be assigned to a differently-slugged page too):

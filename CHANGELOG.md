@@ -2,6 +2,16 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Website Designs: automatic price/rating sync against Envato
+
+### Added
+- New `includes/price-sync.php` in the `appiappi-template-showcase` plugin: syncs each design's price/rating/rating count against its real Envato Market (ThemeForest) listing via the official Envato API — not by opening the listing page, which is behind Cloudflare bot-protection. New admin screen **Website Designs → Price & Rating Sync** holds the Envato Personal Token, a "Run Sync Now" button, and a log of the last run's per-design results.
+- Automatic background sync via a custom 15-minute WP-Cron interval, processing 50 designs per run from a wrapping cursor — built to handle a catalogue growing toward ~2,000 designs without one long-running job or manual daily checking. See DEVELOPMENT_LOG.md for why this shape (API over browser, batched over one-shot).
+
+### Files Modified
+- `wp-content/plugins/appiappi-template-showcase/appiappi-template-showcase.php`
+- New: `wp-content/plugins/appiappi-template-showcase/includes/price-sync.php`
+
 ## 2026-09-06 — Services companion plugin; dynamic footer links/contact; Site Domain setting
 
 ### Added

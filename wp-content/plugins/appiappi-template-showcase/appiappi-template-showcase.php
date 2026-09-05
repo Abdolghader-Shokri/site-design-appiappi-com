@@ -22,6 +22,7 @@ require APPIAPPI_SHOWCASE_DIR . 'includes/taxonomy-meta.php';
 require APPIAPPI_SHOWCASE_DIR . 'includes/meta-boxes.php';
 require APPIAPPI_SHOWCASE_DIR . 'includes/shortcode.php';
 require APPIAPPI_SHOWCASE_DIR . 'includes/settings.php';
+require APPIAPPI_SHOWCASE_DIR . 'includes/price-sync.php';
 
 /**
  * Featured images require post-thumbnails theme support, which the

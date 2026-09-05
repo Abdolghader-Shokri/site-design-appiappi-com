@@ -12,6 +12,52 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Price/rating sync: official Envato API, not a browser hitting the listing page
+
+The user asked me to open each Website Design's Details Page URL (mostly
+ThemeForest listings), read the real current price/rating there, and
+correct our stored data to match. First attempt used the actual Browser
+tool to navigate to the ThemeForest item page — it hit Cloudflare's
+"Verify you are human" interactive challenge every time, on both the item
+page and even the `preview.themeforest.net` demo subdomain. Bypassing or
+completing CAPTCHAs/bot-detection is a hard rule I don't get to relax even
+on explicit user request, so that approach was a dead end regardless of
+how the browser automation was tuned.
+
+The user then raised the real constraint driving the redesign: this
+catalogue may grow to ~2,000 designs, and they can't manually spot-check
+that many listings every day. A browser-based approach wouldn't have
+scaled anyway even without the CAPTCHA wall (2,000 page loads is not
+something to run from a normal request).
+
+**Decision:** use the official Envato API (`api.envato.com/v3/market/catalog/item`)
+instead of the listing page at all. It's the documented, ToS-compliant way
+to read public catalogue data (price, rating, rating count) for exactly
+this purpose, needs only a free Personal Token, and involves no browser,
+no scraping, and no bot-detection to reckon with. Item IDs are parsed
+straight out of the stored Details Page URL (the trailing numeric path
+segment), validated against a short allow-list of Envato marketplace
+domains — anything else (a `#` placeholder, a non-Envato URL) is quietly
+skipped rather than treated as an error, since most seeded designs today
+are placeholder concepts with no real third-party listing at all.
+
+**Scale:** rather than one job that walks the whole catalogue (fine today
+at 3 designs, but 2,000 API calls — even paced at 1/second — is 30+
+minutes, too long for anything triggered by a normal page load, which is
+how WP-Cron actually runs), the automatic sync processes a small batch
+(50) every 15 minutes from a saved, wrapping cursor. A ~2,000-item
+catalogue cycles fully roughly every 10 hours this way, and no single run
+risks a timeout. A separate "Run Sync Now" button processes everything in
+one pass for manual/small-scale use.
+
+**Known gap:** the exact Envato API response field mapping
+(`appiappi_showcase_parse_envato_item()` — `rating.rating`, `rating.count`,
+`price_cents`) is written against Envato's documented v3 schema but
+hasn't been exercised against a real response yet, since that requires
+the user's own Personal Token (not something I can generate on their
+behalf). Once they provide one, the first real sync run will confirm
+whether that mapping needs adjusting — see PROJECT_MASTER.md §13.
+
 ## 2026-09-06 — Root-caused: pricing card styles never loaded on the Pricing page at all
 
 The user reported (after clearing cache) that the Pricing page's buttons
