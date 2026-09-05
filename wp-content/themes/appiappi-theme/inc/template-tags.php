@@ -681,28 +681,40 @@ function appiappi_get_services() {
 function appiappi_get_how_it_works_steps() {
 	return array(
 		array(
-			'title' => __( 'Choose Your Design', 'appiappi' ),
-			'desc'  => __( 'Browse our curated library and pick a professionally designed website as your starting point.', 'appiappi' ),
+			'title'       => __( 'Choose Your Design', 'appiappi' ),
+			'we_do'       => __( 'We maintain a curated library of professionally designed website templates, organized by industry (construction, legal, dental, restaurants, professional services and more) and by style (modern, minimal, bold, classic), so you can quickly find designs that already suit businesses like yours.', 'appiappi' ),
+			'you_provide' => __( "Just your preference. Browse the library and pick the one design that feels right for your business — that's it.", 'appiappi' ),
+			'benefit'     => __( 'Starting from a proven, professionally built design means you skip the most expensive and time-consuming part of building a website from scratch, while still ending up with something that looks like your brand, not a generic template.', 'appiappi' ),
 		),
 		array(
-			'title' => __( 'Choose Your Plan', 'appiappi' ),
-			'desc'  => __( 'Pick the plan that matches your business needs, from a one-time launch to ongoing Growth.', 'appiappi' ),
+			'title'       => __( 'Choose Your Plan', 'appiappi' ),
+			'we_do'       => __( 'We offer a clear range of plans, from a one-time Starter launch to our ongoing Growth plan, each scoped so you know exactly what\'s included before you commit.', 'appiappi' ),
+			'you_provide' => __( "A sense of what you need right now — a simple one-time launch, a fully customized business site, or a website that's actively managed and grown every month.", 'appiappi' ),
+			'benefit'     => __( "You're not locked into a one-size-fits-all package. You choose the level of involvement and ongoing support that fits your budget and stage of business, and can move to a bigger plan later as you grow.", 'appiappi' ),
 		),
 		array(
-			'title' => __( 'Provide Your Business Information', 'appiappi' ),
-			'desc'  => __( 'Tell us about your business, services, branding, and the content you want on your site.', 'appiappi' ),
+			'title'       => __( 'Provide Your Business Information', 'appiappi' ),
+			'we_do'       => __( 'We give you a simple, guided way to hand over everything we need — no technical knowledge required.', 'appiappi' ),
+			'you_provide' => __( "Your logo files and brand colours (if you have them), a description of your services, basic business details (hours, location, contact info), any existing content or photos you'd like used, and a sense of who your ideal customer is.", 'appiappi' ),
+			'benefit'     => __( 'The more we know about your business up front, the more your finished website actually sounds and looks like you — not a generic template with your name pasted on top.', 'appiappi' ),
 		),
 		array(
-			'title' => __( 'We Customize Your Website', 'appiappi' ),
-			'desc'  => __( 'Our team builds out your branding, content, services and structure on the chosen design.', 'appiappi' ),
+			'title'       => __( 'We Customize Your Website', 'appiappi' ),
+			'we_do'       => __( "Our team applies your branding across the chosen design, writes and places your services and content, adjusts the site's structure around what your business actually offers, and sets up the basics of on-page SEO from day one.", 'appiappi' ),
+			'you_provide' => __( 'Nothing further at this stage beyond answering any follow-up questions — this is where we do the work.', 'appiappi' ),
+			'benefit'     => __( 'You get a website that looks and feels like your brand, structured around your real services, without spending your own time learning design or web development.', 'appiappi' ),
 		),
 		array(
-			'title' => __( 'We Launch Your Website', 'appiappi' ),
-			'desc'  => __( 'We handle the technical setup, domain connection, and go-live process.', 'appiappi' ),
+			'title'       => __( 'We Launch Your Website', 'appiappi' ),
+			'we_do'       => __( 'We handle every technical step behind going live — server configuration, connecting your domain, DNS setup, and installing your SSL certificate so your site is secure from day one.', 'appiappi' ),
+			'you_provide' => __( "Access to your domain registrar if you already own a domain, or a decision on a new domain name if you don't.", 'appiappi' ),
+			'benefit'     => __( "A stress-free launch with no technical guesswork on your end, and a website that's secure and reliable the moment it goes live.", 'appiappi' ),
 		),
 		array(
-			'title' => __( 'We Manage & Optimize It', 'appiappi' ),
-			'desc'  => __( 'On Growth, we keep managing hosting, security, content and SEO — every month.', 'appiappi' ),
+			'title'       => __( 'We Manage & Optimize It', 'appiappi' ),
+			'we_do'       => __( "On the Growth plan, we monitor your site's security around the clock, run regular backups, keep WordPress and every plugin updated, check performance and speed, manage your ongoing SEO (technical fixes, keyword tracking, monthly reporting), and make content updates whenever your business changes.", 'appiappi' ),
+			'you_provide' => __( "Just let us know when something in your business changes — a new service, updated hours, a promotion — and we handle the rest.", 'appiappi' ),
+			'benefit'     => __( 'Long-term peace of mind. Your website keeps working, stays secure, and keeps improving in search results, without ever becoming "that thing you have to deal with."', 'appiappi' ),
 		),
 	);
 }

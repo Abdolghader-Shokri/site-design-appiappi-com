@@ -2,6 +2,21 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — How It Works page copywriting rewrite
+
+### Changed
+- `appiappi_get_how_it_works_steps()` (`inc/template-tags.php`): each of the 6 steps now carries `we_do` (the specific actions the agency takes), `you_provide` (what's needed from the client — or "nothing further" where genuinely true), and `benefit` (why the step matters, framed around the client's business goals). Copy follows the user's UX-copywriter brief: clear/empowering tone, Canadian business standards, benefit-oriented framing.
+- `page-how-it-works.php` rebuilt from a 2-column numbered-step grid to a stacked full-width layout (`.step-detail-list` / `.step-detail`) with three labelled sub-sections per step ("What We Do" / "What You Provide" / "Your Benefit", the last styled as a highlighted callout) and "Step N: Title" headings.
+- Replaced the generic shared final-CTA on this page with a page-specific closing CTA ("Ready to Get Started?") linking to Website Designs and Pricing, per the brief's "end with a strong call to action" instruction.
+- New CSS in `assets/css/pages.css`: `.step-detail-list`, `.step-detail(__header/__group/__label)`; removed the now-unused `.steps-list`/`.step`/`.step__body` grid rules (kept `.step__number`, still reused).
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `page-how-it-works.php`, `assets/css/pages.css`
+- `PROJECT_MASTER.md`
+
+### Notes
+- Verified via direct HTML fetch: all 6 "Step N: Title" headings present, all 3 labelled groups present per step (18 total), custom closing CTA renders, no PHP errors.
+
 ## 2026-09-06 — Services page copywriting rewrite
 
 ### Changed
