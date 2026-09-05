@@ -189,6 +189,7 @@
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--space-6);
+	justify-content: center;
 }
 
 .pricing-card {
@@ -334,13 +335,13 @@
 
 @media (min-width: 640px) {
 	.pricing-grid {
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(240px, 260px));
 	}
 }
 
 @media (min-width: 1024px) {
 	.pricing-grid {
-		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(260px, 280px));
 	}
 
 	.pricing-card--featured {

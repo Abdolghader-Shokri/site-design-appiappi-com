@@ -5,7 +5,8 @@ All notable changes to this project. Dated by day; most recent first.
 ## 2026-09-06 — Fix: pricing grid didn't balance for 3- or 2-card groups
 
 ### Fixed
-- `.pricing-grid`'s desktop/tablet breakpoints used a hard `repeat(4, 1fr)` / `repeat(2, 1fr)` column count. That's fine when there are exactly 4 (or 2) plans, but the new Pricing page renders the Launch group (3 plans) and Growth group (2 plans) separately — 3 items in a 4-column grid left an empty trailing column and squeezed the cards narrow; 2 items in a 4-column grid left half the row blank. Switched both breakpoints to `repeat(auto-fit, minmax(240px|260px, 1fr))`, which sizes columns to fit the container and collapses unused tracks — any card count (2, 3, 4, 5...) now fills the row evenly with no lopsided gaps, on the homepage teaser (4), the Launch section (3), and the Growth section (2) alike.
+- `.pricing-grid`'s desktop/tablet breakpoints used a hard `repeat(4, 1fr)` / `repeat(2, 1fr)` column count. That's fine when there are exactly 4 (or 2) plans, but the new Pricing page renders the Launch group (3 plans) and Growth group (2 plans) separately — 3 items in a 4-column grid left an empty trailing column and squeezed the cards narrow; 2 items in a 4-column grid left half the row blank. First pass switched both breakpoints to `repeat(auto-fit, minmax(_, 1fr))` — fixed the empty-gap problem, but the `1fr` max meant the 2-card Growth row stretched to ~556px-wide cards while the 3-card Launch row right above it stayed ~363px wide, an inconsistent look on the same page.
+- Follow-up: changed the `minmax()` upper bound from `1fr` to a fixed cap (260/280px) and added `justify-content: center`, so every pricing card is the same width everywhere — homepage (4), Launch section (3), and Growth section (2) — and a shorter row simply centers instead of stretching.
 
 ### Files Modified
 - `wp-content/themes/appiappi-theme/assets/css/home.css`
