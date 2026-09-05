@@ -2,6 +2,14 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Pricing page: one plan per row, full width
+
+### Changed
+- On the Pricing page only (`/pricing/`), both the Launch Tiers and Growth Tiers sections now force a single-column layout (`columns="1"` on the `[appiappi_pricing]` shortcode calls, `columns: 1` on the `appiappi_render_pricing_cards()` fallback calls) so each plan fills the full container width and stacks in its own row instead of sitting side-by-side. The homepage teaser is untouched and keeps using the admin-configured "Plans Per Row" column count.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/page-pricing.php`
+
 ## 2026-09-06 — Fix: pricing card styles weren't loading on the Pricing page at all
 
 ### Fixed

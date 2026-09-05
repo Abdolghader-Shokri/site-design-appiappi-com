@@ -325,6 +325,15 @@ management/growth) → the FAQ accordion (per
 **intentionally left untouched** in the 2026-09-06 rewrite per the user's
 explicit instruction) → the shared final CTA.
 
+**One plan per row on the Pricing page (added 2026-09-06):** both the
+Launch Tiers and Growth Tiers `[appiappi_pricing]`/`appiappi_render_pricing_cards()`
+calls in `page-pricing.php` now hard-code `columns="1"` / `columns: 1`,
+overriding the global "Plans Per Row" admin setting on this page only —
+each plan fills the full container width and stacks in its own row
+rather than sitting side by side. The homepage teaser
+(`template-parts/sections/pricing-preview.php`) is untouched and keeps
+using the admin-configured column count.
+
 ## 13. Template Library
 
 **Built as the `appiappi-template-showcase` companion plugin** (§5, §7).
