@@ -50,7 +50,7 @@ $social = array(
 				<?php endif; ?>
 			</div>
 
-			<div class="footer-col">
+			<div class="footer-col footer-col--links">
 				<p class="footer-col__title"><?php esc_html_e( 'Quick Links', 'appiappi' ); ?></p>
 				<ul class="footer-col__list">
 					<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'appiappi' ); ?></a></li>
@@ -62,7 +62,7 @@ $social = array(
 			</div>
 
 			<?php if ( $footer_services ) : ?>
-				<div class="footer-col">
+				<div class="footer-col footer-col--services">
 					<p class="footer-col__title"><?php esc_html_e( 'Services', 'appiappi' ); ?></p>
 					<ul class="footer-col__list">
 						<?php foreach ( $footer_services as $service ) : ?>

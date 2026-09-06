@@ -2,6 +2,15 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Mobile footer trim; favicon matches the logo mark exactly
+
+### Changed
+- Mobile only (<640px): footer drops the Quick Links and Services columns (Contact + brand still show), and the copyright/legal-links row centres instead of left-aligning. Both come back at 640px and up.
+- `favicon.svg` was missing the small stem line (`<line x1="12" y1="19" x2="12" y2="22">`) that's part of the logo's maple mark everywhere else it's used (header, footer, hero eyebrow) — added, same maple red (`#d5222b`), so the favicon now matches the logo exactly instead of showing only the star shape.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/template-parts/footer/site-footer.php`, `assets/css/layout.css`, `assets/images/favicon.svg`, `inc/enqueue.php`
+
 ## 2026-09-06 — Single design page: summary sidebar, multi-image carousel, SEO headings
 
 ### Added

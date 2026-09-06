@@ -295,6 +295,26 @@ body.mobile-nav-is-open {
 	gap: var(--space-4);
 }
 
+/* Mobile only (<640px): Quick Links and Services are dropped to keep
+   the footer short on a phone screen (Contact and the brand column
+   already cover the essentials), and the copyright/legal row centres
+   instead of left-aligning. Both columns come back from 640px up. */
+@media (max-width: 639.98px) {
+	.footer-col--links,
+	.footer-col--services {
+		display: none;
+	}
+
+	.footer-bottom {
+		align-items: center;
+		text-align: center;
+	}
+
+	.footer-bottom__legal {
+		justify-content: center;
+	}
+}
+
 @media (min-width: 640px) {
 	.footer-grid {
 		grid-template-columns: repeat(2, 1fr);
