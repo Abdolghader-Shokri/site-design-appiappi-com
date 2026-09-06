@@ -102,10 +102,78 @@
 	margin-bottom: var(--space-6);
 }
 
-.checkout-invoice__recurring-note {
+.checkout-invoice__recurring-note,
+.checkout-invoice__deferred-note {
 	font-size: var(--fs-xs);
 	color: var(--color-text-muted);
 	margin: var(--space-3) 0 0;
+}
+
+.checkout-invoice__deferred-note {
+	color: var(--checkout-plan-color, var(--color-primary));
+	font-weight: var(--fw-semibold);
+}
+
+.checkout-invoice__row--credit span:last-child {
+	color: #1a7f37;
+	font-weight: var(--fw-semibold);
+}
+
+/* Pay Now / Pay Later — only shown for plans with free hosting included. */
+.checkout-payment-timing {
+	margin-bottom: var(--space-5);
+}
+
+.checkout-payment-timing__option {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	padding: var(--space-3);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	margin-bottom: var(--space-2);
+	cursor: pointer;
+	font-size: var(--fs-sm);
+}
+
+.checkout-payment-timing__option:has(input:checked) {
+	border-color: var(--checkout-plan-color, var(--color-primary));
+	background: color-mix(in srgb, var(--checkout-plan-color, var(--color-primary)) 6%, white);
+}
+
+.checkout-payment-timing__hint {
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	margin: var(--space-2) 0 0;
+}
+
+.checkout-hosting-required-note {
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	background: var(--color-bg-subtle);
+	border-radius: var(--radius-md);
+	padding: var(--space-3);
+	margin-bottom: var(--space-5);
+}
+
+.checkout-hosting-selector {
+	margin-bottom: var(--space-5);
+	padding: var(--space-4);
+	background: var(--color-bg-subtle);
+	border-radius: var(--radius-md);
+}
+
+.checkout-hosting-selector .form-row:last-child {
+	margin-bottom: 0;
+}
+
+.checkout-hosting-selector select {
+	width: 100%;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-3);
+	font-size: var(--fs-base);
+	background: var(--color-white);
 }
 
 .checkout-billing-toggle {

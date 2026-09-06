@@ -45,10 +45,11 @@ function appiappi_checkout_admin_columns( $columns ) {
 	foreach ( $columns as $key => $label ) {
 		$new[ $key ] = $label;
 		if ( 'title' === $key ) {
-			$new['appiappi_order_plan']   = __( 'Plan', 'appiappi-checkout' );
-			$new['appiappi_order_amount'] = __( 'Amount', 'appiappi-checkout' );
-			$new['appiappi_order_status'] = __( 'Status', 'appiappi-checkout' );
-			$new['appiappi_order_mode']   = __( 'Mode', 'appiappi-checkout' );
+			$new['appiappi_order_plan']    = __( 'Plan', 'appiappi-checkout' );
+			$new['appiappi_order_amount']  = __( 'Charged Today', 'appiappi-checkout' );
+			$new['appiappi_order_timing']  = __( 'Timing', 'appiappi-checkout' );
+			$new['appiappi_order_status']  = __( 'Status', 'appiappi-checkout' );
+			$new['appiappi_order_mode']    = __( 'Mode', 'appiappi-checkout' );
 		}
 	}
 	return $new;
@@ -65,6 +66,15 @@ function appiappi_checkout_admin_column_content( $column, $post_id ) {
 		$amount   = get_post_meta( $post_id, '_appiappi_order_total_amount', true );
 		$currency = strtoupper( get_post_meta( $post_id, '_appiappi_order_currency', true ) ?: 'cad' );
 		echo esc_html( number_format( (float) $amount, 2 ) . ' ' . $currency );
+	}
+	if ( 'appiappi_order_timing' === $column ) {
+		$timing = get_post_meta( $post_id, '_appiappi_order_payment_timing', true ) ?: 'now';
+		if ( 'later' === $timing ) {
+			$deferred = get_post_meta( $post_id, '_appiappi_order_deferred_amount', true );
+			printf( '%s <span style="color:#9a6700">(+$%s %s)</span>', esc_html__( 'Later', 'appiappi-checkout' ), esc_html( number_format( (float) $deferred, 2 ) ), esc_html__( 'due on completion', 'appiappi-checkout' ) );
+		} else {
+			esc_html_e( 'Full payment', 'appiappi-checkout' );
+		}
 	}
 	if ( 'appiappi_order_status' === $column ) {
 		$statuses = appiappi_checkout_order_statuses();
@@ -89,11 +99,17 @@ function appiappi_checkout_render_meta_box( $post ) {
 
 	$fields = array(
 		'design_name'         => __( 'Website Design', 'appiappi-checkout' ),
-		'design_price'        => __( 'Design Price', 'appiappi-checkout' ),
+		'design_price'        => __( 'Design Price (before credit)', 'appiappi-checkout' ),
+		'design_credit_applied' => __( 'Design Credit Applied', 'appiappi-checkout' ),
 		'plan_name'           => __( 'Plan', 'appiappi-checkout' ),
+		'plan_amount'         => __( 'Plan Amount', 'appiappi-checkout' ),
 		'billing_frequency'   => __( 'Billing Frequency', 'appiappi-checkout' ),
-		'discount_percent'    => __( 'Discount Applied (%)', 'appiappi-checkout' ),
-		'total_amount'        => __( 'Total Amount', 'appiappi-checkout' ),
+		'payment_timing'      => __( 'Payment Timing', 'appiappi-checkout' ),
+		'deferred_amount'     => __( 'Deferred (Due Later)', 'appiappi-checkout' ),
+		'hosting_label'       => __( 'Hosting Package', 'appiappi-checkout' ),
+		'hosting_price'       => __( 'Hosting Price', 'appiappi-checkout' ),
+		'discount_percent'    => __( 'Annual Discount Applied (%)', 'appiappi-checkout' ),
+		'total_amount'        => __( 'Charged Today', 'appiappi-checkout' ),
 		'currency'            => __( 'Currency', 'appiappi-checkout' ),
 		'customer_name'       => __( 'Customer Name', 'appiappi-checkout' ),
 		'customer_email'      => __( 'Customer Email', 'appiappi-checkout' ),

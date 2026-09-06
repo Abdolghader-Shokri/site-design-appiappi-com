@@ -2,6 +2,18 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-07 — Checkout: hosting packages, pay-now/pay-later, per-plan design credit
+
+### Added
+- New `appiappi_hosting` CPT (Orders → Hosting Packages) — admin creates/edits/deletes as many hosting packages as needed, each a Location + Storage (amount or Unlimited) + Traffic (amount or Unlimited) + annual price. Checkout modal narrows to one via cascading Location → Storage → Traffic selects.
+- Pricing Plans gained two new fields: "Includes Free Hosting" and "Website Design Credit ($)".
+- Checkout modal: a Pay-in-full-now / Pay-after-work-is-completed choice, shown only for plans with free hosting included (plans without it always require full payment today — enforced server-side, not just hidden in the UI). Hosting becomes required and must be selected+paid today whenever the free-hosting perk isn't actually in effect (no free hosting at all, or the plan fee itself is being deferred). Design credit reduces the design line only when paying in full today, never below $0, with any leftover forfeited rather than applied elsewhere.
+- Deferred plan fees are recorded on the Order (amount + timing) for manual follow-up once work is done — not auto-billed later, since "work completed" isn't a fixed date.
+
+### Files Modified
+- `wp-content/plugins/appiappi-checkout/includes/{pricing,ajax,cpt,checkout-ui}.php` (rewritten pricing logic, new `hosting-cpt.php`), `assets/{checkout.js,checkout.css}` (rewritten), `appiappi-checkout.php`
+- `wp-content/plugins/appiappi-pricing-plans/includes/meta-boxes.php`
+
 ## 2026-09-06 — Stripe checkout: plan + design invoice, monthly/annual toggle, payment modal
 
 ### Added

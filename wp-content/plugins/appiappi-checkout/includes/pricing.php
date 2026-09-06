@@ -2,9 +2,9 @@
 /**
  * The one place checkout amounts get computed — used by the AJAX handler
  * right before talking to Stripe. Deliberately never trusts anything the
- * browser sends about price; it only ever trusts a plan ID (looked up
- * fresh against the appiappi_plan CPT) and a design post ID (looked up
- * fresh against appiappi_template), so nothing a visitor could tamper
+ * browser sends about price, hosting, or eligibility; it only ever
+ * trusts IDs (plan slug, design post ID, hosting package post ID) looked
+ * up fresh against their own CPTs, so nothing a visitor could tamper
  * with in the page or a network request can change what they're charged.
  */
 
@@ -27,11 +27,13 @@ function appiappi_checkout_get_plan( $plan_id ) {
 	}
 
 	return array(
-		'id'                => $post->post_name,
-		'name'              => get_the_title( $post ),
-		'price'             => (float) preg_replace( '/[^0-9.]/', '', (string) get_post_meta( $post->ID, '_appiappi_plan_price', true ) ),
-		'billing_frequency' => $billing_frequency ?: 'one_time',
-		'color_key'         => get_post_meta( $post->ID, '_appiappi_plan_color', true ) ?: 'business',
+		'id'                    => $post->post_name,
+		'name'                  => get_the_title( $post ),
+		'price'                 => (float) preg_replace( '/[^0-9.]/', '', (string) get_post_meta( $post->ID, '_appiappi_plan_price', true ) ),
+		'billing_frequency'     => $billing_frequency ?: 'one_time',
+		'color_key'             => get_post_meta( $post->ID, '_appiappi_plan_color', true ) ?: 'business',
+		'includes_free_hosting' => (bool) get_post_meta( $post->ID, '_appiappi_plan_includes_free_hosting', true ),
+		'design_credit'         => (float) get_post_meta( $post->ID, '_appiappi_plan_design_credit', true ),
 	);
 }
 
@@ -52,21 +54,37 @@ function appiappi_checkout_get_design_price( $design_post_id ) {
 }
 
 /**
- * Full server-side price breakdown for one checkout attempt.
+ * Full server-side price breakdown for one checkout attempt — the only
+ * function that decides what a customer actually owes today vs. later.
+ *
+ * Business rules (2026-09-07):
+ * - A plan may or may not include free hosting (`includes_free_hosting`).
+ * - "Pay after work is completed" (deferring the plan's own fee) is
+ *   only ever offered for plans WITH free hosting — for a plan without
+ *   it, full payment upfront is enforced here regardless of what the
+ *   client requested, since there's no free-hosting bridge to cover the
+ *   gap otherwise.
+ * - Hosting must be selected and paid for today whenever the plan's own
+ *   free-hosting perk isn't actually in effect yet: either because the
+ *   plan never includes it, or because the plan fee itself is being
+ *   deferred (the free-hosting perk only activates once the plan is
+ *   actually paid). Paying a free-hosting plan in full today means no
+ *   hosting purchase is needed at all.
+ * - A plan's Website Design credit only applies when paying in full
+ *   today — never when deferring the plan fee. It reduces the design's
+ *   price (never below $0); any leftover credit past the design's price
+ *   is forfeited, not applied to the plan or hosting cost.
  *
  * @param string $plan_id           Plan slug.
- * @param string $billing_frequency 'one_time' | 'monthly' | 'yearly' —
- *                                   for a plan whose own frequency is
- *                                   'monthly', the customer may choose
- *                                   'yearly' at checkout (the discount
- *                                   toggle); any other combination is
- *                                   rejected rather than guessed at.
- * @param int    $design_post_id    Optional selected design.
- * @return array|WP_Error {plan, design_name, design_price, base_amount,
- *                          discount_percent, discount_amount, recurring_amount,
- *                          one_time_amount, currency, billing_frequency}
+ * @param string $billing_frequency 'one_time' | 'monthly' | 'yearly'.
+ * @param int    $design_post_id    Optional selected Website Design.
+ * @param string $payment_timing    'now' | 'later'.
+ * @param int    $hosting_id        Selected Hosting Package post ID —
+ *                                   required whenever hosting is needed
+ *                                   (see rules above), ignored otherwise.
+ * @return array|WP_Error
  */
-function appiappi_checkout_compute_order( $plan_id, $billing_frequency, $design_post_id = 0 ) {
+function appiappi_checkout_compute_order( $plan_id, $billing_frequency, $design_post_id = 0, $payment_timing = 'now', $hosting_id = 0 ) {
 	$plan = appiappi_checkout_get_plan( $plan_id );
 	if ( ! $plan ) {
 		return new WP_Error( 'appiappi_checkout_bad_plan', __( 'That plan could not be found.', 'appiappi-checkout' ) );
@@ -80,38 +98,63 @@ function appiappi_checkout_compute_order( $plan_id, $billing_frequency, $design_
 		return new WP_Error( 'appiappi_checkout_bad_frequency', __( 'That billing frequency is not available for this plan.', 'appiappi-checkout' ) );
 	}
 
-	$discount_percent = 0.0;
-	$recurring_amount = $plan['price'];
+	$payment_timing = in_array( $payment_timing, array( 'now', 'later' ), true ) ? $payment_timing : 'now';
+	// The one enforcement point for the whole feature: a plan with no
+	// free hosting always requires full payment today, no matter what
+	// was requested.
+	if ( ! $plan['includes_free_hosting'] ) {
+		$payment_timing = 'now';
+	}
 
+	$hosting_required = ! $plan['includes_free_hosting'] || 'later' === $payment_timing;
+	$hosting = null;
+	if ( $hosting_required ) {
+		$hosting = appiappi_checkout_get_hosting_package( $hosting_id );
+		if ( ! $hosting ) {
+			return new WP_Error( 'appiappi_checkout_bad_hosting', __( 'Please select a hosting package.', 'appiappi-checkout' ) );
+		}
+	}
+	$hosting_price = $hosting ? $hosting['annualPrice'] : 0.0;
+
+	$discount_percent = 0.0;
+	$plan_amount      = $plan['price'];
 	if ( 'yearly' === $billing_frequency && 'monthly' === $plan['billing_frequency'] ) {
 		$discount_percent = (float) appiappi_checkout_get_setting( 'annual_discount_percent', 5 );
-		$annual_list       = $plan['price'] * 12;
-		$recurring_amount  = round( $annual_list * ( 1 - $discount_percent / 100 ), 2 );
+		$annual_list      = $plan['price'] * 12;
+		$plan_amount      = round( $annual_list * ( 1 - $discount_percent / 100 ), 2 );
 	}
 
 	$design_price = appiappi_checkout_get_design_price( $design_post_id );
 	$design_name  = $design_price > 0 ? get_the_title( (int) $design_post_id ) : '';
 
-	// The design is a one-time build cost, charged once regardless of
-	// whether the plan itself is a recurring subscription — it rides on
-	// the first invoice/payment rather than being multiplied into every
-	// future billing cycle.
-	$one_time_amount = 'one_time' === $billing_frequency ? $recurring_amount + $design_price : $design_price;
+	$credit_applied = 0.0;
+	$design_price_after_credit = $design_price;
+	if ( 'now' === $payment_timing && $plan['design_credit'] > 0 && $design_price > 0 ) {
+		$credit_applied            = min( $plan['design_credit'], $design_price );
+		$design_price_after_credit = round( $design_price - $credit_applied, 2 );
+	}
+
+	// Always charged today, regardless of payment timing.
+	$charged_today_extra = $design_price_after_credit + $hosting_price;
+
+	$charged_today   = 'now' === $payment_timing ? $plan_amount + $charged_today_extra : $charged_today_extra;
+	$deferred_amount = 'later' === $payment_timing ? $plan_amount : 0.0;
 
 	return array(
-		'plan'              => $plan,
-		'billing_frequency' => $billing_frequency,
-		'design_post_id'    => (int) $design_post_id,
-		'design_name'       => $design_name,
-		'design_price'      => $design_price,
-		'discount_percent'  => $discount_percent,
-		// For a recurring plan this is the amount billed every cycle
-		// (design price excluded); for a one_time plan it's 0 since
-		// everything is folded into $one_time_amount instead.
-		'recurring_amount'  => 'one_time' === $billing_frequency ? 0.0 : $recurring_amount,
-		// The amount actually charged today.
-		'one_time_amount'   => $one_time_amount,
-		'total_today'       => 'one_time' === $billing_frequency ? $one_time_amount : $recurring_amount + $one_time_amount,
-		'currency'          => appiappi_checkout_currency(),
+		'plan'                      => $plan,
+		'billing_frequency'         => $billing_frequency,
+		'payment_timing'            => $payment_timing,
+		'design_post_id'            => (int) $design_post_id,
+		'design_name'               => $design_name,
+		'design_price'              => $design_price,
+		'design_credit_applied'     => $credit_applied,
+		'design_price_after_credit' => $design_price_after_credit,
+		'hosting'                   => $hosting,
+		'hosting_price'             => $hosting_price,
+		'discount_percent'          => $discount_percent,
+		'plan_amount'               => $plan_amount,
+		'charged_today'             => round( $charged_today, 2 ),
+		'deferred_amount'           => round( $deferred_amount, 2 ),
+		'currency'                  => appiappi_checkout_currency(),
 	);
 }

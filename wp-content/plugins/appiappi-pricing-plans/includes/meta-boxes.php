@@ -115,6 +115,8 @@ function appiappi_pricing_render_meta_box( $post ) {
 	$cta_text = get_post_meta( $post->ID, '_appiappi_plan_cta_text', true ) ?: __( 'Choose Plan', 'appiappi-pricing-plans' );
 	$cta_url  = get_post_meta( $post->ID, '_appiappi_plan_cta_url', true ) ?: '#contact';
 	$features = get_post_meta( $post->ID, '_appiappi_plan_features', true );
+	$includes_free_hosting = (bool) get_post_meta( $post->ID, '_appiappi_plan_includes_free_hosting', true );
+	$design_credit = get_post_meta( $post->ID, '_appiappi_plan_design_credit', true );
 	?>
 	<table class="form-table">
 		<tr>
@@ -205,6 +207,20 @@ function appiappi_pricing_render_meta_box( $post ) {
 			<td><input type="url" id="appiappi_plan_cta_url" name="appiappi_plan_cta_url" value="<?php echo esc_attr( $cta_url ); ?>" class="regular-text"></td>
 		</tr>
 		<tr>
+			<th><label for="appiappi_plan_includes_free_hosting"><?php esc_html_e( 'Includes Free Hosting', 'appiappi-pricing-plans' ); ?></label></th>
+			<td>
+				<label><input type="checkbox" id="appiappi_plan_includes_free_hosting" name="appiappi_plan_includes_free_hosting" value="1" <?php checked( $includes_free_hosting ); ?>> <?php esc_html_e( 'This plan includes hosting at no extra charge', 'appiappi-pricing-plans' ); ?></label>
+				<p class="description"><?php esc_html_e( 'Checkout (appiappi-checkout) reads this: if unchecked, a customer choosing this plan must select and pay for a Hosting Package upfront, and the "pay after work is completed" option is not offered at all — only available for plans with free hosting included.', 'appiappi-pricing-plans' ); ?></p>
+			</td>
+		</tr>
+		<tr>
+			<th><label for="appiappi_plan_design_credit"><?php esc_html_e( 'Website Design Credit ($)', 'appiappi-pricing-plans' ); ?></label></th>
+			<td>
+				<input type="number" step="0.01" min="0" id="appiappi_plan_design_credit" name="appiappi_plan_design_credit" value="<?php echo esc_attr( $design_credit ); ?>" placeholder="0" class="regular-text">
+				<p class="description"><?php esc_html_e( 'Subtracted from the selected Website Design\'s price at checkout (never below $0, and any leftover credit beyond the design price is not applied elsewhere) — only when the customer pays the full amount upfront, not when deferring payment until work is done. Leave at 0 for no credit.', 'appiappi-pricing-plans' ); ?></p>
+			</td>
+		</tr>
+		<tr>
 			<th><label for="appiappi_plan_features"><?php esc_html_e( 'Features', 'appiappi-pricing-plans' ); ?></label></th>
 			<td>
 				<textarea id="appiappi_plan_features" name="appiappi_plan_features" rows="8" class="large-text" placeholder="<?php esc_attr_e( 'Feature name | Optional description shown underneath it', 'appiappi-pricing-plans' ); ?>"><?php echo esc_textarea( $features ); ?></textarea>
@@ -263,6 +279,10 @@ function appiappi_pricing_save_meta_box( $post_id ) {
 
 	update_post_meta( $post_id, '_appiappi_plan_featured', isset( $_POST['appiappi_plan_featured'] ) ? 1 : 0 );
 	update_post_meta( $post_id, '_appiappi_plan_homepage_visible', isset( $_POST['appiappi_plan_homepage_visible'] ) ? '1' : '0' );
+	update_post_meta( $post_id, '_appiappi_plan_includes_free_hosting', isset( $_POST['appiappi_plan_includes_free_hosting'] ) ? 1 : 0 );
+	if ( isset( $_POST['appiappi_plan_design_credit'] ) ) {
+		update_post_meta( $post_id, '_appiappi_plan_design_credit', max( 0, (float) $_POST['appiappi_plan_design_credit'] ) );
+	}
 
 	if ( isset( $_POST['appiappi_plan_features'] ) ) {
 		update_post_meta( $post_id, '_appiappi_plan_features', sanitize_textarea_field( wp_unslash( $_POST['appiappi_plan_features'] ) ) );

@@ -20,6 +20,7 @@ define( 'APPIAPPI_CHECKOUT_VERSION', '0.1.0' );
 
 require APPIAPPI_CHECKOUT_DIR . 'includes/settings.php';
 require APPIAPPI_CHECKOUT_DIR . 'includes/cpt.php';
+require APPIAPPI_CHECKOUT_DIR . 'includes/hosting-cpt.php';
 require APPIAPPI_CHECKOUT_DIR . 'includes/stripe-client.php';
 require APPIAPPI_CHECKOUT_DIR . 'includes/pricing.php';
 require APPIAPPI_CHECKOUT_DIR . 'includes/ajax.php';

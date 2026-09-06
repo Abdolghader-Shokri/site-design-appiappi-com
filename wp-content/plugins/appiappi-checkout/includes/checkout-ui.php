@@ -63,11 +63,13 @@ function appiappi_checkout_enqueue_assets() {
 				continue;
 			}
 			$plans[ $plan['id'] ] = array(
-				'id'                => $plan_data['id'],
-				'name'              => $plan_data['name'],
-				'price'             => $plan_data['price'],
-				'billingFrequency'  => $plan_data['billing_frequency'],
-				'color'             => $plan['color'],
+				'id'                   => $plan_data['id'],
+				'name'                 => $plan_data['name'],
+				'price'                => $plan_data['price'],
+				'billingFrequency'     => $plan_data['billing_frequency'],
+				'color'                => $plan['color'],
+				'includesFreeHosting'  => $plan_data['includes_free_hosting'],
+				'designCredit'         => $plan_data['design_credit'],
 			);
 		}
 	}
@@ -77,6 +79,7 @@ function appiappi_checkout_enqueue_assets() {
 		'nonce'           => wp_create_nonce( 'appiappi_checkout' ),
 		'configured'      => appiappi_checkout_is_configured(),
 		'plans'           => $plans,
+		'hostingPackages' => function_exists( 'appiappi_checkout_get_hosting_packages' ) ? appiappi_checkout_get_hosting_packages() : array(),
 		'selectedDesign'  => appiappi_checkout_get_selected_design(),
 		'annualDiscount'  => (float) appiappi_checkout_get_setting( 'annual_discount_percent', 5 ),
 		'currency'        => strtoupper( appiappi_checkout_currency() ),
@@ -87,8 +90,22 @@ function appiappi_checkout_enqueue_assets() {
 			'save'             => __( 'Save', 'appiappi-checkout' ),
 			'oneTime'          => __( 'One-time', 'appiappi-checkout' ),
 			'websiteDesign'    => __( 'Website Design', 'appiappi-checkout' ),
+			'designCredit'     => __( 'Design Credit', 'appiappi-checkout' ),
+			'hosting'          => __( 'Hosting', 'appiappi-checkout' ),
 			'totalDueToday'    => __( 'Total due today', 'appiappi-checkout' ),
 			'thenBilled'       => __( 'then %s billed %s, cancel anytime', 'appiappi-checkout' ),
+			'dueOnCompletion'  => __( '%s due when your website is complete', 'appiappi-checkout' ),
+			'payNowOption'     => __( 'Pay in full now', 'appiappi-checkout' ),
+			'payLaterOption'   => __( 'Pay after work is completed', 'appiappi-checkout' ),
+			'payLaterHint'     => __( 'Design and hosting are paid today; the plan fee is due once your website is ready.', 'appiappi-checkout' ),
+			'hostingRequiredNote' => __( 'This plan doesn\'t include free hosting, so a hosting package is required.', 'appiappi-checkout' ),
+			'chooseLocation'   => __( 'Choose a location…', 'appiappi-checkout' ),
+			'chooseStorage'    => __( 'Choose storage…', 'appiappi-checkout' ),
+			'chooseTraffic'    => __( 'Choose traffic…', 'appiappi-checkout' ),
+			'location'         => __( 'Location', 'appiappi-checkout' ),
+			'storage'          => __( 'Storage', 'appiappi-checkout' ),
+			'traffic'          => __( 'Traffic', 'appiappi-checkout' ),
+			'unlimited'        => __( 'Unlimited', 'appiappi-checkout' ),
 			'continueToPayment'=> __( 'Continue to Payment', 'appiappi-checkout' ),
 			'payNow'           => __( 'Pay Now', 'appiappi-checkout' ),
 			'processing'       => __( 'Processing…', 'appiappi-checkout' ),
@@ -99,6 +116,7 @@ function appiappi_checkout_enqueue_assets() {
 			'successBody'      => __( "Payment received — thank you! We'll be in touch shortly to get started.", 'appiappi-checkout' ),
 			'failedTitle'      => __( 'Payment not completed', 'appiappi-checkout' ),
 			'failedBody'       => __( "Your payment didn't go through. No charge was made — please try again or contact us for help.", 'appiappi-checkout' ),
+			'selectHosting'    => __( 'Please finish choosing a hosting package.', 'appiappi-checkout' ),
 		),
 	) );
 }
@@ -119,14 +137,50 @@ function appiappi_checkout_print_modal() {
 			<div class="checkout-step" data-checkout-step="invoice">
 				<h2 id="appiappi-checkout-title" class="checkout-modal__title" data-checkout-plan-name></h2>
 
+				<div class="checkout-payment-timing" data-checkout-payment-timing hidden>
+					<label class="checkout-payment-timing__option">
+						<input type="radio" name="appiappi_payment_timing" value="now" checked>
+						<span><?php esc_html_e( 'Pay in full now', 'appiappi-checkout' ); ?></span>
+					</label>
+					<label class="checkout-payment-timing__option">
+						<input type="radio" name="appiappi_payment_timing" value="later">
+						<span><?php esc_html_e( 'Pay after work is completed', 'appiappi-checkout' ); ?></span>
+					</label>
+					<p class="checkout-payment-timing__hint" data-checkout-payment-timing-hint></p>
+				</div>
+				<p class="checkout-hosting-required-note" data-checkout-hosting-required-note hidden></p>
+
+				<div class="checkout-hosting-selector" data-checkout-hosting-selector hidden>
+					<div class="form-row">
+						<label for="appiappi-checkout-hosting-location" data-checkout-hosting-location-label></label>
+						<select id="appiappi-checkout-hosting-location" data-checkout-hosting-location></select>
+					</div>
+					<div class="form-row" data-checkout-hosting-storage-row hidden>
+						<label for="appiappi-checkout-hosting-storage" data-checkout-hosting-storage-label></label>
+						<select id="appiappi-checkout-hosting-storage" data-checkout-hosting-storage></select>
+					</div>
+					<div class="form-row" data-checkout-hosting-traffic-row hidden>
+						<label for="appiappi-checkout-hosting-traffic" data-checkout-hosting-traffic-label></label>
+						<select id="appiappi-checkout-hosting-traffic" data-checkout-hosting-traffic></select>
+					</div>
+				</div>
+
 				<div class="checkout-invoice">
-					<div class="checkout-invoice__row">
+					<div class="checkout-invoice__row" data-checkout-plan-row>
 						<span><?php esc_html_e( 'Plan', 'appiappi-checkout' ); ?></span>
 						<span data-checkout-plan-price></span>
 					</div>
 					<div class="checkout-invoice__row" data-checkout-design-row hidden>
 						<span><?php esc_html_e( 'Website Design', 'appiappi-checkout' ); ?></span>
 						<span data-checkout-design-price></span>
+					</div>
+					<div class="checkout-invoice__row checkout-invoice__row--credit" data-checkout-credit-row hidden>
+						<span data-checkout-credit-label></span>
+						<span data-checkout-credit-amount></span>
+					</div>
+					<div class="checkout-invoice__row" data-checkout-hosting-row hidden>
+						<span data-checkout-hosting-label></span>
+						<span data-checkout-hosting-price></span>
 					</div>
 
 					<div class="checkout-billing-toggle" data-checkout-billing-toggle hidden>
@@ -146,6 +200,7 @@ function appiappi_checkout_print_modal() {
 						<span data-checkout-total></span>
 					</div>
 					<p class="checkout-invoice__recurring-note" data-checkout-recurring-note hidden></p>
+					<p class="checkout-invoice__deferred-note" data-checkout-deferred-note hidden></p>
 				</div>
 
 				<form data-checkout-contact-form>
