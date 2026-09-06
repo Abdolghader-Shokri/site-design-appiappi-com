@@ -356,49 +356,88 @@
 						if ( glowLines ) {
 							// A slow shimmer travelling along each connection
 							// (phase offset by position so lines don't pulse
-							// in lockstep) plus an actual glow, for the
-							// "floating in space" feel requested — subtler
-							// than a strobe, more like drifting energy.
+							// in lockstep), for the "floating in space" feel
+							// requested — subtler than a strobe, more like
+							// drifting energy. The glow itself is a second,
+							// wider/fainter stroke rather than ctx.shadowBlur
+							// (a notably expensive canvas op, run here on
+							// every connected pair, every frame — this
+							// keeps the same look at a fraction of the cost,
+							// which matters for mobile Core Web Vitals/INP
+							// since the header sits above the fold).
 							var pulse = 0.55 + 0.45 * Math.sin( t * 1.6 + dist * 0.05 );
+							ctx.beginPath();
+							ctx.moveTo( a.x, a.y );
+							ctx.lineTo( b.x, b.y );
+							ctx.strokeStyle = 'hsla(' + midHue + ', 95%, 70%, ' + ( opacity * pulse * 0.4 ) + ')';
+							ctx.lineWidth = 3 + pulse * 2.5;
+							ctx.stroke();
+
+							ctx.beginPath();
+							ctx.moveTo( a.x, a.y );
+							ctx.lineTo( b.x, b.y );
 							ctx.strokeStyle = 'hsla(' + midHue + ', 90%, 72%, ' + ( opacity * pulse ) + ')';
-							ctx.lineWidth = 1 + pulse * 1.4;
-							ctx.shadowColor = 'hsla(' + midHue + ', 95%, 70%, ' + Math.min( 1, opacity * pulse * 1.5 ) + ')';
-							ctx.shadowBlur = 6 * pulse;
+							ctx.lineWidth = 1 + pulse * 0.6;
+							ctx.stroke();
 						} else {
+							ctx.beginPath();
+							ctx.moveTo( a.x, a.y );
+							ctx.lineTo( b.x, b.y );
 							ctx.strokeStyle = 'hsla(' + midHue + ', 85%, 70%, ' + opacity + ')';
 							ctx.lineWidth = 1;
-							ctx.shadowBlur = 0;
+							ctx.stroke();
 						}
-
-						ctx.beginPath();
-						ctx.moveTo( a.x, a.y );
-						ctx.lineTo( b.x, b.y );
-						ctx.stroke();
 					}
 				}
 			}
-			ctx.shadowBlur = 0;
 
 			nodes.forEach( function ( node ) {
+				// Same halo-instead-of-shadowBlur trick as the glow lines
+				// above: a larger, faint fill first, then the small bright
+				// core on top — visually close to the old shadowBlur glow,
+				// far cheaper to run for up to ~140 nodes every frame.
+				ctx.beginPath();
+				ctx.fillStyle = 'hsla(' + node.hue + ', 90%, 65%, 0.25)';
+				ctx.arc( node.x, node.y, 5, 0, Math.PI * 2 );
+				ctx.fill();
+
 				ctx.beginPath();
 				ctx.fillStyle = 'hsla(' + node.hue + ', 90%, 70%, 0.9)';
-				ctx.shadowColor = 'hsla(' + node.hue + ', 90%, 65%, 0.8)';
-				ctx.shadowBlur = 6;
 				ctx.arc( node.x, node.y, 2.2, 0, Math.PI * 2 );
 				ctx.fill();
 			} );
-			ctx.shadowBlur = 0;
 		}
+
+		// Slow drifting dots don't need a full 60fps to look smooth, and
+		// this loop's O(n²) distance check is the most expensive part of
+		// this file — capping the actual redraw rate (while still letting
+		// requestAnimationFrame tick normally) roughly halves the CPU/GPU
+		// cost with no visible difference.
+		var frameInterval = 1000 / 30;
+		var lastFrameTime = 0;
 
 		function step( timestamp ) {
-			draw( timestamp );
-			if ( ! prefersReducedMotion ) {
-				raf = window.requestAnimationFrame( step );
+			timestamp = timestamp || performance.now();
+			if ( prefersReducedMotion ) {
+				draw( timestamp );
+				return;
 			}
+			if ( ! lastFrameTime || timestamp - lastFrameTime >= frameInterval ) {
+				lastFrameTime = timestamp;
+				draw( timestamp );
+			}
+			raf = window.requestAnimationFrame( step );
 		}
 
+		// Beyond the tab-level document.hidden check, also pause once the
+		// header itself scrolls out of the viewport — otherwise every page
+		// with the overlay on keeps animating (and competing for the main
+		// thread, hurting INP) for as long as the tab is open, even long
+		// after the visitor has scrolled past it.
+		var inView = true;
+
 		function handleVisibility() {
-			if ( document.hidden ) {
+			if ( document.hidden || ! inView ) {
 				if ( raf ) {
 					window.cancelAnimationFrame( raf );
 					raf = null;
@@ -413,5 +452,12 @@
 
 		window.addEventListener( 'resize', resize, { passive: true } );
 		document.addEventListener( 'visibilitychange', handleVisibility );
+
+		if ( 'IntersectionObserver' in window ) {
+			new IntersectionObserver( function ( entries ) {
+				inView = entries[ 0 ].isIntersecting;
+				handleVisibility();
+			}, { threshold: 0 } ).observe( canvas );
+		}
 	} );
 } )();

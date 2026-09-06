@@ -2,10 +2,16 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
-## 2026-09-07 (later still) — Page-header overlay: global speed/density controls, animated connection lines
+## 2026-09-07 (later still) — Page-header overlay: global speed/density controls, animated connection lines, perf pass
 
 ### Added
 - Customizer → Page Header Backgrounds gained three new controls that apply to every page's animated overlay at once (not per page, per explicit request): **Overlay Dot Speed** (0.25×–3×), **Overlay Dot Density** (0.3×–2.5×), and **Animate Connection Lines** (checkbox) — when on, the lines connecting nearby dots pulse and glow with an independent shimmer per line instead of staying flat/static, for more of a "floating in space" feel. Default is off, matching the existing look exactly.
+
+### Changed (performance, prompted by an SEO question about this overlay)
+- Both the node glow and the new line glow now use a cheap layered-fill/stroke "halo" instead of `ctx.shadowBlur`, which is a much more expensive canvas operation run here on every node/line pair, every frame.
+- The redraw loop is capped at 30fps instead of uncapped ~60fps+ — imperceptible on slow-drifting dots, roughly halves the cost of the loop's O(n²) distance check.
+- Added an `IntersectionObserver` so the animation pauses once its header scrolls out of view, not just when the browser tab itself is hidden — previously it kept running (and competing for the main thread) for as long as the tab stayed open.
+- None of this changes what's indexable (the canvas was already `aria-hidden`, `pointer-events: none`, and painted below the header's real text/z-index — no hidden text, no CLS, no blocked content); the risk was purely mobile Core Web Vitals/INP from continuous CPU use across all 8 page headers, which this addresses directly.
 
 ### Files Modified
 - `wp-content/themes/appiappi-theme/inc/customizer.php`, `inc/enqueue.php`, `assets/js/main.js`
