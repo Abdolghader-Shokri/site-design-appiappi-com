@@ -364,6 +364,13 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 	}
 	$columns = max( 1, min( 6, (int) $columns ) );
 
+	// Set only when a "Choose This Design" button sent the visitor here
+	// with ?design_id= — looked up fresh from the design's own real,
+	// current price (appiappi-checkout), never trusted from the URL, so
+	// every plan card can show it as its own line item. Only meaningful
+	// on the full Pricing page; the homepage teaser never carries this.
+	$selected_design = function_exists( 'appiappi_checkout_get_selected_design' ) ? appiappi_checkout_get_selected_design() : null;
+
 	ob_start();
 	?>
 	<div class="pricing-grid" style="--pricing-cols: <?php echo esc_attr( $columns ); ?>">
@@ -377,6 +384,11 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 			// one — the "future checkout button" per plan should read as a
 			// real, equally-weighted action, not a secondary/outline one.
 			$cta_class = ( $show_description || ! empty( $plan['featured'] ) ) ? 'btn-primary' : 'btn-secondary';
+			// The full Pricing page opens the Stripe checkout modal directly
+			// instead of navigating anywhere, whenever appiappi-checkout is
+			// active — if it's ever deactivated this quietly falls back to
+			// the plain link behaviour above instead of a dead button.
+			$use_checkout_modal = $show_description && function_exists( 'appiappi_checkout_is_configured' );
 			?>
 			<div id="plan-<?php echo esc_attr( $plan['id'] ); ?>" class="pricing-card <?php echo ! empty( $plan['featured'] ) ? 'pricing-card--featured' : ''; ?>" style="--plan-color: <?php echo esc_attr( $plan['color'] ); ?>">
 				<?php if ( ! empty( $plan['badge'] ) ) : ?>
@@ -393,6 +405,12 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 					<span class="pricing-card__price-amount">$<?php echo esc_html( $plan['price'] ); ?></span>
 					<span class="pricing-card__price-period"><?php echo esc_html( $plan['period'] ); ?></span>
 				</p>
+				<?php if ( $selected_design ) : ?>
+					<p class="pricing-card__design-line">
+						<?php echo appiappi_icon( 'shopping-bag' ); ?>
+						<span><?php esc_html_e( 'Website Design:', 'appiappi' ); ?> <?php echo esc_html( $selected_design['name'] ); ?> — <strong>+$<?php echo esc_html( number_format( $selected_design['price'], 0 ) ); ?></strong></span>
+					</p>
+				<?php endif; ?>
 				<p class="pricing-card__note"><?php echo esc_html( $plan['note'] ); ?></p>
 				<?php if ( ! empty( $plan['audience'] ) ) : ?>
 					<p class="pricing-card__audience"><?php echo esc_html( $plan['audience'] ); ?></p>
@@ -435,9 +453,15 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 					<p class="pricing-card__value-driver"><?php echo appiappi_icon( 'trending-up' ); ?><span><?php echo esc_html( $plan['value_driver'] ); ?></span></p>
 				<?php endif; ?>
 
-				<a href="<?php echo esc_url( $cta_url ); ?>" class="btn <?php echo esc_attr( $cta_class ); ?> btn-block">
-					<?php echo esc_html( $plan['cta_text'] ); ?>
-				</a>
+				<?php if ( $use_checkout_modal ) : ?>
+					<button type="button" class="btn <?php echo esc_attr( $cta_class ); ?> btn-block js-appiappi-checkout-open" data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>" data-design-id="<?php echo esc_attr( $selected_design['id'] ?? 0 ); ?>">
+						<?php echo esc_html( $plan['cta_text'] ); ?>
+					</button>
+				<?php else : ?>
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="btn <?php echo esc_attr( $cta_class ); ?> btn-block">
+						<?php echo esc_html( $plan['cta_text'] ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 		<?php endforeach; ?>
 	</div>
@@ -659,7 +683,7 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 								<div class="template-card__actions">
 									<a href="<?php echo esc_url( $template['details_url'] ); ?>" class="btn btn-secondary btn-sm"><?php esc_html_e( 'View Details', 'appiappi' ); ?></a>
 									<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-primary btn-sm"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
-									<a href="<?php echo esc_url( add_query_arg( array( 'design' => rawurlencode( $template['name'] ), 'plan' => 'professional' ), home_url( '/contact/' ) ) ); ?>" class="btn btn-primary btn-sm template-card__cart" aria-label="<?php esc_attr_e( 'Choose this design', 'appiappi' ); ?>" title="<?php esc_attr_e( 'Choose this design', 'appiappi' ); ?>">
+									<a href="<?php echo esc_url( add_query_arg( array( 'design_id' => (int) $template['id'] ), home_url( '/pricing/' ) ) ); ?>" class="btn btn-primary btn-sm template-card__cart" aria-label="<?php esc_attr_e( 'Choose this design', 'appiappi' ); ?>" title="<?php esc_attr_e( 'Choose this design', 'appiappi' ); ?>">
 										<?php echo appiappi_icon( 'shopping-bag' ); ?>
 									</a>
 								</div>

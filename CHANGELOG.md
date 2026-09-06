@@ -2,6 +2,20 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Stripe checkout: plan + design invoice, monthly/annual toggle, payment modal
+
+### Added
+- New companion plugin `appiappi-checkout`: a Stripe-backed checkout flow reached from the Pricing page.
+- "Choose This Design" now links to `/pricing/?design_id={id}` instead of the Contact page; every plan card on Pricing shows a "Website Design: {name} — +$X" line when a design is selected (price looked up server-side from the ID, never trusted from the URL).
+- Each plan's button opens a themed modal (colour matches the plan) with an itemized invoice, a Monthly/Annual toggle for monthly plans (configurable annual discount, default 5%), a short contact form, then Stripe's Payment Element for card/wallet details — whatever payment methods are enabled in the Stripe Dashboard show up automatically.
+- One-time plans get a Stripe PaymentIntent; monthly/yearly plans get a real Stripe Subscription (inline `price_data`, no pre-created Stripe Products) with the design price folded into the first invoice only, not repeated every cycle.
+- Orders (`appiappi_order` CPT, admin-only) are created `pending` and flipped to `paid`/`failed` only by a signature-verified Stripe webhook — never trusted from the browser alone.
+- Settings → Appiappi Checkout: Stripe Publishable/Secret/Webhook keys and the annual discount %. Test vs. live mode is read from the secret key's own prefix; going live later should only require pasting real keys in, plus the one-time manual step of registering the shown webhook URL in the Stripe Dashboard.
+
+### Files Modified
+- New plugin: `wp-content/plugins/appiappi-checkout/` (bootstrap, `includes/{settings,cpt,stripe-client,pricing,ajax,webhook,checkout-ui}.php`, `assets/{checkout.js,checkout.css}`)
+- `wp-content/themes/appiappi-theme/inc/template-tags.php` (design line item + checkout-modal CTA on `appiappi_render_pricing_cards()`, design card link), `single-appiappi_template.php` (design link), `inc/enqueue.php`
+
 ## 2026-09-06 — Mobile footer trim; favicon matches the logo mark exactly
 
 ### Changed

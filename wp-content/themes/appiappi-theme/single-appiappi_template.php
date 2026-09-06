@@ -5,12 +5,12 @@
  * plugin so the same data shape/logic is used everywhere this design
  * appears (grid card, archive, here).
  *
- * "Choose This Design" starts the selection workflow (§ Website Template
- * Library selection workflow in MASTER_PROMPT.md): it links to the
- * Contact page with `?design=` (and a default recommended `?plan=`) —
- * the appiappi-contact plugin reads those and shows a "You selected…"
- * banner + carries them into the Lead. It intentionally does NOT
- * purchase or commit to anything by itself.
+ * "Choose This Design" starts the checkout flow (added 2026-09-06,
+ * appiappi-checkout plugin): it links to the Pricing page with
+ * `?design_id={post ID}` — that page adds the design's real price
+ * (looked up server-side from the ID, never trusted from the URL) as a
+ * line item on every plan, and each plan's own button opens the Stripe
+ * checkout modal already carrying that design along.
  *
  * Added 2026-09-06: the same Categories sidebar module shown on the
  * /templates/ archive (appiappi_showcase_get_categories(), reusing the
@@ -122,7 +122,7 @@ while ( have_posts() ) :
 										<?php if ( $template['demo_url'] && '#' !== $template['demo_url'] ) : ?>
 											<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
 										<?php endif; ?>
-										<a href="<?php echo esc_url( add_query_arg( array( 'design' => rawurlencode( get_the_title() ), 'plan' => 'professional' ), home_url( '/contact/' ) ) ); ?>" class="btn btn-primary"><?php esc_html_e( 'Choose This Design', 'appiappi' ); ?></a>
+										<a href="<?php echo esc_url( add_query_arg( array( 'design_id' => (int) $template['id'] ), home_url( '/pricing/' ) ) ); ?>" class="btn btn-primary"><?php esc_html_e( 'Choose This Design', 'appiappi' ); ?></a>
 									</div>
 
 									<?php $missing_note = get_theme_mod( 'appiappi_template_missing_note', appiappi_default_missing_design_note() ); ?>

@@ -1,0 +1,238 @@
+/**
+ * Checkout modal — themed per plan via --checkout-plan-color (set inline
+ * by checkout.js from the same --plan-color each pricing card already
+ * uses), so the invoice/payment panel visually matches whichever plan a
+ * visitor picked rather than using one fixed site colour throughout.
+ */
+
+.appiappi-checkout-open {
+	overflow: hidden;
+}
+
+.checkout-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-4);
+}
+
+.checkout-modal[hidden] {
+	display: none;
+}
+
+.checkout-modal__overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(16, 21, 29, 0.6);
+}
+
+.checkout-modal__panel {
+	position: relative;
+	background: var(--color-white);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-lg);
+	max-width: 480px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	padding: var(--space-8);
+	border-top: 4px solid var(--checkout-plan-color, var(--color-primary));
+}
+
+.checkout-modal__close {
+	position: absolute;
+	top: var(--space-4);
+	right: var(--space-4);
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-full);
+	background: var(--color-bg-subtle);
+	color: var(--color-text-muted);
+}
+
+.checkout-modal__close:hover {
+	background: var(--color-border);
+	color: var(--color-text);
+}
+
+.checkout-modal__close svg {
+	width: 16px;
+	height: 16px;
+}
+
+.checkout-modal__title {
+	margin-bottom: var(--space-5);
+	padding-right: var(--space-8);
+	color: var(--checkout-plan-color, var(--color-text));
+}
+
+.checkout-invoice {
+	background: var(--color-bg-subtle);
+	border-radius: var(--radius-md);
+	padding: var(--space-5);
+	margin-bottom: var(--space-6);
+}
+
+.checkout-invoice__row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	font-size: var(--fs-sm);
+	color: var(--color-text-muted);
+	padding-block: var(--space-2);
+}
+
+.checkout-invoice__row--total {
+	border-top: 1px solid var(--color-border);
+	margin-top: var(--space-2);
+	padding-top: var(--space-3);
+	font-size: var(--fs-lg);
+	font-weight: var(--fw-bold);
+	color: var(--color-neutral-900);
+}
+
+.checkout-invoice--summary {
+	margin-bottom: var(--space-6);
+}
+
+.checkout-invoice__recurring-note {
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	margin: var(--space-3) 0 0;
+}
+
+.checkout-billing-toggle {
+	display: flex;
+	gap: var(--space-2);
+	background: var(--color-white);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-1);
+	margin-block: var(--space-3);
+}
+
+.checkout-billing-toggle label {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-1);
+	text-align: center;
+	padding: var(--space-2) var(--space-3);
+	border-radius: var(--radius-sm);
+	font-size: var(--fs-sm);
+	cursor: pointer;
+	color: var(--color-text-muted);
+}
+
+.checkout-billing-toggle input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.checkout-billing-toggle input:checked + span,
+.checkout-billing-toggle label:has(input:checked) {
+	color: var(--color-white);
+}
+
+.checkout-billing-toggle label:has(input:checked) {
+	background: var(--checkout-plan-color, var(--color-primary));
+}
+
+.checkout-billing-toggle__badge {
+	font-size: var(--fs-xs);
+	background: var(--color-primary-50);
+	color: var(--color-primary-dark);
+	border-radius: var(--radius-full);
+	padding: 2px var(--space-2);
+}
+
+.checkout-billing-toggle label:has(input:checked) .checkout-billing-toggle__badge {
+	background: rgba(255, 255, 255, 0.25);
+	color: var(--color-white);
+}
+
+.checkout-step .form-row {
+	margin-bottom: var(--space-4);
+}
+
+.checkout-step label {
+	display: block;
+	font-size: var(--fs-sm);
+	font-weight: var(--fw-semibold);
+	margin-bottom: var(--space-2);
+}
+
+.checkout-step input[type="text"],
+.checkout-step input[type="email"],
+.checkout-step input[type="tel"] {
+	width: 100%;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-3);
+	font-size: var(--fs-base);
+}
+
+.checkout-step [data-checkout-continue],
+.checkout-step [data-checkout-pay] {
+	background: var(--checkout-plan-color, var(--color-primary));
+	border-color: var(--checkout-plan-color, var(--color-primary));
+	margin-top: var(--space-2);
+}
+
+.checkout-error {
+	color: var(--color-danger);
+	font-size: var(--fs-sm);
+	margin-bottom: var(--space-3);
+}
+
+#appiappi-payment-element {
+	margin-bottom: var(--space-5);
+}
+
+.checkout-secure-note {
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	text-align: center;
+	margin: var(--space-4) 0 0;
+}
+
+.checkout-status {
+	text-align: center;
+	padding-block: var(--space-6);
+}
+
+/* Design line item added to every pricing card once ?design_id= is on
+   the URL — see appiappi_render_pricing_cards() in the theme. */
+.pricing-card__design-line {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-size: var(--fs-sm);
+	color: var(--color-text-muted);
+	background: var(--color-bg-subtle);
+	border-radius: var(--radius-md);
+	padding: var(--space-2) var(--space-3);
+	margin-bottom: var(--space-3);
+}
+
+.pricing-card__design-line svg {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	color: var(--plan-color, var(--color-primary));
+}
+
+@media (max-width: 480px) {
+	.checkout-modal__panel {
+		padding: var(--space-6) var(--space-5);
+	}
+}
