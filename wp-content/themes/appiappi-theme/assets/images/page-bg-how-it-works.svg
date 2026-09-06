@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-labelledby="pageBgHowTitle">
+	<title id="pageBgHowTitle">Decorative isometric illustration of three ascending steps representing a process</title>
+	<defs>
+		<linearGradient id="howCubeTop" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#ffffff"/>
+			<stop offset="100%" stop-color="#dbe6ff"/>
+		</linearGradient>
+	</defs>
+
+	<!-- ground shadows -->
+	<ellipse cx="400" cy="213" rx="46" ry="8" fill="#10151d" opacity="0.05"/>
+	<ellipse cx="490" cy="184" rx="52" ry="8" fill="#10151d" opacity="0.06"/>
+	<ellipse cx="585" cy="150" rx="58" ry="9" fill="#10151d" opacity="0.07"/>
+
+	<!-- dotted path tracing the ascent -->
+	<path d="M370 175 C 420 150, 440 130, 490 105 S 555 55, 595 40" fill="none" stroke="#1e5eff" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" opacity="0.4"/>
+	<circle cx="360" cy="180" r="5" fill="#d5222b" opacity="0.55"/>
+
+	<!-- step 1 (smallest, back-left) -->
+	<polygon points="400,165 442,144 442,186 400,207" fill="#1746c4"/>
+	<polygon points="358,144 400,165 400,207 358,186" fill="#1e5eff"/>
+	<polygon points="400,123 442,144 400,165 358,144" fill="url(#howCubeTop)"/>
+	<g transform="translate(385,150) scale(0.8)" stroke="#0b1526" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<polyline points="5 13 10 18 19 7"></polyline>
+	</g>
+
+	<!-- step 2 (middle) -->
+	<polygon points="490,130 538,106 538,154 490,178" fill="#1746c4"/>
+	<polygon points="442,106 490,130 490,178 442,154" fill="#1e5eff"/>
+	<polygon points="490,82 538,106 490,130 442,106" fill="url(#howCubeTop)"/>
+	<g transform="translate(472,112) scale(0.92)" stroke="#0b1526" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<polyline points="5 13 10 18 19 7"></polyline>
+	</g>
+
+	<!-- step 3 (tallest, front-right — the finish) -->
+	<polygon points="585,90 639,63 639,117 585,144" fill="#1746c4"/>
+	<polygon points="531,63 585,90 585,144 531,117" fill="#1e5eff"/>
+	<polygon points="585,36 639,63 585,90 531,63" fill="url(#howCubeTop)"/>
+	<g transform="translate(565,70) scale(1.05)" stroke="#0b1526" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<polyline points="5 13 10 18 19 7"></polyline>
+	</g>
+
+	<circle cx="610" cy="35" r="6" fill="#1e5eff" opacity="0.35"/>
+</svg>

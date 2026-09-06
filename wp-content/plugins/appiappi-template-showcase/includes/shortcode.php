@@ -101,8 +101,21 @@ function appiappi_showcase_get_templates( $count = 3, $category_slug = '' ) {
  * terms themselves are sub-categories for the card subtitle
  * (appiappi_showcase_map_post()'s group/subgroup), not separate
  * sidebar filter options.
+ *
+ * @param string      $active_slug Category slug to mark 'active'.
+ * @param string|null $base_url    Where the category links should
+ *                                  point. Null (default) uses the
+ *                                  current request URL — correct when
+ *                                  called from the homepage teaser or
+ *                                  the /templates/ archive itself (the
+ *                                  original behaviour). The single
+ *                                  design detail page passes
+ *                                  home_url('/templates/') explicitly,
+ *                                  since add_query_arg() with no base
+ *                                  would otherwise build links against
+ *                                  *that* design's own permalink.
  */
-function appiappi_showcase_get_categories( $active_slug = '' ) {
+function appiappi_showcase_get_categories( $active_slug = '', $base_url = null ) {
 	$terms = get_terms( array(
 		'taxonomy'   => 'appiappi_template_category',
 		'hide_empty' => false,
@@ -118,7 +131,7 @@ function appiappi_showcase_get_categories( $active_slug = '' ) {
 			'icon'   => 'grid',
 			'label'  => __( 'All Categories', 'appiappi-template-showcase' ),
 			'active' => empty( $active_slug ),
-			'url'    => remove_query_arg( 'appiappi_category' ),
+			'url'    => null === $base_url ? remove_query_arg( 'appiappi_category' ) : $base_url,
 		),
 	);
 
@@ -127,7 +140,14 @@ function appiappi_showcase_get_categories( $active_slug = '' ) {
 			'icon'   => get_term_meta( $term->term_id, 'icon', true ) ?: 'grid',
 			'label'  => $term->name,
 			'active' => $active_slug === $term->slug,
-			'url'    => add_query_arg( 'appiappi_category', $term->slug ),
+			// add_query_arg()'s "use the current URL" default only
+			// kicks in when the 3rd argument isn't passed at all
+			// (func_num_args()-based) — passing null explicitly still
+			// counts, so the two cases have to be genuinely separate
+			// calls rather than a null-coalescing 3rd argument.
+			'url'    => null === $base_url
+				? add_query_arg( 'appiappi_category', $term->slug )
+				: add_query_arg( 'appiappi_category', $term->slug, $base_url ),
 		);
 	}
 

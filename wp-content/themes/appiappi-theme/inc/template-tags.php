@@ -793,10 +793,21 @@ function appiappi_render_hero_slides( array $slides ) {
  * Consistent inner-page header band (title + optional subtitle). Used by
  * every non-homepage page template. Title comes from the_title() so the
  * H1 stays admin-editable per page.
+ *
+ * @param string $subtitle Optional subtitle text under the H1.
+ * @param string $bg_key   Optional key selecting a decorative isometric
+ *                          SVG background (assets/images/page-bg-{key}.svg,
+ *                          styled via .page-header--{key} in pages.css) —
+ *                          added 2026-09-06 for Services/How It
+ *                          Works/Portfolio/Pricing/About/Contact/
+ *                          Website Designs. Hidden on mobile (see CSS)
+ *                          so it never competes with the centred title
+ *                          text on narrow screens. Empty = the plain
+ *                          subtle-background band, as before.
  */
-function appiappi_page_header( $subtitle = '' ) {
+function appiappi_page_header( $subtitle = '', $bg_key = '' ) {
 	?>
-	<header class="page-header">
+	<header class="page-header <?php echo $bg_key ? 'page-header--' . esc_attr( $bg_key ) : ''; ?>">
 		<div class="container">
 			<h1><?php echo esc_html( single_post_title( '', false ) ); ?></h1>
 			<?php if ( $subtitle ) : ?>

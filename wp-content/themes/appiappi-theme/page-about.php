@@ -12,7 +12,7 @@ get_header();
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header(); ?>
+	<?php appiappi_page_header( '', 'about' ); ?>
 
 	<article class="section">
 		<div class="container single-post">

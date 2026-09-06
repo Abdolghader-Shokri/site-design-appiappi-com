@@ -20,7 +20,7 @@ get_header();
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header( __( "Your website isn't a brochure — it's foundational business infrastructure. Here's exactly what goes into building, running and growing it.", 'appiappi' ) ); ?>
+	<?php appiappi_page_header( __( "Your website isn't a brochure — it's foundational business infrastructure. Here's exactly what goes into building, running and growing it.", 'appiappi' ), 'services' ); ?>
 
 	<section class="section">
 		<div class="container">

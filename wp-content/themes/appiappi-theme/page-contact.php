@@ -39,7 +39,7 @@ $has_info_card = $has_map || $has_address || $has_phone || $has_email;
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header( __( 'Questions about a plan, a design, or your project? We would love to hear from you.', 'appiappi' ) ); ?>
+	<?php appiappi_page_header( __( 'Questions about a plan, a design, or your project? We would love to hear from you.', 'appiappi' ), 'contact' ); ?>
 
 	<section class="section">
 		<div class="container contact-layout <?php echo $has_info_card ? '' : 'contact-layout--form-only'; ?>">

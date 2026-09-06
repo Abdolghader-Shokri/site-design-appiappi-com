@@ -20,7 +20,7 @@ $has_plugin = shortcode_exists( 'appiappi_pricing' );
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header( __( 'Two kinds of investment: a one-time Launch to get built properly, and an ongoing Growth partnership to keep performing. Here is exactly what each covers.', 'appiappi' ) ); ?>
+	<?php appiappi_page_header( __( 'Two kinds of investment: a one-time Launch to get built properly, and an ongoing Growth partnership to keep performing. Here is exactly what each covers.', 'appiappi' ), 'pricing' ); ?>
 
 	<section class="section" id="pricing">
 		<div class="container">

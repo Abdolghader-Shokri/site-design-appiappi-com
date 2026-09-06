@@ -2,6 +2,20 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Decorative page-header backgrounds; single design page sidebar/Back/padding
+
+### Added
+- 7 hand-authored isometric SVG backgrounds (`assets/images/page-bg-{key}.svg`) for the Services, How It Works, Portfolio, Pricing, About, Contact and Website Designs page headers — one shared visual language (isometric 3D cube cluster + relevant line icon, floating accents, soft shadows), "How It Works" a staircase of 3 ascending checkmarked steps. `appiappi_page_header()` gained an optional `$bg_key` parameter adding a `.page-header--{key}` class; new CSS in `pages.css` positions each via `background-position: right center; background-size: auto 100%`, hidden below 768px.
+- Single design page (`single-appiappi_template.php`): the same Categories sidebar module as the `/templates/` archive (current design's category marked active), a "Back" button (`history.back()` for same-origin referrers, else a plain `/templates/` link), and its own fixed 30px desktop side padding.
+
+### Fixed
+- `appiappi_showcase_get_categories()`'s category links broke when reused off the archive/homepage (built against the *current page's* URL via `add_query_arg()`'s default) — now takes an explicit `$base_url` parameter; the single design page passes `home_url('/templates/')`. See DEVELOPMENT_LOG.md for why a naive null-default didn't work.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `inc/enqueue.php`, `assets/css/pages.css`, `single-appiappi_template.php`, `page-services.php`, `page-how-it-works.php`, `page-portfolio.php`, `page-pricing.php`, `page-about.php`, `page-contact.php`, `archive-appiappi_template.php`
+- `wp-content/plugins/appiappi-template-showcase/includes/shortcode.php`
+- New: `wp-content/themes/appiappi-theme/assets/images/page-bg-{services,how-it-works,portfolio,pricing,about,contact,templates}.svg`
+
 ## 2026-09-06 — Website Designs card overhaul: cart button, star rating, carousel, real price/rating sort+filter
 
 ### Added

@@ -223,6 +223,8 @@ The admin-chosen primary colour (Customizer) overrides `--color-primary` at
 runtime via an inline `<style>` block injected in `wp_head` — see
 `appiappi_customizer_css_vars()` in `inc/customizer.php`.
 
+**Page-header decorative backgrounds (added 2026-09-06):** `appiappi_page_header( $subtitle = '', $bg_key = '' )` (`inc/template-tags.php`) takes an optional second argument that adds a `.page-header--{key}` modifier class. Seven hand-authored isometric SVGs (`assets/images/page-bg-{key}.svg` — Services, How It Works, Portfolio, Pricing, About, Contact, Templates) sit behind the title on their respective pages via `.page-header[class*="page-header--"] { background-image: var(--page-header-bg); ... }` in `pages.css`, one `--page-header-bg` custom property per key. Each SVG shares one visual language (a small cluster of isometric 3D cube blocks — light top face, mid/dark side faces — carrying a simple line-icon relevant to that page, floating accent dots, soft ground shadows) so the seven feel like one system rather than seven unrelated illustrations; "How It Works" varies it slightly — three cubes ascending in a staircase, each with a checkmark, visually reading as "step 1 → step 2 → step 3" rather than a generic icon cluster. `background-size: auto 100%` scales each to the header's actual rendered height (which varies with subtitle length) and `background-position: right center` keeps the centred `<h1>`/`<p>` text clear — the graphic occupies the right portion of the band only. Hidden entirely below 768px (a side graphic competing with centred text on a narrow screen was exactly the clutter this was meant to avoid). `single-appiappi_template.php` reuses the same `page-header--templates` key as the `/templates/` archive, since it's the same content type.
+
 ## 10. Components
 
 Generic, reusable pieces live in `assets/css/components.css`: `.btn` (+
@@ -429,7 +431,21 @@ a shortcode embedded in a static Page.
   short "Short Description" meta field if the editor is empty — the CPT
   gained `editor` support for this), rating/price, original vendor credit
   + source link when set, Live Demo button, and **"Choose This Design"**
-  — the selection workflow entry point (§14c).
+  — the selection workflow entry point (§14c). **Restructured 2026-09-06**
+  into the same `.templates-layout`/`.templates-sidebar` two-column
+  layout as the `/templates/` archive, showing the identical Categories
+  module (`appiappi_showcase_get_categories()`, this design's own
+  category marked active) — required passing an explicit `$base_url`
+  (`home_url('/templates/')`) into that function, new as a second
+  parameter, since `add_query_arg()` with no base builds links against
+  *the current URL*, which on this page is the design's own permalink,
+  not the archive (a real bug caught during testing, not a hypothetical
+  — see DEVELOPMENT_LOG.md). Also gained a **"Back"** button (tries
+  `history.back()` when `document.referrer` is same-origin, falling
+  back to a plain `/templates/` link otherwise — e.g. direct navigation
+  or JS disabled) and its own fixed 30px desktop side padding
+  (`.single-template-detail`, not tied to any Customizer setting — not
+  requested to be configurable, unlike the Layout Spacing group above).
 - `appiappi_showcase_map_post( $post )` (in the plugin's `includes/shortcode.php`)
   is the one place a template post gets turned into the render-ready
   array shape — used by the shortcode's query loop AND both new

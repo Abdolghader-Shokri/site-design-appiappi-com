@@ -36,6 +36,35 @@
 	margin-bottom: 0;
 }
 
+/* Decorative isometric SVG backgrounds (added 2026-09-06), one per
+   page topic — appiappi_page_header( $subtitle, $bg_key ) adds the
+   matching modifier class. background-size: auto 100% scales each
+   (640×220 viewBox) to the header's actual rendered height, right-
+   aligned with generous empty space on the left/centre so it never
+   sits behind the centred title text. Hidden below 768px entirely —
+   a decorative side graphic fighting centred text for space on a
+   narrow screen is exactly the clutter this was meant to avoid. */
+.page-header[class*="page-header--"] {
+	background-image: var(--page-header-bg);
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-size: auto 100%;
+}
+
+.page-header--services { --page-header-bg: url('../images/page-bg-services.svg'); }
+.page-header--how-it-works { --page-header-bg: url('../images/page-bg-how-it-works.svg'); }
+.page-header--portfolio { --page-header-bg: url('../images/page-bg-portfolio.svg'); }
+.page-header--pricing { --page-header-bg: url('../images/page-bg-pricing.svg'); }
+.page-header--about { --page-header-bg: url('../images/page-bg-about.svg'); }
+.page-header--contact { --page-header-bg: url('../images/page-bg-contact.svg'); }
+.page-header--templates { --page-header-bg: url('../images/page-bg-templates.svg'); }
+
+@media (max-width: 767px) {
+	.page-header[class*="page-header--"] {
+		background-image: none;
+	}
+}
+
 /* ---------- Services ---------- */
 
 .service-card__icon {
@@ -532,6 +561,14 @@
 .single-post {
 	max-width: 760px;
 	margin-inline: auto;
+}
+
+/* Website Design detail page's own desktop side padding, separate
+   from the sitewide --container-pad. */
+@media (min-width: 768px) {
+	.single-template-detail {
+		padding-inline: 30px;
+	}
 }
 
 .single-post__meta {

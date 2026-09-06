@@ -14,7 +14,7 @@ $steps = appiappi_get_how_it_works_steps();
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header( __( 'From choosing a design to ongoing growth — here is exactly what happens, what we need from you, and why each step matters.', 'appiappi' ) ); ?>
+	<?php appiappi_page_header( __( 'From choosing a design to ongoing growth — here is exactly what happens, what we need from you, and why each step matters.', 'appiappi' ), 'how-it-works' ); ?>
 
 	<section class="section">
 		<div class="container">

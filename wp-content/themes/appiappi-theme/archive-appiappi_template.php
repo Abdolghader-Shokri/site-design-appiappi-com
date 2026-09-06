@@ -39,7 +39,7 @@ $total = $GLOBALS['wp_query']->found_posts;
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header( __( 'Every professionally curated website design in one place — filter by price, search, or browse by industry.', 'appiappi' ) ); ?>
+	<?php appiappi_page_header( __( 'Every professionally curated website design in one place — filter by price, search, or browse by industry.', 'appiappi' ), 'templates' ); ?>
 
 	<section class="section">
 		<div class="container">

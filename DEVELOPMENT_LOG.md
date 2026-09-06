@@ -12,6 +12,16 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — add_query_arg()'s "current URL" default breaks when reused off its original page
+
+Reusing `appiappi_showcase_get_categories()` on the new single design detail page (to show the same Categories sidebar as the `/templates/` archive) initially produced category links that pointed back at *that design's own permalink* with `?appiappi_category=slug` appended — a real, working-but-wrong link that would 404-adjacent (no tax_query runs against a single post's own query) rather than filtering the archive as intended.
+
+The cause: `add_query_arg( 'appiappi_category', $slug )` — called with only 2 arguments — defaults to building the link against the *current request URL*. That's exactly correct on the homepage teaser and the archive itself (both call sites this function was originally written for), but wrong the moment the same function runs on a page whose own URL isn't the place these links should point to.
+
+The fix needed a `$base_url` parameter, but a first attempt (`add_query_arg( 'appiappi_category', $slug, $base_url )` with `$base_url` possibly `null`) didn't actually solve it: WP core's "use current URL" branch in `add_query_arg()` is gated on `func_num_args() < 3`, not on whether the 3rd argument is falsy. Passing `null` explicitly still counts as 3 arguments, so the current-URL default silently stopped applying even when `$base_url` was `null` and the *intent* was "use the current URL, like before." The real fix is an actual `if`/`else` — one call with 2 arguments, one with 3 — not a value defaulted via ternary into a fixed-arity call.
+
+**Lesson:** `add_query_arg()`/`remove_query_arg()`'s current-URL fallback is arity-gated, not value-gated. Wrapping either in a helper that might pass through a `null` "no override" value needs an explicit branch on argument count, not a null-coalescing shortcut into the call itself.
+
 ## 2026-09-06 — Price/rating sort and price-range filter: real query, not client-side JS
 
 Every other filter added to the Website Designs archive so far (search box, and formerly the style checkboxes) has been pure client-side JS, hiding/showing whatever's already in the current page's DOM — a reasonable choice when the whole point is instant, no-reload interaction and the dataset on any one page is small.
