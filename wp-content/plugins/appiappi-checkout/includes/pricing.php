@@ -57,19 +57,23 @@ function appiappi_checkout_get_design_price( $design_post_id ) {
  * Full server-side price breakdown for one checkout attempt — the only
  * function that decides what a customer actually owes today vs. later.
  *
- * Business rules (2026-09-07):
+ * Business rules (revised 2026-09-07):
  * - A plan may or may not include free hosting (`includes_free_hosting`).
  * - "Pay after work is completed" (deferring the plan's own fee) is
  *   only ever offered for plans WITH free hosting — for a plan without
  *   it, full payment upfront is enforced here regardless of what the
  *   client requested, since there's no free-hosting bridge to cover the
  *   gap otherwise.
- * - Hosting must be selected and paid for today whenever the plan's own
- *   free-hosting perk isn't actually in effect yet: either because the
- *   plan never includes it, or because the plan fee itself is being
- *   deferred (the free-hosting perk only activates once the plan is
- *   actually paid). Paying a free-hosting plan in full today means no
- *   hosting purchase is needed at all.
+ * - A hosting package is ALWAYS required, in every scenario — every
+ *   site needs to be hosted somewhere, and even a "this is free" plan
+ *   perk still needs the customer to say which package to provision.
+ *   What varies is only whether it's *charged*: it's free ($0, but the
+ *   real annual price is still returned as `hosting_original_price` so
+ *   the invoice can show it struck through with a "now free" label)
+ *   only when the plan includes free hosting AND the customer is paying
+ *   in full today — every other combination (no free hosting at all, or
+ *   the plan fee is being deferred, since the free-hosting perk only
+ *   activates once the plan is actually paid) charges the real price.
  * - A plan's Website Design credit only applies when paying in full
  *   today — never when deferring the plan fee. It reduces the design's
  *   price (never below $0); any leftover credit past the design's price
@@ -80,8 +84,7 @@ function appiappi_checkout_get_design_price( $design_post_id ) {
  * @param int    $design_post_id    Optional selected Website Design.
  * @param string $payment_timing    'now' | 'later'.
  * @param int    $hosting_id        Selected Hosting Package post ID —
- *                                   required whenever hosting is needed
- *                                   (see rules above), ignored otherwise.
+ *                                   always required (see rules above).
  * @return array|WP_Error
  */
 function appiappi_checkout_compute_order( $plan_id, $billing_frequency, $design_post_id = 0, $payment_timing = 'now', $hosting_id = 0 ) {
@@ -106,15 +109,13 @@ function appiappi_checkout_compute_order( $plan_id, $billing_frequency, $design_
 		$payment_timing = 'now';
 	}
 
-	$hosting_required = ! $plan['includes_free_hosting'] || 'later' === $payment_timing;
-	$hosting = null;
-	if ( $hosting_required ) {
-		$hosting = appiappi_checkout_get_hosting_package( $hosting_id );
-		if ( ! $hosting ) {
-			return new WP_Error( 'appiappi_checkout_bad_hosting', __( 'Please select a hosting package.', 'appiappi-checkout' ) );
-		}
+	$hosting = appiappi_checkout_get_hosting_package( $hosting_id );
+	if ( ! $hosting ) {
+		return new WP_Error( 'appiappi_checkout_bad_hosting', __( 'Please select a hosting package.', 'appiappi-checkout' ) );
 	}
-	$hosting_price = $hosting ? $hosting['annualPrice'] : 0.0;
+	$hosting_is_free       = $plan['includes_free_hosting'] && 'now' === $payment_timing;
+	$hosting_original_price = $hosting['annualPrice'];
+	$hosting_price          = $hosting_is_free ? 0.0 : $hosting_original_price;
 
 	$discount_percent = 0.0;
 	$plan_amount      = $plan['price'];
@@ -150,6 +151,8 @@ function appiappi_checkout_compute_order( $plan_id, $billing_frequency, $design_
 		'design_credit_applied'     => $credit_applied,
 		'design_price_after_credit' => $design_price_after_credit,
 		'hosting'                   => $hosting,
+		'hosting_is_free'           => $hosting_is_free,
+		'hosting_original_price'    => $hosting_original_price,
 		'hosting_price'             => $hosting_price,
 		'discount_percent'          => $discount_percent,
 		'plan_amount'               => $plan_amount,

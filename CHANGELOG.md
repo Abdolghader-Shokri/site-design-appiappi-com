@@ -2,6 +2,16 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-07 (later) — Hosting always selected in checkout; page-header backgrounds have no default image
+
+### Changed
+- Checkout invoice: hosting selection is no longer skipped for free-hosting-plan-paying-now scenarios — the business still needs to know which package to provision even when it's free. The Location → Storage → Traffic selector is now always shown, and the invoice's hosting row always displays a package once chosen; when the plan's free-hosting perk actually applies, the row shows the real annual price struck through next to a "FREE" label plus a short note explaining why (paying in full today), instead of omitting the hosting line entirely. The Stripe charge description only mentions "Hosting" when it's actually being charged.
+- Page Header Backgrounds (Customizer): removed the fallback isometric SVG entirely — a page header now shows no background image at all until an image is explicitly uploaded for that page (previously an unset field silently fell back to a default illustration). When an image *is* set, it now renders at `background-size: 100% auto` (full container width, proportional height, centred) instead of `cover`, so the whole image is always visible rather than being cropped.
+
+### Files Modified
+- `wp-content/plugins/appiappi-checkout/includes/{pricing,ajax,checkout-ui}.php`, `assets/{checkout.js,checkout.css}`
+- `wp-content/themes/appiappi-theme/assets/css/pages.css`, `inc/customizer.php`, `inc/enqueue.php`
+
 ## 2026-09-07 — Checkout: hosting packages, pay-now/pay-later, per-plan design credit
 
 ### Added

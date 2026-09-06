@@ -92,6 +92,8 @@ function appiappi_checkout_enqueue_assets() {
 			'websiteDesign'    => __( 'Website Design', 'appiappi-checkout' ),
 			'designCredit'     => __( 'Design Credit', 'appiappi-checkout' ),
 			'hosting'          => __( 'Hosting', 'appiappi-checkout' ),
+			'free'             => __( 'FREE', 'appiappi-checkout' ),
+			'hostingFreeNote'  => __( 'Included free with the %s plan since you\'re paying in full today — normally billed annually as shown above.', 'appiappi-checkout' ),
 			'totalDueToday'    => __( 'Total due today', 'appiappi-checkout' ),
 			'thenBilled'       => __( 'then %s billed %s, cancel anytime', 'appiappi-checkout' ),
 			'dueOnCompletion'  => __( '%s due when your website is complete', 'appiappi-checkout' ),
@@ -150,7 +152,7 @@ function appiappi_checkout_print_modal() {
 				</div>
 				<p class="checkout-hosting-required-note" data-checkout-hosting-required-note hidden></p>
 
-				<div class="checkout-hosting-selector" data-checkout-hosting-selector hidden>
+				<div class="checkout-hosting-selector" data-checkout-hosting-selector>
 					<div class="form-row">
 						<label for="appiappi-checkout-hosting-location" data-checkout-hosting-location-label></label>
 						<select id="appiappi-checkout-hosting-location" data-checkout-hosting-location></select>
@@ -180,8 +182,12 @@ function appiappi_checkout_print_modal() {
 					</div>
 					<div class="checkout-invoice__row" data-checkout-hosting-row hidden>
 						<span data-checkout-hosting-label></span>
-						<span data-checkout-hosting-price></span>
+						<span class="checkout-invoice__hosting-price">
+							<del data-checkout-hosting-original-price hidden></del>
+							<span data-checkout-hosting-price></span>
+						</span>
 					</div>
+					<p class="checkout-invoice__hosting-free-note" data-checkout-hosting-free-note hidden></p>
 
 					<div class="checkout-billing-toggle" data-checkout-billing-toggle hidden>
 						<label>

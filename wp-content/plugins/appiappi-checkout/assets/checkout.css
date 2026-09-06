@@ -119,6 +119,33 @@
 	font-weight: var(--fw-semibold);
 }
 
+.checkout-invoice__hosting-price {
+	display: inline-flex;
+	align-items: baseline;
+	gap: var(--space-2);
+}
+
+.checkout-invoice__hosting-price del {
+	color: var(--color-text-muted);
+	opacity: 0.7;
+	text-decoration-color: var(--color-danger, currentColor);
+}
+
+[data-checkout-hosting-row] [data-checkout-hosting-price] {
+	font-weight: var(--fw-semibold);
+}
+
+[data-checkout-hosting-row].is-free [data-checkout-hosting-price] {
+	color: #1a7f37;
+}
+
+.checkout-invoice__hosting-free-note {
+	font-size: var(--fs-xs);
+	color: #1a7f37;
+	margin: calc(var(--space-2) * -1) 0 var(--space-2);
+	padding-inline: var(--space-1);
+}
+
 /* Pay Now / Pay Later — only shown for plans with free hosting included. */
 .checkout-payment-timing {
 	margin-bottom: var(--space-5);

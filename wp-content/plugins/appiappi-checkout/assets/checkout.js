@@ -62,9 +62,13 @@
 		// A plan without free hosting always requires full payment today —
 		// mirrors the server-side enforcement in pricing.php exactly.
 		var paymentTiming = plan.includesFreeHosting ? state.paymentTiming : 'now';
-		var hostingRequired = ! plan.includesFreeHosting || 'later' === paymentTiming;
-		var hostingPkg = hostingRequired ? state.hosting.matchedPackage : null;
-		var hostingPrice = hostingPkg ? Number( hostingPkg.annualPrice ) : 0;
+
+		// Hosting is always selected and shown, in every scenario — only
+		// whether it's actually *charged* varies (mirrors pricing.php).
+		var hostingPkg = state.hosting.matchedPackage;
+		var hostingIsFree = plan.includesFreeHosting && 'now' === paymentTiming;
+		var hostingOriginalPrice = hostingPkg ? Number( hostingPkg.annualPrice ) : 0;
+		var hostingPrice = hostingIsFree ? 0 : hostingOriginalPrice;
 
 		var discountPercent = 0;
 		var planAmount = Number( plan.price );
@@ -89,8 +93,9 @@
 			designPrice: designPrice,
 			creditApplied: creditApplied,
 			designAfterCredit: designAfterCredit,
-			hostingRequired: hostingRequired,
 			hostingPkg: hostingPkg,
+			hostingIsFree: hostingIsFree,
+			hostingOriginalPrice: hostingOriginalPrice,
 			hostingPrice: hostingPrice,
 			discountPercent: discountPercent,
 			planAmount: planAmount,
@@ -201,7 +206,7 @@
 
 	function updateContinueButtonState( totals ) {
 		var btn = modal.querySelector( '[data-checkout-continue]' );
-		btn.disabled = ! cfg.configured || ( totals.hostingRequired && ! totals.hostingPkg );
+		btn.disabled = ! cfg.configured || ! totals.hostingPkg;
 	}
 
 	function renderInvoice() {
@@ -223,7 +228,8 @@
 		}
 		modal.querySelector( '[data-checkout-payment-timing-hint]' ).textContent = cfg.i18n.payLaterHint;
 
-		modal.querySelector( '[data-checkout-hosting-selector]' ).hidden = ! totals.hostingRequired;
+		// Hosting is always required and shown — every site needs to be
+		// hosted somewhere, even when the cost ends up being $0.
 
 		var periodLabel = 'one_time' === plan.billingFrequency
 			? cfg.i18n.oneTime
@@ -250,13 +256,28 @@
 		}
 
 		var hostingRow = modal.querySelector( '[data-checkout-hosting-row]' );
-		if ( totals.hostingRequired && totals.hostingPkg ) {
+		var hostingFreeNote = modal.querySelector( '[data-checkout-hosting-free-note]' );
+		if ( totals.hostingPkg ) {
 			hostingRow.hidden = false;
 			var pkg = totals.hostingPkg;
+			var originalEl = modal.querySelector( '[data-checkout-hosting-original-price]' );
+			var priceEl = modal.querySelector( '[data-checkout-hosting-price]' );
 			modal.querySelector( '[data-checkout-hosting-label]' ).textContent = cfg.i18n.hosting + ': ' + pkg.location + ' (' + storageLabel( pkg ) + ')';
-			modal.querySelector( '[data-checkout-hosting-price]' ).textContent = formatMoney( totals.hostingPrice ) + ' / yr';
+			hostingRow.classList.toggle( 'is-free', totals.hostingIsFree );
+			if ( totals.hostingIsFree ) {
+				originalEl.hidden = false;
+				originalEl.textContent = formatMoney( totals.hostingOriginalPrice ) + ' / yr';
+				priceEl.textContent = cfg.i18n.free;
+				hostingFreeNote.hidden = false;
+				hostingFreeNote.textContent = cfg.i18n.hostingFreeNote.replace( '%s', plan.name );
+			} else {
+				originalEl.hidden = true;
+				priceEl.textContent = formatMoney( totals.hostingPrice ) + ' / yr';
+				hostingFreeNote.hidden = true;
+			}
 		} else {
 			hostingRow.hidden = true;
+			hostingFreeNote.hidden = true;
 		}
 
 		var toggle = modal.querySelector( '[data-checkout-billing-toggle]' );
@@ -365,7 +386,7 @@
 			return;
 		}
 		var totals = computeTotals();
-		if ( totals.hostingRequired && ! totals.hostingPkg ) {
+		if ( ! totals.hostingPkg ) {
 			showError( '[data-checkout-error]', cfg.i18n.selectHosting );
 			return;
 		}

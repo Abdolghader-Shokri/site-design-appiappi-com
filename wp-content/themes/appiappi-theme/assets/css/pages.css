@@ -59,37 +59,37 @@
 	pointer-events: none;
 }
 
-/* Full-width page-header background, one per page topic (added
-   2026-09-06, revised same day to be full-bleed instead of a
-   right-aligned corner graphic). appiappi_page_header( $subtitle,
-   $bg_key ) adds the matching modifier class. background-size: cover
-   fills the header's entire width and height and rescales with it
-   responsively at any viewport size — including mobile, deliberately,
-   per explicit request (an earlier version hid it below 768px; that's
-   been dropped). Each rule's var() fallbacks are the theme's own
-   isometric SVG (assets/images/page-bg-{key}.svg) and --color-bg-subtle;
-   admins can override the image and/or the colour independently per
-   page via Customizer → Page Header Backgrounds (inc/customizer.php),
-   which sets the matching --page-header-bg-{key}/--page-header-bg-color-{key}
-   custom properties at :root — custom properties inherit down to these
-   class rules regardless of selector specificity, so a :root-level
-   override here correctly beats the fallback without needing to touch
-   this file per change. template-single (the single design detail page)
-   reuses the Website Designs SVG as its own fallback but is configured
-   completely separately from the archive. */
-.page-header--services { background-image: var(--page-header-bg-services, url('../images/page-bg-services.svg')); background-color: var(--page-header-bg-color-services, var(--color-bg-subtle)); }
-.page-header--how-it-works { background-image: var(--page-header-bg-how-it-works, url('../images/page-bg-how-it-works.svg')); background-color: var(--page-header-bg-color-how-it-works, var(--color-bg-subtle)); }
-.page-header--portfolio { background-image: var(--page-header-bg-portfolio, url('../images/page-bg-portfolio.svg')); background-color: var(--page-header-bg-color-portfolio, var(--color-bg-subtle)); }
-.page-header--pricing { background-image: var(--page-header-bg-pricing, url('../images/page-bg-pricing.svg')); background-color: var(--page-header-bg-color-pricing, var(--color-bg-subtle)); }
-.page-header--about { background-image: var(--page-header-bg-about, url('../images/page-bg-about.svg')); background-color: var(--page-header-bg-color-about, var(--color-bg-subtle)); }
-.page-header--contact { background-image: var(--page-header-bg-contact, url('../images/page-bg-contact.svg')); background-color: var(--page-header-bg-color-contact, var(--color-bg-subtle)); }
-.page-header--templates { background-image: var(--page-header-bg-templates, url('../images/page-bg-templates.svg')); background-color: var(--page-header-bg-color-templates, var(--color-bg-subtle)); }
-.page-header--template-single { background-image: var(--page-header-bg-template-single, url('../images/page-bg-templates.svg')); background-color: var(--page-header-bg-color-template-single, var(--color-bg-subtle)); }
+/* Full-width page-header background, one per page topic. Revised
+   2026-09-07: no default image anymore — each var() now falls back to
+   `none` instead of the theme's old isometric SVGs (assets/images/page-bg-{key}.svg,
+   still in the repo, just no longer referenced here), so a page shows no
+   background image at all until an admin actually uploads one via
+   Customizer → Page Header Backgrounds; --color-bg-subtle (or an
+   admin-set colour override) still shows through underneath either way.
+   background-size: 100% auto (not `cover`) means an uploaded image's
+   width always exactly matches the header's width, height scales to
+   match the image's own aspect ratio (auto) rather than being cropped
+   to fill the header's height — centered either way, so if the image is
+   proportionally shorter than the header it leaves the background
+   colour visible above/below rather than stretching or cropping the
+   image itself. Custom properties set at :root (by an upload) inherit
+   down to these class rules regardless of selector specificity, so a
+   :root-level override here correctly beats the `none` fallback without
+   needing to touch this file. template-single (the single design detail
+   page) is configured completely separately from the /templates/ archive. */
+.page-header--services { background-image: var(--page-header-bg-services, none); background-color: var(--page-header-bg-color-services, var(--color-bg-subtle)); }
+.page-header--how-it-works { background-image: var(--page-header-bg-how-it-works, none); background-color: var(--page-header-bg-color-how-it-works, var(--color-bg-subtle)); }
+.page-header--portfolio { background-image: var(--page-header-bg-portfolio, none); background-color: var(--page-header-bg-color-portfolio, var(--color-bg-subtle)); }
+.page-header--pricing { background-image: var(--page-header-bg-pricing, none); background-color: var(--page-header-bg-color-pricing, var(--color-bg-subtle)); }
+.page-header--about { background-image: var(--page-header-bg-about, none); background-color: var(--page-header-bg-color-about, var(--color-bg-subtle)); }
+.page-header--contact { background-image: var(--page-header-bg-contact, none); background-color: var(--page-header-bg-color-contact, var(--color-bg-subtle)); }
+.page-header--templates { background-image: var(--page-header-bg-templates, none); background-color: var(--page-header-bg-color-templates, var(--color-bg-subtle)); }
+.page-header--template-single { background-image: var(--page-header-bg-template-single, none); background-color: var(--page-header-bg-color-template-single, var(--color-bg-subtle)); }
 
 .page-header[class*="page-header--"] {
 	background-repeat: no-repeat;
 	background-position: center;
-	background-size: cover;
+	background-size: 100% auto;
 }
 
 /* ---------- Services ---------- */

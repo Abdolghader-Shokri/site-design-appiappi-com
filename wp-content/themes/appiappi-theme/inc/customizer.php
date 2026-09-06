@@ -241,11 +241,12 @@ function appiappi_customize_register( $wp_customize ) {
 	// (assets/js/page-header-network.js — slowly drifting, multi-colour
 	// connected nodes drawn on top of whichever image/colour is set).
 	// All three are independent per page and all optional; leaving
-	// everything empty/off keeps that page's default isometric SVG on
+	// everything empty/off shows no background image at all (revised
+	// 2026-09-07 — no default illustration anymore), just
 	// --color-bg-subtle, with no overlay.
 	$wp_customize->add_section( 'appiappi_page_backgrounds', array(
 		'title'       => __( 'Page Header Backgrounds', 'appiappi' ),
-		'description' => __( 'Per page: pick a background image and/or a background colour, and optionally switch on an animated geometric overlay. Leave a field empty/off to keep that page\'s default.', 'appiappi' ),
+		'description' => __( 'Per page: optionally pick a background image and/or a background colour, and optionally switch on an animated geometric overlay. No image shows at all until you upload one — it isn\'t replacing a default illustration.', 'appiappi' ),
 		'priority'    => 45,
 	) );
 

@@ -69,11 +69,11 @@ function appiappi_checkout_ajax_create() {
 	update_post_meta( $order_post_id, '_appiappi_order_design_name', $order['design_name'] );
 	update_post_meta( $order_post_id, '_appiappi_order_design_price', $order['design_price'] );
 	update_post_meta( $order_post_id, '_appiappi_order_design_credit_applied', $order['design_credit_applied'] );
-	if ( $order['hosting'] ) {
-		update_post_meta( $order_post_id, '_appiappi_order_hosting_id', $order['hosting']['id'] );
-		update_post_meta( $order_post_id, '_appiappi_order_hosting_label', $order['hosting']['location'] . ' — ' . ( $order['hosting']['storageUnlimited'] ? __( 'Unlimited storage', 'appiappi-checkout' ) : $order['hosting']['storageAmount'] ) );
-		update_post_meta( $order_post_id, '_appiappi_order_hosting_price', $order['hosting_price'] );
-	}
+	update_post_meta( $order_post_id, '_appiappi_order_hosting_id', $order['hosting']['id'] );
+	update_post_meta( $order_post_id, '_appiappi_order_hosting_label', $order['hosting']['location'] . ' — ' . ( $order['hosting']['storageUnlimited'] ? __( 'Unlimited storage', 'appiappi-checkout' ) : $order['hosting']['storageAmount'] ) );
+	update_post_meta( $order_post_id, '_appiappi_order_hosting_price', $order['hosting_price'] );
+	update_post_meta( $order_post_id, '_appiappi_order_hosting_original_price', $order['hosting_original_price'] );
+	update_post_meta( $order_post_id, '_appiappi_order_hosting_is_free', $order['hosting_is_free'] ? 1 : 0 );
 	update_post_meta( $order_post_id, '_appiappi_order_discount_percent', $order['discount_percent'] );
 	update_post_meta( $order_post_id, '_appiappi_order_plan_amount', $order['plan_amount'] );
 	update_post_meta( $order_post_id, '_appiappi_order_total_amount', $order['charged_today'] );
@@ -104,7 +104,7 @@ function appiappi_checkout_ajax_create() {
 
 	$extra_items_description = array_filter( array(
 		$order['design_name'],
-		$order['hosting'] ? $order['hosting']['location'] . ' ' . __( 'Hosting', 'appiappi-checkout' ) : '',
+		$order['hosting_price'] > 0 ? $order['hosting']['location'] . ' ' . __( 'Hosting', 'appiappi-checkout' ) : '',
 	) );
 
 	// 3a. Plan fee deferred until work is complete: charge only design
