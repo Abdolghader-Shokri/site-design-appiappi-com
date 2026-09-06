@@ -20,6 +20,17 @@ function appiappi_sanitize_checkbox( $value ) {
 	return (bool) $value;
 }
 
+/**
+ * Clamps a decimal range-control value (e.g. the network overlay's speed
+ * and density multipliers) to a sane [0.1, 5] window so a stray/tampered
+ * value can never send the animation calculations into something absurd
+ * (zero, negative, or runaway node counts).
+ */
+function appiappi_sanitize_decimal_multiplier( $value ) {
+	$value = (float) $value;
+	return max( 0.1, min( 5, $value ) );
+}
+
 function appiappi_customize_register( $wp_customize ) {
 
 	// ---- Brand colour ----
@@ -248,6 +259,49 @@ function appiappi_customize_register( $wp_customize ) {
 		'title'       => __( 'Page Header Backgrounds', 'appiappi' ),
 		'description' => __( 'Per page: optionally pick a background image and/or a background colour, and optionally switch on an animated geometric overlay. No image shows at all until you upload one — it isn\'t replacing a default illustration.', 'appiappi' ),
 		'priority'    => 45,
+	) );
+
+	// Overlay behaviour (speed/density/animated connections) is shared by
+	// every page's overlay rather than set per page — added 2026-09-07 at
+	// the user's explicit request ("لازم نیست این سه درخواست برای هر
+	// برگه جدا باشه"). Each page's own on/off toggle (further down) is
+	// still independent; only *how* the overlay moves once it's on is global.
+	$wp_customize->add_setting( 'appiappi_pagebg_network_speed', array(
+		'default'           => 1,
+		'sanitize_callback' => 'appiappi_sanitize_decimal_multiplier',
+	) );
+	$wp_customize->add_control( 'appiappi_pagebg_network_speed', array(
+		'label'       => __( 'Overlay Dot Speed (all pages)', 'appiappi' ),
+		'description' => __( 'How fast the dots drift. 1 = normal.', 'appiappi' ),
+		'section'     => 'appiappi_page_backgrounds',
+		'type'        => 'range',
+		'input_attrs' => array( 'min' => 0.25, 'max' => 3, 'step' => 0.25 ),
+		'priority'    => 1,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_pagebg_network_density', array(
+		'default'           => 1,
+		'sanitize_callback' => 'appiappi_sanitize_decimal_multiplier',
+	) );
+	$wp_customize->add_control( 'appiappi_pagebg_network_density', array(
+		'label'       => __( 'Overlay Dot Density (all pages)', 'appiappi' ),
+		'description' => __( 'How many dots appear. 1 = normal.', 'appiappi' ),
+		'section'     => 'appiappi_page_backgrounds',
+		'type'        => 'range',
+		'input_attrs' => array( 'min' => 0.3, 'max' => 2.5, 'step' => 0.1 ),
+		'priority'    => 2,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_pagebg_network_glow_lines', array(
+		'default'           => false,
+		'sanitize_callback' => 'appiappi_sanitize_checkbox',
+	) );
+	$wp_customize->add_control( 'appiappi_pagebg_network_glow_lines', array(
+		'label'       => __( 'Animate Connection Lines (all pages)', 'appiappi' ),
+		'description' => __( 'Makes the lines between nearby dots pulse and glow instead of staying a flat, static line — a livelier, more "floating in space" feel.', 'appiappi' ),
+		'section'     => 'appiappi_page_backgrounds',
+		'type'        => 'checkbox',
+		'priority'    => 3,
 	) );
 
 	$page_background_pages = array(

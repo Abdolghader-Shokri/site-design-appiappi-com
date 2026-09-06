@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'APPIAPPI_VERSION', '0.2.0' );
+define( 'APPIAPPI_VERSION', '0.2.1' );
 
 function appiappi_enqueue_assets() {
 	$theme_uri = get_template_directory_uri();
@@ -24,6 +24,15 @@ function appiappi_enqueue_assets() {
 	}
 
 	wp_enqueue_script( 'appiappi-main', $theme_uri . '/assets/js/main.js', array(), APPIAPPI_VERSION, true );
+
+	// Page-header network overlay behaviour is shared by every page (see
+	// customizer.php) rather than set per page — read once here and handed
+	// to main.js, which no-ops entirely on pages with no overlay canvas.
+	wp_localize_script( 'appiappi-main', 'appiappiPageHeaderNetwork', array(
+		'speed'     => (float) get_theme_mod( 'appiappi_pagebg_network_speed', 1 ),
+		'density'   => (float) get_theme_mod( 'appiappi_pagebg_network_density', 1 ),
+		'glowLines' => (bool) get_theme_mod( 'appiappi_pagebg_network_glow_lines', false ),
+	) );
 }
 add_action( 'wp_enqueue_scripts', 'appiappi_enqueue_assets' );
 

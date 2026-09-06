@@ -2,6 +2,14 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-07 (later still) — Page-header overlay: global speed/density controls, animated connection lines
+
+### Added
+- Customizer → Page Header Backgrounds gained three new controls that apply to every page's animated overlay at once (not per page, per explicit request): **Overlay Dot Speed** (0.25×–3×), **Overlay Dot Density** (0.3×–2.5×), and **Animate Connection Lines** (checkbox) — when on, the lines connecting nearby dots pulse and glow with an independent shimmer per line instead of staying flat/static, for more of a "floating in space" feel. Default is off, matching the existing look exactly.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/customizer.php`, `inc/enqueue.php`, `assets/js/main.js`
+
 ## 2026-09-07 (later) — Hosting always selected in checkout; page-header backgrounds have no default image
 
 ### Changed

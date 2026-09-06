@@ -257,6 +257,11 @@
  * grid — deliberately colourful, not just white. Draws one static
  * frame (no loop) under prefers-reduced-motion, and pauses while
  * the tab is hidden so it doesn't burn CPU in the background.
+ *
+ * Speed, density and the connection-line "glow" style are shared by
+ * every page (Customizer → Page Header Backgrounds, global controls,
+ * added 2026-09-07) rather than set per page — localized once as
+ * `appiappiPageHeaderNetwork` (inc/enqueue.php).
  */
 ( function () {
 	'use strict';
@@ -265,6 +270,11 @@
 	if ( ! canvases.length ) {
 		return;
 	}
+
+	var networkCfg = window.appiappiPageHeaderNetwork || {};
+	var speedMultiplier = parseFloat( networkCfg.speed ) || 1;
+	var densityMultiplier = parseFloat( networkCfg.density ) || 1;
+	var glowLines = !! networkCfg.glowLines;
 
 	var prefersReducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
@@ -282,14 +292,15 @@
 		var raf = null;
 
 		function buildNodes() {
-			var count = Math.max( 18, Math.min( 55, Math.round( ( width * height ) / 16000 ) ) );
+			var baseCount = Math.round( ( width * height ) / 16000 * densityMultiplier );
+			var count = Math.max( 8, Math.min( 140, baseCount ) );
 			nodes = [];
 			for ( var i = 0; i < count; i++ ) {
 				nodes.push( {
 					x: Math.random() * width,
 					y: Math.random() * height,
-					vx: ( Math.random() - 0.5 ) * 0.18,
-					vy: ( Math.random() - 0.5 ) * 0.18,
+					vx: ( Math.random() - 0.5 ) * 0.18 * speedMultiplier,
+					vy: ( Math.random() - 0.5 ) * 0.18 * speedMultiplier,
 					hue: Math.random() * 360,
 					hueSpeed: ( Math.random() - 0.5 ) * 6
 				} );
@@ -308,7 +319,7 @@
 			buildNodes();
 		}
 
-		function draw() {
+		function draw( timestamp ) {
 			ctx.clearRect( 0, 0, width, height );
 
 			nodes.forEach( function ( node ) {
@@ -327,6 +338,9 @@
 			} );
 
 			var maxDist = Math.max( 90, Math.min( width, height ) * 0.22 );
+			// Seconds since this canvas started animating — drives the
+			// glow-lines pulse below; harmless/unused when that's off.
+			var t = ( timestamp || 0 ) / 1000;
 
 			for ( var i = 0; i < nodes.length; i++ ) {
 				for ( var j = i + 1; j < nodes.length; j++ ) {
@@ -337,8 +351,25 @@
 					var dist = Math.sqrt( dx * dx + dy * dy );
 					if ( dist < maxDist ) {
 						var opacity = ( 1 - dist / maxDist ) * 0.35;
-						ctx.strokeStyle = 'hsla(' + ( ( a.hue + b.hue ) / 2 ) + ', 85%, 70%, ' + opacity + ')';
-						ctx.lineWidth = 1;
+						var midHue = ( a.hue + b.hue ) / 2;
+
+						if ( glowLines ) {
+							// A slow shimmer travelling along each connection
+							// (phase offset by position so lines don't pulse
+							// in lockstep) plus an actual glow, for the
+							// "floating in space" feel requested — subtler
+							// than a strobe, more like drifting energy.
+							var pulse = 0.55 + 0.45 * Math.sin( t * 1.6 + dist * 0.05 );
+							ctx.strokeStyle = 'hsla(' + midHue + ', 90%, 72%, ' + ( opacity * pulse ) + ')';
+							ctx.lineWidth = 1 + pulse * 1.4;
+							ctx.shadowColor = 'hsla(' + midHue + ', 95%, 70%, ' + Math.min( 1, opacity * pulse * 1.5 ) + ')';
+							ctx.shadowBlur = 6 * pulse;
+						} else {
+							ctx.strokeStyle = 'hsla(' + midHue + ', 85%, 70%, ' + opacity + ')';
+							ctx.lineWidth = 1;
+							ctx.shadowBlur = 0;
+						}
+
 						ctx.beginPath();
 						ctx.moveTo( a.x, a.y );
 						ctx.lineTo( b.x, b.y );
@@ -346,6 +377,7 @@
 					}
 				}
 			}
+			ctx.shadowBlur = 0;
 
 			nodes.forEach( function ( node ) {
 				ctx.beginPath();
@@ -358,8 +390,8 @@
 			ctx.shadowBlur = 0;
 		}
 
-		function step() {
-			draw();
+		function step( timestamp ) {
+			draw( timestamp );
 			if ( ! prefersReducedMotion ) {
 				raf = window.requestAnimationFrame( step );
 			}
