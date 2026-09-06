@@ -293,6 +293,27 @@ function appiappi_customize_register( $wp_customize ) {
 		) );
 	}
 
+	// ---- Website Design — single page ----
+	// The "can't find your design? contact us" note shown in the summary
+	// box on every design's single page (single-appiappi_template.php) —
+	// one fixed, sitewide note rather than per-design, since it's the
+	// same message regardless of which design a visitor is looking at.
+	$wp_customize->add_section( 'appiappi_template_single_settings', array(
+		'title'    => __( 'Website Design — Single Page', 'appiappi' ),
+		'priority' => 47,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_template_missing_note', array(
+		'default'           => appiappi_default_missing_design_note(),
+		'sanitize_callback' => 'wp_kses_post',
+	) );
+	$wp_customize->add_control( 'appiappi_template_missing_note', array(
+		'label'       => __( 'Missing-Design Note', 'appiappi' ),
+		'description' => __( 'Shown in the summary box on every design\'s single page. Basic HTML (like a link) is allowed. Leave empty to hide it entirely.', 'appiappi' ),
+		'section'     => 'appiappi_template_single_settings',
+		'type'        => 'textarea',
+	) );
+
 	// ---- Footer ----
 	$wp_customize->add_section( 'appiappi_footer', array(
 		'title'    => __( 'Footer', 'appiappi' ),

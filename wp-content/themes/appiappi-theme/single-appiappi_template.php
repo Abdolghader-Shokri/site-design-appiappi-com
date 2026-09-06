@@ -22,6 +22,23 @@
  * background (page-header--template-single, configured separately from
  * the archive's under Customizer → Page Header Backgrounds — "Website
  * Design — Single Design Page").
+ *
+ * Revised 2026-09-06: the content column left a large empty gap on the
+ * right at desktop widths (it was capped at 760px for readability inside
+ * a much wider main column). Rather than just widening the text, that
+ * space now holds a `.template-summary` box — rating, short description,
+ * price, the action buttons (moved here from a row below the content),
+ * and an admin-editable "can't find your design?" note (Customizer →
+ * Website Design — Single Page) — sitting beside the media+content
+ * column as a sticky sidebar (`.single-post` becomes a 2-column grid at
+ * ≥1024px). Below that breakpoint everything is a single column again,
+ * and DOM order (media, then the summary box, then the content) puts the
+ * summary box right under the featured image and above the description,
+ * as requested. The media area also gained the same prev/next image
+ * carousel the grid cards use (`.template-card__media`/`__image`/`__nav`,
+ * driven by the same main.js IIFE via `data-carousel-interval`) — the
+ * single page previously only ever showed the featured image, not the
+ * rest of a multi-image design's gallery.
  */
 
 get_header();
@@ -67,10 +84,52 @@ while ( have_posts() ) :
 
 					<div class="templates-main">
 						<div class="single-post">
-							<?php if ( has_post_thumbnail() ) : ?>
-								<div class="single-post__media">
-									<?php the_post_thumbnail( 'appiappi-hero' ); ?>
+							<?php
+							$gallery_images     = ( $template && ! empty( $template['images'] ) ) ? $template['images'] : array_filter( array( $template['image'] ?? '' ) );
+							$carousel_interval  = (int) get_option( 'appiappi_templates_carousel_interval', 3000 );
+							?>
+							<?php if ( $gallery_images ) : ?>
+								<div class="single-post__media template-card__media"<?php echo count( $gallery_images ) > 1 ? ' data-carousel-interval="' . esc_attr( $carousel_interval ) . '"' : ''; ?>>
+									<?php foreach ( $gallery_images as $index => $image_url ) : ?>
+										<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>" loading="lazy" class="template-card__image <?php echo 0 === $index ? 'is-active' : ''; ?>" data-carousel-slide="<?php echo esc_attr( $index ); ?>">
+									<?php endforeach; ?>
+									<?php if ( count( $gallery_images ) > 1 ) : ?>
+										<button type="button" class="template-card__nav template-card__nav--prev" data-carousel-prev aria-label="<?php esc_attr_e( 'Previous image', 'appiappi' ); ?>"><?php echo appiappi_icon( 'chevron-left' ); ?></button>
+										<button type="button" class="template-card__nav template-card__nav--next" data-carousel-next aria-label="<?php esc_attr_e( 'Next image', 'appiappi' ); ?>"><?php echo appiappi_icon( 'chevron-right' ); ?></button>
+									<?php endif; ?>
 								</div>
+							<?php endif; ?>
+
+							<?php if ( $template ) : ?>
+								<aside class="template-summary card">
+									<?php if ( $template['rating'] ) : ?>
+										<p class="template-summary__rating">
+											<?php echo appiappi_render_star_rating( $template['rating'] ); ?>
+											<span><?php echo esc_html( $template['rating'] ); ?><?php if ( $template['rating_count'] ) : ?> (<?php echo esc_html( $template['rating_count'] ); ?>)<?php endif; ?></span>
+										</p>
+									<?php endif; ?>
+
+									<?php if ( $template['desc'] ) : ?>
+										<p class="template-summary__desc"><?php echo esc_html( $template['desc'] ); ?></p>
+									<?php endif; ?>
+
+									<?php if ( $template['price'] ) : ?>
+										<p class="template-summary__price"><?php echo esc_html( $template['price'] ); ?></p>
+									<?php endif; ?>
+
+									<div class="template-summary__actions">
+										<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary" onclick="if (window.history.length > 1) { window.history.back(); return false; }"><?php esc_html_e( 'Back', 'appiappi' ); ?></a>
+										<?php if ( $template['demo_url'] && '#' !== $template['demo_url'] ) : ?>
+											<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
+										<?php endif; ?>
+										<a href="<?php echo esc_url( add_query_arg( array( 'design' => rawurlencode( get_the_title() ), 'plan' => 'professional' ), home_url( '/contact/' ) ) ); ?>" class="btn btn-primary"><?php esc_html_e( 'Choose This Design', 'appiappi' ); ?></a>
+									</div>
+
+									<?php $missing_note = get_theme_mod( 'appiappi_template_missing_note', appiappi_default_missing_design_note() ); ?>
+									<?php if ( $missing_note ) : ?>
+										<p class="template-summary__note"><?php echo wp_kses_post( $missing_note ); ?></p>
+									<?php endif; ?>
+								</aside>
 							<?php endif; ?>
 
 							<div class="single-post__content">
@@ -81,17 +140,6 @@ while ( have_posts() ) :
 								<?php endif; ?>
 
 								<?php if ( $template ) : ?>
-									<p>
-										<?php if ( $template['rating'] ) : ?>
-											<?php echo appiappi_render_star_rating( $template['rating'] ); ?> <?php echo esc_html( $template['rating'] ); ?>
-											<?php if ( $template['rating_count'] ) : ?>(<?php echo esc_html( $template['rating_count'] ); ?>)<?php endif; ?>
-											&nbsp;·&nbsp;
-										<?php endif; ?>
-										<?php if ( $template['price'] ) : ?>
-											<strong><?php echo esc_html( $template['price'] ); ?></strong>
-										<?php endif; ?>
-									</p>
-
 									<?php if ( $template['vendor'] ) : ?>
 										<p class="description">
 											<?php
@@ -109,14 +157,6 @@ while ( have_posts() ) :
 										<p class="description"><?php esc_html_e( 'This is the starting design. We customize it with your logo, colours, content, services and SEO structure.', 'appiappi' ); ?></p>
 									<?php endif; ?>
 								<?php endif; ?>
-							</div>
-
-							<div class="hero__actions" style="margin-top: var(--space-8);">
-								<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary" onclick="if (window.history.length > 1) { window.history.back(); return false; }"><?php esc_html_e( 'Back', 'appiappi' ); ?></a>
-								<?php if ( $template && $template['demo_url'] && '#' !== $template['demo_url'] ) : ?>
-									<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
-								<?php endif; ?>
-								<a href="<?php echo esc_url( add_query_arg( array( 'design' => rawurlencode( get_the_title() ), 'plan' => 'professional' ), home_url( '/contact/' ) ) ); ?>" class="btn btn-primary"><?php esc_html_e( 'Choose This Design', 'appiappi' ); ?></a>
 							</div>
 						</div>
 					</div>

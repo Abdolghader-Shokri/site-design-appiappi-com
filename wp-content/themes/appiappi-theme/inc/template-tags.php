@@ -821,6 +821,20 @@ function appiappi_page_header_network_canvas( $bg_key ) {
 }
 
 /**
+ * Default text for the "missing design? get in touch" note shown in the
+ * summary box on a design's single page — a fixed, admin-editable string
+ * (Customizer → Website Design — Single Page) rather than per-design,
+ * since it applies identically to every design.
+ */
+function appiappi_default_missing_design_note() {
+	return sprintf(
+		/* translators: %s: Contact page URL */
+		__( 'Can\'t find exactly what you\'re looking for in our library? <a href="%s">Contact us</a> with a link to the design you\'d like, and we\'ll build your website on that template instead.', 'appiappi' ),
+		esc_url( home_url( '/contact/' ) )
+	);
+}
+
+/**
  * Consistent inner-page header band (title + optional subtitle). Used by
  * every non-homepage page template. Title comes from the_title() so the
  * H1 stays admin-editable per page.

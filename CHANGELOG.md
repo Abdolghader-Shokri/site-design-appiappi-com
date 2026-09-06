@@ -2,6 +2,17 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Single design page: summary sidebar, multi-image carousel, SEO headings
+
+### Added
+- Single design page now shows a sticky `.template-summary` box beside the content at desktop widths (rating, short description, price, Back/Live Demo/Choose This Design, and an admin-editable "can't find your design?" note) instead of leaving empty space to the right of the 760px-capped content column. On mobile it sits directly under the featured image, above the description.
+- New Customizer setting, **Website Design — Single Page → Missing-Design Note** (`inc/customizer.php`), with an English default; supports basic HTML (e.g. a link).
+- The single design page's media area now uses the same prev/next image carousel as the archive grid cards (`.template-card__media`/`__image`/`__nav`, driven by the existing carousel JS via `data-carousel-interval`) — previously it only ever showed the featured image, never the rest of a multi-image design's gallery.
+- Every design description authored this session (50 so far) now has real `<h2>` subheadings ("{Design} Overview", "Key Features of {Design}", "Who {Design} Is Best For") — keyword-rich, semantic structure for SEO, added via a one-off retrofit script; new descriptions are written with these headings from the start going forward.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/single-appiappi_template.php`, `assets/css/pages.css`, `inc/customizer.php`, `inc/template-tags.php`, `inc/enqueue.php`
+
 ## 2026-09-06 — Page-header backgrounds: independent colour + image per page, animated geometric overlay
 
 ### Added

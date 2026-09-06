@@ -586,8 +586,47 @@
 }
 
 .single-post {
-	max-width: 760px;
 	margin-inline: auto;
+}
+
+@media (max-width: 1023.98px) {
+	.single-post {
+		max-width: 760px;
+	}
+}
+
+/* At ≥1024px the media + content column sits beside a sticky
+   `.template-summary` box (rating/price/actions/note) instead of
+   leaving empty space to its right — see single-appiappi_template.php.
+   Below that, `.single-post` is plain block flow, so DOM order (media,
+   summary, content) puts the summary box directly under the featured
+   image and above the description, as requested. */
+@media (min-width: 1024px) {
+	.single-post {
+		max-width: none;
+		display: grid;
+		grid-template-columns: 1fr 320px;
+		grid-template-rows: auto 1fr;
+		align-items: start;
+		gap: var(--space-8);
+	}
+
+	.single-post__media {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.single-post__content {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	.template-summary {
+		grid-column: 2;
+		grid-row: 1 / span 2;
+		position: sticky;
+		top: calc(var(--header-height) + var(--space-4));
+	}
 }
 
 /* Website Design detail page's own desktop side padding, separate
@@ -596,6 +635,59 @@
 	.single-template-detail {
 		padding-inline: 30px;
 	}
+}
+
+/* ---------- Single design page: summary box ---------- */
+
+.template-summary {
+	padding: var(--space-6);
+	margin-bottom: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+	.template-summary {
+		margin-bottom: 0;
+	}
+}
+
+.template-summary__rating {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	margin-bottom: var(--space-3);
+	font-size: var(--fs-sm);
+	color: var(--color-text-muted);
+}
+
+.template-summary__desc {
+	color: var(--color-text-muted);
+	margin-bottom: var(--space-4);
+}
+
+.template-summary__price {
+	font-size: var(--fs-2xl);
+	font-weight: var(--fw-bold);
+	color: var(--color-neutral-900);
+	margin-bottom: var(--space-5);
+}
+
+.template-summary__actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.template-summary__actions .btn {
+	width: 100%;
+}
+
+.template-summary__note {
+	margin-top: var(--space-5);
+	padding-top: var(--space-5);
+	border-top: 1px solid var(--color-border);
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	margin-bottom: 0;
 }
 
 .single-post__meta {
