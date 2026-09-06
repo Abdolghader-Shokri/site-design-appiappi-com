@@ -12,6 +12,38 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Third occurrence of the same bug: .final-cta unstyled everywhere but home
+
+While implementing per-section desktop padding (hero/pricing-preview/
+templates-preview/footer, all admin-configurable per the user's request),
+I went looking for where `.final-cta`'s styles lived so I could add its
+new padding rule next to the existing ones. Found it in `home.css` —
+which is `is_front_page()`-only (`inc/enqueue.php`) — even though
+`final-cta.php` is `get_template_part()`'d on *every* page template in
+this theme (services, contact, privacy policy, terms, about, the blog,
+archives, the template-showcase pages — all of them). This is the exact
+same mistake already made and fixed twice before this session: the
+pricing cards (§12) and the template-showcase grid (§13). Three for
+three now on "shared markup, page-conditional CSS file."
+
+**Why it kept happening:** `home.css`'s own header comment described its
+contents as "homepage-only sections: hero, trust bar, final CTA" —
+final CTA was grouped in with two genuinely homepage-only sections by
+assumption/habit, not because anyone checked where `final-cta.php` is
+actually included. The comment sounded authoritative enough that it was
+never questioned in earlier passes.
+
+**Fix:** moved `.final-cta` and its responsive block to `components.css`
+(loaded on every page), matching the two prior fixes. Also rewrote
+`home.css`'s header comment to state the actual, narrower, verified
+scope (hero + trust bar only) and added an explicit warning at the
+`components.css`-vs-`home.css` split point in PROJECT_MASTER.md §10
+naming all three past incidents, since a comment alone evidently isn't
+enough — the next person (or AI) adding a homepage section should
+affirmatively check `grep -r "get_template_part.*final-cta\|<section-name>"`
+across the theme before assuming a new section's CSS belongs in
+`home.css`, not just trust the file's own description of itself.
+
 ## 2026-09-06 — Price/rating sync: official Envato API, not a browser hitting the listing page
 
 The user asked me to open each Website Design's Details Page URL (mostly

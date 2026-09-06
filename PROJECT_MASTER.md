@@ -175,9 +175,10 @@ Implemented now via the native Customizer (`inc/customizer.php`):
 |---|---|
 | Brand Colour | Primary colour (hex) — cascades to `--color-primary`, `--color-primary-dark`, `--color-primary-50` via inline `wp_head` CSS |
 | Header Call to Action | Button text + URL (used in header and mobile nav) |
-| Contact Information | Phone, email, address — used in footer + `inc/seo.php`'s LocalBusiness schema |
-| **Contact Page Info Box** (added 2026-09-06) | Google Maps Embed URL, Address label/value, Phone label/value/"links to" type (Call/SMS/WhatsApp/None), Support Email — drives the info card next to the form on the Contact page only (`page-contact.php`); intentionally separate from "Contact Information" above since these fields (custom labels, the phone link type, the map) don't apply to the footer/schema. Each row is independently optional; the whole card is omitted (form goes full width) if every field is empty. |
+| Contact Information | Phone, email, address — used only by `inc/seo.php`'s LocalBusiness schema now (the footer's Contact column was switched to read the Contact Page Info Box fields instead, 2026-09-06 — see below and §11) |
+| **Contact Page Info Box** (added 2026-09-06) | Google Maps Embed URL, Address label/value, Phone label/value/"links to" type (Call/SMS/WhatsApp/None), Support Email — drives the info card next to the form on the Contact page (`page-contact.php`) **and** the footer's Contact column (map excluded there) sitewide, §11. Each row is independently optional; the Contact page's card is omitted entirely (form goes full width) if every field is empty, and the footer's Contact column falls back to General Public Email (Settings → Appiappi Settings) or is omitted too. |
 | Social Links | Facebook, LinkedIn, Instagram, YouTube — used in footer |
+| **Layout Spacing** (added 2026-09-06) | Hero/Pricing preview/Website Designs preview/Footer desktop side padding (px, range sliders) — see §9 |
 | Footer | Footer tagline text |
 
 Logo/favicon use core's built-in `custom-logo` theme support and Site Icon —
@@ -216,6 +217,7 @@ a token. See that file for the full list. Key groups:
 - **Radius**: `--radius-sm/md/lg/xl/full`
 - **Shadow**: `--shadow-sm/md/lg`
 - **Layout**: `--container-max` (1600px), `--container-pad` (mobile `--space-5`/20px; desktop, ≥768px, a deliberately tight **10px** — sitewide gutters were widened 2026-09-06 from a 1200px/32px combo to hug the viewport edges like themeforest.net, per explicit request. Per-row item counts in every grid (pricing cards, template grid, etc.) are controlled by their own `--cols`/`--pricing-cols`/`--template-cols` custom properties, not by container width — widening the container only makes each column/card wider, never changes how many fit per row.) Both drive the single `.container` class (`layout.css`), used by every section/page.
+- **Per-section desktop padding overrides (added 2026-09-06):** the sitewide 10px gutter above was judged too tight for four specific spots, which each get their own larger, **admin-configurable** desktop-only side padding instead — Customizer → **Layout Spacing**: Hero (`--hero-pad-desktop`, default 30px, applied at hero's own ≥1024px breakpoint since that's where it becomes two-column), Pricing preview (`--pricing-preview-pad-desktop`, default 20px, `#pricing > .container`, home.css only), Website Designs preview (`--templates-preview-pad-desktop`, default 20px, `#templates > .container`, home.css only), and Footer (`--footer-pad-desktop`, default 50px, applied to both `.final-cta` and `.site-footer .container` — treated as one closing "footer area" since Final CTA sits directly above the footer on every page). All four are `range` controls (0–120px) in `inc/customizer.php`, injected via the same inline `wp_head` `<style>` block that already carries `--color-primary`. Mobile padding is untouched everywhere.
 
 The admin-chosen primary colour (Customizer) overrides `--color-primary` at
 runtime via an inline `<style>` block injected in `wp_head` — see
@@ -225,10 +227,18 @@ runtime via an inline `<style>` block injected in `wp_head` — see
 
 Generic, reusable pieces live in `assets/css/components.css`: `.btn` (+
 `-primary/-secondary/-outline-inverse/-link`, `-sm`, `-block`), `.badge`,
-`.chip` (hero feature chips), `.icon-tile` (trust-bar items), `.card`, and
-form field styles. Section-specific layout (hero, pricing cards, template
-cards, trust bar grid, final CTA) lives in `assets/css/home.css` — keep that
-split when adding new sections.
+`.chip` (hero feature chips), `.icon-tile` (trust-bar items, centred
+2026-09-06), `.card`, `.final-cta` (moved here 2026-09-06 — it's
+rendered on every page via `get_template_part()`, not just the
+homepage; see §11), and form field styles. Section-specific layout that
+is genuinely homepage-only (hero, trust bar grid) lives in
+`assets/css/home.css` — **before adding anything there, confirm the
+markup is truly only ever rendered on the front page**; this file is
+only enqueued when `is_front_page()` is true (`inc/enqueue.php`), and
+three separate bugs this project has already hit (pricing cards,
+template showcase, final CTA) were exactly this mistake — shared markup
+styled in a page-conditional file, rendering completely unstyled
+everywhere else.
 
 Icons are inline SVG only (no icon font, no external CDN) via
 `appiappi_icon( $name, $class = '' )` in `inc/template-tags.php`. Add new
@@ -262,6 +272,15 @@ icons to the `$icons` array there; keep them simple/stroke-based/on-brand.
   Public Email** (Settings → Appiappi Settings → Legal & Company
   Information); if that's empty too, the whole column is omitted rather
   than showing a "please configure this" placeholder.
+- **Bug found + fixed 2026-09-06:** `.final-cta`'s CSS (the closing band
+  rendered via `get_template_part( 'template-parts/sections/final-cta' )`
+  on *every* page) lived entirely in `home.css` — the exact same
+  front-page-only-enqueue bug already hit twice before (pricing cards,
+  template showcase; see §12, §13). It rendered completely unstyled
+  (no centering, no dark background, plain text) on every page except
+  the homepage. Moved to `components.css`; also gained the configurable
+  `--footer-pad-desktop` side padding described in §9, shared with the
+  footer's own container since the two form one visual "footer area."
 
 ## 11a. Homepage Hero
 
@@ -289,6 +308,16 @@ auto-advance is skipped entirely under `prefers-reduced-motion`. The local
 site has the plugin active with 2 seeded slides — manage them under
 **Hero Slides** in wp-admin (Featured Image = slide visual, Page
 Attributes → Order = slide sequence).
+
+**Content column centred (added 2026-09-06):** `.hero__content` (eyebrow,
+title, lede, chip-list, CTA buttons, dots — everything except the
+visual/slides column on the right) is now centre-aligned as a unit, per
+explicit request — `home.css`. The chip-list is capped to `max-width:
+fit-content` + `margin-inline: auto` so the 2×2 feature-chip block
+centres as one compact unit rather than stretching to the column's full
+width (each chip's own icon+label row stays left-aligned internally).
+Side padding on the hero's own ≥1024px desktop breakpoint is
+admin-configurable — see §9's Layout Spacing note.
 
 ## 12. Pricing System
 
@@ -718,7 +747,7 @@ than duplicated here — grep for `TODO` to find them all.
 | Base reset/typography | `assets/css/base.css` | Global element defaults | Edit for site-wide type/element changes |
 | Header/footer/site shell layout | `assets/css/layout.css` | `.site-header`, `.mobile-nav`, `.site-footer`, `.container`, `.section` | Edit for structural/shell changes |
 | Buttons, badges, chips, cards, forms, **pricing cards** | `assets/css/components.css` | Reusable UI pieces used on more than one page — loaded on *every* page, unlike `home.css`/`pages.css` | Edit for a component used on multiple pages. Pricing card styles live here specifically because the homepage teaser and the dedicated Pricing page share `appiappi_render_pricing_cards()` — see DEVELOPMENT_LOG.md 2026-09-06 for why this matters (a component styled only in a conditionally-loaded file can silently have no effect on a page that doesn't load it) |
-| Homepage-only section styling | `assets/css/home.css` | Hero, template cards, trust bar, final CTA (only enqueued on `is_front_page()`) | Edit for homepage-specific visual changes. **Do not** put styles here for anything rendered outside the homepage (like pricing cards) — it silently won't apply on other pages |
+| Homepage-only section styling | `assets/css/home.css` | Hero, trust bar (only enqueued on `is_front_page()`) | Edit for homepage-specific visual changes. **Do not** put styles here for anything rendered outside the homepage (pricing cards, template showcase, and final CTA all made this exact mistake already) — it silently won't apply on other pages |
 | Theme supports / nav locations / image sizes | `inc/setup.php` | `add_theme_support`, `register_nav_menus` | Add new image sizes or theme features here |
 | Asset loading | `inc/enqueue.php` | Registers/enqueues all CSS/JS, Google Fonts | Add new stylesheets/scripts here, respecting dependency order |
 | Global settings | `inc/customizer.php` | Brand colour, header CTA, contact info, social links, footer tagline | Add new Customizer sections/settings here |

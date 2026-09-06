@@ -197,6 +197,40 @@ function appiappi_customize_register( $wp_customize ) {
 		) );
 	}
 
+	// ---- Layout spacing ----
+	// Desktop-only side padding for specific sections that need more
+	// breathing room than the sitewide --container-pad (10px, tight by
+	// design to match themeforest.net's edge-to-edge look) — the
+	// homepage's Hero, Pricing preview and Website Designs preview, plus
+	// the Final CTA + site footer (treated as one closing "footer area").
+	// Mobile is untouched; each falls back to the default in tokens.css
+	// if never touched here.
+	$wp_customize->add_section( 'appiappi_layout_spacing', array(
+		'title'       => __( 'Layout Spacing', 'appiappi' ),
+		'description' => __( 'Desktop-only side padding for specific sections (px). Mobile spacing is unaffected.', 'appiappi' ),
+		'priority'    => 44,
+	) );
+
+	$spacing_fields = array(
+		'appiappi_hero_pad'             => array( __( 'Hero Side Padding', 'appiappi' ), 30 ),
+		'appiappi_pricing_preview_pad'  => array( __( 'Pricing Preview Side Padding', 'appiappi' ), 20 ),
+		'appiappi_templates_preview_pad'=> array( __( 'Website Designs Preview Side Padding', 'appiappi' ), 20 ),
+		'appiappi_footer_pad'           => array( __( 'Footer Side Padding', 'appiappi' ), 50 ),
+	);
+	foreach ( $spacing_fields as $id => $field ) {
+		list( $label, $default ) = $field;
+		$wp_customize->add_setting( $id, array(
+			'default'           => $default,
+			'sanitize_callback' => 'absint',
+		) );
+		$wp_customize->add_control( $id, array(
+			'label'       => $label,
+			'section'     => 'appiappi_layout_spacing',
+			'type'        => 'range',
+			'input_attrs' => array( 'min' => 0, 'max' => 120, 'step' => 1 ),
+		) );
+	}
+
 	// ---- Footer ----
 	$wp_customize->add_section( 'appiappi_footer', array(
 		'title'    => __( 'Footer', 'appiappi' ),
@@ -222,12 +256,21 @@ add_action( 'customize_register', 'appiappi_customize_register' );
  */
 function appiappi_customizer_css_vars() {
 	$primary = get_theme_mod( 'appiappi_color_primary', '#1e5eff' );
+
+	$hero_pad             = (int) get_theme_mod( 'appiappi_hero_pad', 30 );
+	$pricing_preview_pad  = (int) get_theme_mod( 'appiappi_pricing_preview_pad', 20 );
+	$templates_preview_pad = (int) get_theme_mod( 'appiappi_templates_preview_pad', 20 );
+	$footer_pad           = (int) get_theme_mod( 'appiappi_footer_pad', 50 );
 	?>
 	<style id="appiappi-customizer-vars">
 		:root {
 			--color-primary: <?php echo esc_html( $primary ); ?>;
 			--color-primary-dark: color-mix(in srgb, <?php echo esc_html( $primary ); ?> 80%, black);
 			--color-primary-50: color-mix(in srgb, <?php echo esc_html( $primary ); ?> 8%, white);
+			--hero-pad-desktop: <?php echo esc_html( $hero_pad ); ?>px;
+			--pricing-preview-pad-desktop: <?php echo esc_html( $pricing_preview_pad ); ?>px;
+			--templates-preview-pad-desktop: <?php echo esc_html( $templates_preview_pad ); ?>px;
+			--footer-pad-desktop: <?php echo esc_html( $footer_pad ); ?>px;
 		}
 	</style>
 	<?php

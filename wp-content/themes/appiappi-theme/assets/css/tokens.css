@@ -110,6 +110,18 @@
 	--container-pad: var(--space-5);
 	--header-height: 76px;
 	--transition-base: 180ms ease;
+
+	/* Per-section desktop side padding — overrides the sitewide
+	   --container-pad above for specific homepage sections + the
+	   sitewide footer, where 10px is too tight. Admin-configurable via
+	   Customizer → Layout Spacing (inc/customizer.php); these are the
+	   fallback defaults if that section is never touched. Only takes
+	   effect at the same ≥768px breakpoint as --container-pad — see
+	   home.css/layout.css for where each is actually consumed. */
+	--hero-pad-desktop: 30px;
+	--pricing-preview-pad-desktop: 20px;
+	--templates-preview-pad-desktop: 20px;
+	--footer-pad-desktop: 50px;
 }
 
 /* Desktop gutter is deliberately tight (~10px, like themeforest.net)

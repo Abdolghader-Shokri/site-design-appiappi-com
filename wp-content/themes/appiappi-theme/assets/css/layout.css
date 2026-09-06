@@ -312,3 +312,13 @@ body.mobile-nav-is-open {
 		justify-content: space-between;
 	}
 }
+
+/* Footer's own desktop side-padding (configurable via Customizer ->
+   Layout Spacing), separate from the sitewide --container-pad — the
+   footer's 4-column grid, copyright and legal links all share this
+   one .container, so one override covers all of them. */
+@media (min-width: 768px) {
+	.site-footer .container {
+		padding-inline: var(--footer-pad-desktop);
+	}
+}

@@ -2,6 +2,22 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Homepage spacing refinements + fix: final CTA unstyled off the homepage
+
+### Fixed
+- `.final-cta` (rendered on every page via `get_template_part()`) had all of its CSS in `home.css`, which only loads on the front page — the exact same bug already hit twice before (pricing cards, template showcase). It was rendering completely unstyled (no centering, no background, plain text) on every page except the homepage. Moved to `components.css`. See DEVELOPMENT_LOG.md.
+
+### Added
+- New Customizer section **Layout Spacing** (4 range sliders, 0–120px): Hero/Pricing preview/Website Designs preview/Footer desktop side padding — defaults 30/20/20/50px, overriding the sitewide 10px gutter for these specific spots. Mobile is untouched.
+
+### Changed
+- Homepage hero's content column (eyebrow, title, lede, feature chips, CTA buttons, dots) is now centred as a unit instead of left-aligned; the visual/slides column is unaffected.
+- Trust bar icons (`.icon-tile`) are now centred within their grid cell instead of hugging the left edge.
+- Final CTA and the site footer share one configurable desktop side padding (default 50px) since they form one visual "footer area" on every page.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/assets/css/tokens.css`, `home.css`, `components.css`, `layout.css`, `inc/customizer.php`, `inc/enqueue.php`
+
 ## 2026-09-06 — Sitewide: tighter desktop gutters (like themeforest.net)
 
 ### Changed

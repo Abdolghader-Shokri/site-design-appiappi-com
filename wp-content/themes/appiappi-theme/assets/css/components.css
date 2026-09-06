@@ -109,7 +109,9 @@
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: var(--space-4);
-	margin: var(--space-8) 0;
+	margin: var(--space-8) auto;
+	max-width: fit-content;
+	text-align: left;
 }
 
 .chip {
@@ -141,6 +143,7 @@
 .icon-tile {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: var(--space-4);
 }
 
@@ -683,5 +686,44 @@
 @media (min-width: 1400px) {
 	.templates-layout--no-sidebar .template-grid {
 		--cols: 4;
+	}
+}
+
+/* ---------- Final CTA (get_template_part()'d on every page) ---------- */
+
+.final-cta {
+	text-align: center;
+}
+
+.final-cta h2 {
+	margin-bottom: var(--space-3);
+}
+
+.final-cta p {
+	max-width: 52ch;
+	margin-inline: auto;
+	margin-bottom: var(--space-8);
+}
+
+.final-cta__actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	align-items: center;
+}
+
+@media (min-width: 640px) {
+	.final-cta__actions {
+		flex-direction: row;
+		justify-content: center;
+	}
+}
+
+/* Final CTA + site footer share one desktop side-padding value
+   (configurable via Customizer → Layout Spacing) since visually they
+   form one closing "footer area" on every page. */
+@media (min-width: 768px) {
+	.final-cta {
+		padding-inline: var(--footer-pad-desktop);
 	}
 }
