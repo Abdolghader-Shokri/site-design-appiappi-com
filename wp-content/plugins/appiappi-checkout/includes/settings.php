@@ -42,17 +42,23 @@ function appiappi_checkout_is_configured() {
 }
 
 /**
- * ISO 4217 lowercase currency code Stripe expects — reuses the theme's
- * existing "Currency Symbol/Code" setting (Settings → Appiappi Settings)
- * rather than duplicating a second currency field, falling back to CAD
- * (this is a Canadian SMB platform) if that's ever empty.
+ * ISO 4217 lowercase currency code Stripe expects — deliberately fixed
+ * to USD, not the theme's general "Currency Symbol/Code" setting
+ * (Settings → Appiappi Settings, defaults to CAD for on-page display
+ * elsewhere on the site). Decided 2026-09-06: Website Design prices
+ * come from Envato/ThemeForest, which always lists in USD regardless of
+ * buyer location — mixing those with CAD-labelled plan prices as if
+ * they were the same unit was a real bug (a $1 USD design line simply
+ * isn't $1 CAD). Rather than run a live exchange-rate conversion or make
+ * the buyer choose a currency mid-checkout, the whole checkout — plan
+ * prices and design prices alike — charges in USD; a Canadian
+ * cardholder's own bank/card network converts to CAD automatically at
+ * settlement, exactly as it already does for any other US-priced
+ * purchase. If this ever needs to change, this is the one function that
+ * decides it.
  */
 function appiappi_checkout_currency() {
-	$raw = function_exists( 'appiappi_get_setting' ) ? appiappi_get_setting( 'currency', 'CAD' ) : 'CAD';
-	// The theme field is free text meant for display ("CAD $"); Stripe
-	// needs a bare lowercase ISO code, so pull just the letters out of it.
-	preg_match( '/[A-Za-z]{3}/', $raw, $m );
-	return $m ? strtolower( $m[0] ) : 'cad';
+	return 'usd';
 }
 
 function appiappi_checkout_webhook_url() {
