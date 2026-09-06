@@ -45,6 +45,7 @@ function appiappi_icon( $name, $class = '' ) {
 		'close'      => '<line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>',
 		'search'     => '<circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line>',
 		'chevron-right' => '<polyline points="9 6 15 12 9 18"></polyline>',
+		'chevron-left' => '<polyline points="15 6 9 12 15 18"></polyline>',
 		'pencil'     => '<path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z"></path><line x1="14.5" y1="6.5" x2="17.5" y2="9.5"></line>',
 		'diamond'    => '<path d="M6 9l3-6h6l3 6-6 12z"></path><line x1="3" y1="9" x2="21" y2="9"></line>',
 		'crown'      => '<path d="M4 18h16l1.5-9-5 3-4.5-6-4.5 6-5-3L4 18z"></path><line x1="4" y1="21" x2="20" y2="21"></line>',
@@ -249,36 +250,42 @@ function appiappi_get_featured_templates() {
 		array(
 			'name'     => __( 'Construction Pro', 'appiappi' ),
 			'category' => __( 'Construction', 'appiappi' ),
-			'style'    => __( 'Bold', 'appiappi' ),
+			'subgroup' => '',
 			'desc'     => __( 'Bold, image-led design for builders and contractors.', 'appiappi' ),
 			'price'    => '$59',
+			'price_value' => 59.0,
 			'rating'   => '4.9',
 			'rating_count' => 128,
 			'image'    => '',
+			'images'   => array(),
 			'demo_url'    => '#',
 			'details_url' => '#',
 		),
 		array(
 			'name'     => __( 'Justice Law', 'appiappi' ),
 			'category' => __( 'Legal', 'appiappi' ),
-			'style'    => __( 'Classic', 'appiappi' ),
+			'subgroup' => '',
 			'desc'     => __( 'Sharp, trustworthy design for law firms and consultants.', 'appiappi' ),
 			'price'    => '$69',
+			'price_value' => 69.0,
 			'rating'   => '4.8',
 			'rating_count' => 96,
 			'image'    => '',
+			'images'   => array(),
 			'demo_url'    => '#',
 			'details_url' => '#',
 		),
 		array(
 			'name'     => __( 'Dental Clinic', 'appiappi' ),
 			'category' => __( 'Dental &amp; Medical', 'appiappi' ),
-			'style'    => __( 'Modern', 'appiappi' ),
+			'subgroup' => '',
 			'desc'     => __( 'Warm, clean design for clinics and healthcare practices.', 'appiappi' ),
 			'price'    => '$49',
+			'price_value' => 49.0,
 			'rating'   => '4.9',
 			'rating_count' => 87,
 			'image'    => '',
+			'images'   => array(),
 			'demo_url'    => '#',
 			'details_url' => '#',
 		),
@@ -299,19 +306,6 @@ function appiappi_get_template_categories() {
 		array( 'icon' => 'home',          'label' => __( 'Real Estate', 'appiappi' ) ),
 		array( 'icon' => 'shopping-bag',  'label' => __( 'Restaurant & Retail', 'appiappi' ) ),
 		array( 'icon' => 'briefcase',     'label' => __( 'Professional Services', 'appiappi' ) ),
-	);
-}
-
-/**
- * TODO(Phase 3): sidebar style checkboxes — presentational only, same
- * caveat as appiappi_get_template_categories().
- */
-function appiappi_get_template_styles() {
-	return array(
-		__( 'Modern', 'appiappi' ),
-		__( 'Minimal', 'appiappi' ),
-		__( 'Bold', 'appiappi' ),
-		__( 'Classic', 'appiappi' ),
 	);
 }
 
@@ -449,18 +443,40 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
 }
 
 /**
+ * Standard 5-star rating display used anywhere a numeric rating (0–5)
+ * needs to show as filled/empty gold stars rather than just a bare
+ * number — currently the Website Designs grid/detail page. Filled
+ * count = round( $rating ), so a 0 rating (a genuinely brand-new,
+ * unreviewed design — never fabricated, see appiappi-template-showcase)
+ * correctly shows zero gold stars rather than a misleadingly full set.
+ */
+function appiappi_render_star_rating( $rating ) {
+	$rating = (float) $rating;
+	$filled = max( 0, min( 5, (int) round( $rating ) ) );
+	$out    = '<span class="star-rating" aria-hidden="true">';
+	for ( $i = 1; $i <= 5; $i++ ) {
+		$out .= $i <= $filled
+			? '<span class="star-rating__star star-rating__star--filled">★</span>'
+			: '<span class="star-rating__star">★</span>';
+	}
+	$out .= '</span>';
+	return $out;
+}
+
+/**
  * Shared template-showcase markup (sidebar + grid). Same pattern as
  * appiappi_render_pricing_cards(): the theme's own placeholder and the
  * appiappi-template-showcase plugin's [appiappi_templates] shortcode
  * both build a data array in this shape and render through this one
  * function, so markup never drifts between the two.
  *
- * @param array $templates  Each item: name, category, style, desc,
- *                           price, rating, rating_count, image (URL or
- *                           empty), demo_url, details_url.
+ * @param array $templates  Each item: name, category, subgroup, desc,
+ *                           price, price_value (float), rating,
+ *                           rating_count, image, images (array — image
+ *                           plus any gallery extras, for the carousel),
+ *                           demo_url, details_url.
  * @param array $categories Each item: icon, label, active (bool),
  *                           optional url.
- * @param array $styles       Array of style label strings.
  * @param bool  $show_sidebar Whether to render the filter sidebar at all
  *                             (a shortcode instance placed in a narrow
  *                             spot can opt out and show just the grid).
@@ -473,14 +489,31 @@ function appiappi_render_pricing_cards( array $plans, $show_description = false,
  *                             different from count( $templates ) (i.e.
  *                             the caller paginated). Null shows just the
  *                             count of $templates, as before.
+ * @param array|null $price_range { min, max } across every published
+ *                             design (not just $templates) — powers the
+ *                             sidebar price filter's bounds/placeholders.
+ *                             Null (or max <= 0) hides that filter.
  */
-function appiappi_render_template_showcase( array $templates, array $categories, array $styles, $show_sidebar = true, $columns = null, $total = null ) {
+function appiappi_render_template_showcase( array $templates, array $categories, $show_sidebar = true, $columns = null, $total = null, $price_range = null ) {
 	if ( $show_sidebar && null === $columns ) {
 		$columns = (int) get_option( 'appiappi_templates_columns', 3 );
 	}
 	if ( null !== $columns ) {
 		$columns = max( 1, min( 4, (int) $columns ) );
 	}
+
+	// Current filter/sort state, read directly from the request — same
+	// pattern already used elsewhere in this theme (e.g. the category
+	// filter) for presentation-only state that doesn't need threading
+	// through every caller as an extra parameter.
+	$active_category = isset( $_GET['appiappi_category'] ) ? sanitize_title( wp_unslash( $_GET['appiappi_category'] ) ) : '';
+	$current_min     = isset( $_GET['min_price'] ) && '' !== $_GET['min_price'] ? (float) $_GET['min_price'] : null;
+	$current_max     = isset( $_GET['max_price'] ) && '' !== $_GET['max_price'] ? (float) $_GET['max_price'] : null;
+	$current_sort    = isset( $_GET['sort'] ) ? sanitize_key( $_GET['sort'] ) : '';
+	$carousel_interval = (int) get_option( 'appiappi_templates_carousel_interval', 3000 );
+
+	$has_price_range = is_array( $price_range ) && isset( $price_range['max'] ) && $price_range['max'] > 0;
+
 	ob_start();
 	?>
 	<div class="templates-layout <?php echo $show_sidebar ? '' : 'templates-layout--no-sidebar'; ?>">
@@ -505,14 +538,34 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 					</div>
 				<?php endif; ?>
 
-				<?php if ( $styles ) : ?>
-					<div class="templates-sidebar__group" id="templates-styles">
-						<p class="templates-sidebar__title"><?php esc_html_e( 'Style', 'appiappi' ); ?></p>
-						<?php foreach ( $styles as $style ) : ?>
-							<label class="templates-sidebar__checkbox">
-								<input type="checkbox" class="templates-style-filter" value="<?php echo esc_attr( $style ); ?>"> <?php echo esc_html( $style ); ?>
-							</label>
-						<?php endforeach; ?>
+				<?php if ( $has_price_range ) : ?>
+					<div class="templates-sidebar__group">
+						<p class="templates-sidebar__title"><?php esc_html_e( 'Price', 'appiappi' ); ?></p>
+						<form method="get" class="templates-price-filter">
+							<?php if ( $active_category ) : ?><input type="hidden" name="appiappi_category" value="<?php echo esc_attr( $active_category ); ?>"><?php endif; ?>
+							<?php if ( $current_sort ) : ?><input type="hidden" name="sort" value="<?php echo esc_attr( $current_sort ); ?>"><?php endif; ?>
+							<div class="templates-price-filter__row">
+								<label class="templates-price-filter__field">
+									<span><?php esc_html_e( 'Min', 'appiappi' ); ?></span>
+									<input type="number" name="min_price" min="0" step="1" value="<?php echo null !== $current_min ? esc_attr( $current_min ) : ''; ?>" placeholder="$<?php echo esc_attr( (int) floor( $price_range['min'] ) ); ?>">
+								</label>
+								<label class="templates-price-filter__field">
+									<span><?php esc_html_e( 'Max', 'appiappi' ); ?></span>
+									<input type="number" name="max_price" min="0" step="1" value="<?php echo null !== $current_max ? esc_attr( $current_max ) : ''; ?>" placeholder="$<?php echo esc_attr( (int) ceil( $price_range['max'] ) ); ?>">
+								</label>
+							</div>
+							<p class="templates-price-filter__hint">
+								<?php
+								printf(
+									/* translators: 1: lowest available price, 2: highest available price */
+									esc_html__( 'Available: $%1$s – $%2$s', 'appiappi' ),
+									esc_html( number_format_i18n( $price_range['min'] ) ),
+									esc_html( number_format_i18n( $price_range['max'] ) )
+								);
+								?>
+							</p>
+							<button type="submit" class="btn btn-secondary btn-sm btn-block"><?php esc_html_e( 'Apply', 'appiappi' ); ?></button>
+						</form>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -541,9 +594,28 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 						</span>
 					<?php endif; ?>
 				</p>
-				<div class="templates-main__nav" aria-hidden="true">
-					<button type="button" tabindex="-1"><?php echo appiappi_icon( 'chevron-right', '' ); ?></button>
-				</div>
+
+				<?php if ( is_post_type_archive( 'appiappi_template' ) ) : ?>
+					<div class="templates-main__sort">
+						<form method="get" class="templates-sort-form">
+							<?php if ( $active_category ) : ?><input type="hidden" name="appiappi_category" value="<?php echo esc_attr( $active_category ); ?>"><?php endif; ?>
+							<?php if ( null !== $current_min ) : ?><input type="hidden" name="min_price" value="<?php echo esc_attr( $current_min ); ?>"><?php endif; ?>
+							<?php if ( null !== $current_max ) : ?><input type="hidden" name="max_price" value="<?php echo esc_attr( $current_max ); ?>"><?php endif; ?>
+							<select name="sort" onchange="this.form.submit()" aria-label="<?php esc_attr_e( 'Sort by price', 'appiappi' ); ?>">
+								<option value="" <?php selected( $current_sort, '' ); ?>><?php esc_html_e( 'Sort: Default', 'appiappi' ); ?></option>
+								<option value="price-asc" <?php selected( $current_sort, 'price-asc' ); ?>><?php esc_html_e( 'Price: Low to High', 'appiappi' ); ?></option>
+								<option value="price-desc" <?php selected( $current_sort, 'price-desc' ); ?>><?php esc_html_e( 'Price: High to Low', 'appiappi' ); ?></option>
+							</select>
+						</form>
+						<?php
+						$rating_active = ( 'rating-desc' === $current_sort );
+						$rating_url    = $rating_active ? remove_query_arg( 'sort' ) : add_query_arg( 'sort', 'rating-desc' );
+						?>
+						<a href="<?php echo esc_url( $rating_url ); ?>" class="btn btn-sm <?php echo $rating_active ? 'btn-primary' : 'btn-secondary'; ?>">
+							<?php echo appiappi_icon( 'star' ); ?> <?php esc_html_e( 'Highest Rated', 'appiappi' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
 			</div>
 
 			<?php if ( empty( $templates ) ) : ?>
@@ -551,28 +623,42 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 			<?php else : ?>
 				<div class="template-grid" id="templates-grid" <?php echo null !== $columns ? 'style="--template-cols: ' . esc_attr( $columns ) . '"' : ''; ?>>
 					<?php foreach ( $templates as $template ) : ?>
-						<div class="card template-card" data-category="<?php echo esc_attr( $template['category'] ); ?>" data-style="<?php echo esc_attr( $template['style'] ?? '' ); ?>" data-search="<?php echo esc_attr( strtolower( $template['name'] . ' ' . $template['desc'] . ' ' . $template['category'] ) ); ?>">
-							<div class="template-card__media">
-								<?php if ( ! empty( $template['image'] ) ) : ?>
-									<img src="<?php echo esc_url( $template['image'] ); ?>" alt="<?php echo esc_attr( $template['name'] ); ?>" loading="lazy">
-								<?php endif; ?>
+						<?php $images = ! empty( $template['images'] ) ? $template['images'] : array_filter( array( $template['image'] ?? '' ) ); ?>
+						<div class="card template-card" data-category="<?php echo esc_attr( $template['category'] ); ?>" data-price="<?php echo esc_attr( $template['price_value'] ?? 0 ); ?>" data-search="<?php echo esc_attr( strtolower( $template['name'] . ' ' . $template['desc'] . ' ' . $template['category'] ) ); ?>">
+							<div class="template-card__media"<?php echo count( $images ) > 1 ? ' data-carousel-interval="' . esc_attr( $carousel_interval ) . '"' : ''; ?>>
+								<?php foreach ( $images as $index => $image_url ) : ?>
+									<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $template['name'] ); ?>" loading="lazy" class="template-card__image <?php echo 0 === $index ? 'is-active' : ''; ?>" data-carousel-slide="<?php echo esc_attr( $index ); ?>">
+								<?php endforeach; ?>
 								<span class="badge badge-dark template-card__category"><?php echo esc_html( $template['category'] ); ?></span>
+								<?php if ( count( $images ) > 1 ) : ?>
+									<button type="button" class="template-card__nav template-card__nav--prev" data-carousel-prev aria-label="<?php esc_attr_e( 'Previous image', 'appiappi' ); ?>"><?php echo appiappi_icon( 'chevron-left' ); ?></button>
+									<button type="button" class="template-card__nav template-card__nav--next" data-carousel-next aria-label="<?php esc_attr_e( 'Next image', 'appiappi' ); ?>"><?php echo appiappi_icon( 'chevron-right' ); ?></button>
+								<?php endif; ?>
 							</div>
 							<div class="template-card__body">
 								<h3 class="template-card__name"><?php echo esc_html( $template['name'] ); ?></h3>
+								<p class="template-card__group">
+									<?php echo esc_html( $template['category'] ); ?>
+									<?php if ( ! empty( $template['subgroup'] ) ) : ?>
+										<span class="template-card__subgroup">› <?php echo esc_html( $template['subgroup'] ); ?></span>
+									<?php endif; ?>
+								</p>
 								<p class="template-card__desc"><?php echo esc_html( $template['desc'] ); ?></p>
 								<div class="template-card__meta">
 									<span class="template-card__price"><?php echo esc_html( $template['price'] ); ?></span>
 									<span class="template-card__rating">
-										<?php echo appiappi_icon( 'star' ); ?> <?php echo esc_html( $template['rating'] ); ?>
+										<?php echo appiappi_render_star_rating( $template['rating'] ); ?>
 										<?php if ( ! empty( $template['rating_count'] ) ) : ?>
-											(<?php echo esc_html( $template['rating_count'] ); ?>)
+											<span class="template-card__rating-count">(<?php echo esc_html( $template['rating_count'] ); ?>)</span>
 										<?php endif; ?>
 									</span>
 								</div>
 								<div class="template-card__actions">
 									<a href="<?php echo esc_url( $template['details_url'] ); ?>" class="btn btn-secondary btn-sm"><?php esc_html_e( 'View Details', 'appiappi' ); ?></a>
 									<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-primary btn-sm"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
+									<a href="<?php echo esc_url( add_query_arg( array( 'design' => rawurlencode( $template['name'] ), 'plan' => 'professional' ), home_url( '/contact/' ) ) ); ?>" class="btn btn-primary btn-sm template-card__cart" aria-label="<?php esc_attr_e( 'Choose this design', 'appiappi' ); ?>" title="<?php esc_attr_e( 'Choose this design', 'appiappi' ); ?>">
+										<?php echo appiappi_icon( 'shopping-bag' ); ?>
+									</a>
 								</div>
 							</div>
 						</div>

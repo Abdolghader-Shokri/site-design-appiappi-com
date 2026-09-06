@@ -32,6 +32,7 @@ function appiappi_showcase_render_meta_box( $post ) {
 	$details_url  = get_post_meta( $post->ID, '_appiappi_template_details_url', true );
 	$vendor       = get_post_meta( $post->ID, '_appiappi_template_vendor', true );
 	$source_url   = get_post_meta( $post->ID, '_appiappi_template_source_url', true );
+	$gallery      = get_post_meta( $post->ID, '_appiappi_template_gallery', true );
 	?>
 	<table class="form-table">
 		<tr>
@@ -72,6 +73,13 @@ function appiappi_showcase_render_meta_box( $post ) {
 			<th><label for="appiappi_template_source_url"><?php esc_html_e( 'Original Marketplace URL', 'appiappi-template-showcase' ); ?></label></th>
 			<td><input type="url" id="appiappi_template_source_url" name="appiappi_template_source_url" value="<?php echo esc_attr( $source_url ); ?>" class="regular-text"></td>
 		</tr>
+		<tr>
+			<th><label for="appiappi_template_gallery"><?php esc_html_e( 'Additional Gallery Images', 'appiappi-template-showcase' ); ?></label></th>
+			<td>
+				<textarea id="appiappi_template_gallery" name="appiappi_template_gallery" rows="4" class="large-text" placeholder="<?php esc_attr_e( 'One image URL per line', 'appiappi-template-showcase' ); ?>"><?php echo esc_textarea( $gallery ); ?></textarea>
+				<p class="description"><?php esc_html_e( 'Shown after the Featured Image in a small next/previous carousel on the card, only when at least one is set here. One URL per line.', 'appiappi-template-showcase' ); ?></p>
+			</td>
+		</tr>
 	</table>
 	<p class="description"><?php esc_html_e( 'Set the Featured Image above as the design preview, use Categories/Styles in the sidebar to classify it, and write a fuller description in the main content editor for the design\'s detail page (the "Short Description" above is only used in card/grid previews).', 'appiappi-template-showcase' ); ?></p>
 	<?php
@@ -97,12 +105,20 @@ function appiappi_showcase_save_meta_box( $post_id ) {
 		'_appiappi_template_details_url' => 'esc_url_raw',
 		'_appiappi_template_vendor'      => 'sanitize_text_field',
 		'_appiappi_template_source_url'  => 'esc_url_raw',
+		'_appiappi_template_gallery'     => 'sanitize_textarea_field',
 	);
 	foreach ( $fields as $meta_key => $sanitizer ) {
 		$field_name = ltrim( str_replace( '_appiappi_template_', 'appiappi_template_', $meta_key ), '_' );
 		if ( isset( $_POST[ $field_name ] ) ) {
 			update_post_meta( $post_id, $meta_key, call_user_func( $sanitizer, wp_unslash( $_POST[ $field_name ] ) ) );
 		}
+	}
+
+	// Kept in sync with the display price string so price can be sorted
+	// and range-filtered numerically (orderby=meta_value_num needs a
+	// column that's actually numeric — "$59" isn't, "59" is).
+	if ( isset( $_POST['appiappi_template_price'] ) ) {
+		update_post_meta( $post_id, '_appiappi_template_price_value', appiappi_showcase_parse_price_value( wp_unslash( $_POST['appiappi_template_price'] ) ) );
 	}
 }
 add_action( 'save_post_appiappi_template', 'appiappi_showcase_save_meta_box' );

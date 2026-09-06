@@ -48,7 +48,7 @@ while ( have_posts() ) :
 					<?php if ( $template ) : ?>
 						<p>
 							<?php if ( $template['rating'] ) : ?>
-								<?php echo appiappi_icon( 'star' ); ?> <?php echo esc_html( $template['rating'] ); ?>
+								<?php echo appiappi_render_star_rating( $template['rating'] ); ?> <?php echo esc_html( $template['rating'] ); ?>
 								<?php if ( $template['rating_count'] ) : ?>(<?php echo esc_html( $template['rating_count'] ); ?>)<?php endif; ?>
 								&nbsp;·&nbsp;
 							<?php endif; ?>

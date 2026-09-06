@@ -12,6 +12,18 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — Price/rating sort and price-range filter: real query, not client-side JS
+
+Every other filter added to the Website Designs archive so far (search box, and formerly the style checkboxes) has been pure client-side JS, hiding/showing whatever's already in the current page's DOM — a reasonable choice when the whole point is instant, no-reload interaction and the dataset on any one page is small.
+
+Sort-by-price and the price-range filter are different, and I deliberately did *not* follow that same client-side pattern for them. The reason is the scale concern the user raised earlier this session when asking for the Envato price-sync feature: this catalogue is explicitly expected to grow toward ~2,000 designs. "Show me designs under $30" or "sort by price, low to high" only means something if it operates across the *whole* catalogue — a client-side filter can only ever act on the 12 (or however many) designs already rendered on the current page, which for a large catalogue would silently give a wrong-looking answer (e.g. "under $30, sorted low to high" showing only 2 results because that's all that happened to load on page 1, when many cheaper designs exist on page 3).
+
+So both are implemented as real, full-page-reload query-string parameters (`?sort=`, `?min_price=`, `?max_price=`) handled in `appiappi_showcase_archive_query()` (the same `pre_get_posts` hook that already handles pagination and the category filter), running an actual `meta_query`/`orderby=meta_value_num` against the whole table — correct at any catalogue size, and consistent with how the category filter already worked (also a real reload, not JS).
+
+This did require a second decision: `_appiappi_template_price` is stored as a display string ("$59"), which `meta_value_num`/numeric `meta_query` can't reliably cast. Rather than trying to parse it at query time, a parallel `_appiappi_template_price_value` (a real float) is kept in sync wherever price gets set — the meta box's save handler and the Envato price-sync both call the one shared `appiappi_showcase_parse_price_value()`. `_appiappi_template_rating` didn't need this treatment — it was already stored as a plain, sortable decimal string with no currency symbol.
+
+The sidebar/toolbar controls for these are correspondingly gated to only appear on the real `/templates/` archive (`is_post_type_archive()` / a non-null `$price_range`), never the homepage teaser — the teaser's query (`appiappi_showcase_get_templates()`) never reads these query-string params, so showing the controls there would be a dead, non-functional UI element.
+
 ## 2026-09-06 — Third occurrence of the same bug: .final-cta unstyled everywhere but home
 
 While implementing per-section desktop padding (hero/pricing-preview/

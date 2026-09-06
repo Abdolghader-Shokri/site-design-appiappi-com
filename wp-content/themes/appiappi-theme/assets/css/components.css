@@ -517,19 +517,44 @@
 	color: var(--color-primary);
 }
 
-.templates-sidebar__checkbox {
+/* ---------- Price range filter (sidebar) ---------- */
+
+.templates-price-filter__row {
 	display: flex;
-	align-items: center;
-	gap: var(--space-2);
+	gap: var(--space-3);
+	margin-bottom: var(--space-3);
+}
+
+.templates-price-filter__field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	flex: 1;
+	min-width: 0;
+}
+
+.templates-price-filter__field input {
+	width: 100%;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-2) var(--space-3);
 	font-size: var(--fs-sm);
-	color: var(--color-neutral-800);
-	margin-bottom: var(--space-2);
+	color: var(--color-text);
+}
+
+.templates-price-filter__hint {
+	font-size: var(--fs-xs);
+	color: var(--color-text-muted);
+	margin-bottom: var(--space-3);
 }
 
 .templates-main__toolbar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
 	margin-bottom: var(--space-5);
 	gap: var(--space-3);
 }
@@ -545,22 +570,22 @@
 	font-weight: normal;
 }
 
-.templates-main__nav {
+/* ---------- Sort controls (toolbar) ---------- */
+
+.templates-main__sort {
 	display: flex;
+	align-items: center;
 	gap: var(--space-2);
 	flex-shrink: 0;
 }
 
-.templates-main__nav button {
-	width: 36px;
-	height: 36px;
-	border-radius: var(--radius-full);
+.templates-sort-form select {
 	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-2) var(--space-3);
+	font-size: var(--fs-sm);
+	color: var(--color-text);
 	background: var(--color-white);
-	color: var(--color-neutral-600);
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 }
 
 /* Flexbox (not CSS Grid) so a short last row centres on the page instead
@@ -580,22 +605,78 @@
 	flex-direction: column;
 }
 
+/* Exact aspect ratio of the source marketplace preview images
+   (590×300 — confirmed across every downloaded design so far) so
+   object-fit: cover never actually crops anything, while every card's
+   media box still comes out the same height for a tidy, uniform grid
+   regardless of the source image's exact pixel size. */
 .template-card__media {
 	position: relative;
-	aspect-ratio: 4 / 3;
+	aspect-ratio: 590 / 300;
 	background: var(--color-neutral-100);
+	overflow: hidden;
 }
 
-.template-card__media img {
+.template-card__image {
+	position: absolute;
+	inset: 0;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+	opacity: 0;
+	transition: opacity 300ms ease;
+}
+
+.template-card__image.is-active {
+	opacity: 1;
 }
 
 .template-card__category {
 	position: absolute;
 	top: var(--space-3);
 	left: var(--space-3);
+	z-index: 2;
+}
+
+/* Carousel prev/next — only rendered at all when a design has more
+   than one image (gallery, in addition to the Featured Image). */
+.template-card__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+	width: 28px;
+	height: 28px;
+	border-radius: var(--radius-full);
+	border: none;
+	background: rgba(16, 21, 29, 0.55);
+	color: var(--color-white);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 150ms ease, background 150ms ease;
+}
+
+.template-card__nav svg {
+	width: 16px;
+	height: 16px;
+}
+
+.template-card__media:hover .template-card__nav {
+	opacity: 1;
+}
+
+.template-card__nav:hover {
+	background: rgba(16, 21, 29, 0.8);
+}
+
+.template-card__nav--prev {
+	left: var(--space-2);
+}
+
+.template-card__nav--next {
+	right: var(--space-2);
 }
 
 .template-card__body {
@@ -609,6 +690,17 @@
 .template-card__name {
 	font-size: var(--fs-lg);
 	margin-bottom: 0;
+}
+
+.template-card__group {
+	font-size: var(--fs-xs);
+	font-style: italic;
+	color: var(--color-text-muted);
+	margin: 0;
+}
+
+.template-card__subgroup {
+	margin-left: var(--space-1);
 }
 
 .template-card__desc {
@@ -630,7 +722,31 @@
 }
 
 .template-card__rating {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
 	color: var(--color-text-muted);
+}
+
+.template-card__rating-count {
+	color: var(--color-text-muted);
+}
+
+/* Standard gold star rating (appiappi_render_star_rating()) — filled
+   count reflects the real numeric rating instead of always showing 5
+   gold stars regardless of the value. */
+.star-rating {
+	display: inline-flex;
+	line-height: 1;
+	letter-spacing: 1px;
+}
+
+.star-rating__star {
+	color: var(--color-neutral-300);
+}
+
+.star-rating__star--filled {
+	color: var(--color-warning);
 }
 
 .template-card__actions {
@@ -639,8 +755,27 @@
 	margin-top: auto;
 }
 
-.template-card__actions .btn {
+.template-card__actions .btn:not(.template-card__cart) {
 	flex: 1;
+}
+
+/* The "Add to Cart" (Choose This Design) button: square, icon-only,
+   sitting beside the two equal-width text buttons. aspect-ratio: 1
+   (rather than a guessed fixed px size) combined with the row's
+   default align-items: stretch means it's always exactly as tall —
+   and therefore exactly as wide — as its two sibling buttons. */
+.template-card__cart {
+	flex: 0 0 auto;
+	aspect-ratio: 1;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.template-card__cart svg {
+	width: 18px;
+	height: 18px;
 }
 
 .templates-empty-state {

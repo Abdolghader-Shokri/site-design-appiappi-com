@@ -122,12 +122,12 @@
 } )();
 
 /**
- * Live search + style filtering for the template showcase (search box
- * and style checkboxes only — category filtering stays a real page
- * reload via query string + tax_query, see templates-preview.php /
- * page-templates archive). Pure client-side: everything is already in
- * the DOM, so no AJAX round trip is needed. No-ops entirely if the grid
- * isn't on the page.
+ * Live search for the template showcase (search box only — category,
+ * price range and sort are all real page reloads via query string, see
+ * appiappi_showcase_archive_query() in the appiappi-template-showcase
+ * plugin, so they work correctly across pagination). Pure client-side:
+ * everything on this page is already in the DOM, so no AJAX round trip
+ * is needed. No-ops entirely if the grid isn't on the page.
  */
 ( function () {
 	'use strict';
@@ -138,22 +138,16 @@
 	}
 
 	var searchInput = document.getElementById( 'templates-search' );
-	var styleInputs = document.querySelectorAll( '.templates-style-filter' );
 	var countEl = document.getElementById( 'templates-count' );
 	var emptyEl = document.getElementById( 'templates-empty' );
 	var cards = grid.querySelectorAll( '.template-card' );
 
 	function apply() {
 		var query = searchInput ? searchInput.value.trim().toLowerCase() : '';
-		var activeStyles = Array.prototype.filter
-			.call( styleInputs, function ( input ) { return input.checked; } )
-			.map( function ( input ) { return input.value; } );
 
 		var visibleCount = 0;
 		cards.forEach( function ( card ) {
-			var matchesSearch = ! query || ( card.dataset.search || '' ).indexOf( query ) !== -1;
-			var matchesStyle = ! activeStyles.length || activeStyles.indexOf( card.dataset.style || '' ) !== -1;
-			var visible = matchesSearch && matchesStyle;
+			var visible = ! query || ( card.dataset.search || '' ).indexOf( query ) !== -1;
 			card.hidden = ! visible;
 			if ( visible ) {
 				visibleCount++;
@@ -172,7 +166,81 @@
 	if ( searchInput ) {
 		searchInput.addEventListener( 'input', apply );
 	}
-	styleInputs.forEach( function ( input ) {
-		input.addEventListener( 'change', apply );
+} )();
+
+/**
+ * Per-card image carousel for Website Designs with more than one image
+ * (Featured Image + gallery — see appiappi_showcase_map_post()'s
+ * `images`). Only cards with a data-carousel-interval on their
+ * .template-card__media (set only when there's more than one image)
+ * get prev/next arrows and an auto-advance timer; every other card is
+ * untouched. Pauses auto-advance while the pointer is over the card so
+ * a visitor reading it doesn't have the image change under them, and
+ * is skipped entirely under prefers-reduced-motion (same convention as
+ * the hero slider) — arrows still work either way.
+ */
+( function () {
+	'use strict';
+
+	var medias = document.querySelectorAll( '.template-card__media[data-carousel-interval]' );
+	if ( ! medias.length ) {
+		return;
+	}
+
+	var prefersReducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+	medias.forEach( function ( media ) {
+		var images = media.querySelectorAll( '.template-card__image' );
+		if ( images.length < 2 ) {
+			return;
+		}
+
+		var interval = parseInt( media.dataset.carouselInterval, 10 ) || 3000;
+		var current = 0;
+		var timer = null;
+
+		function show( index ) {
+			current = ( index + images.length ) % images.length;
+			images.forEach( function ( img, i ) {
+				img.classList.toggle( 'is-active', i === current );
+			} );
+		}
+
+		function start() {
+			if ( prefersReducedMotion ) {
+				return;
+			}
+			stop();
+			timer = window.setInterval( function () { show( current + 1 ); }, interval );
+		}
+
+		function stop() {
+			if ( timer ) {
+				window.clearInterval( timer );
+				timer = null;
+			}
+		}
+
+		var prevBtn = media.querySelector( '[data-carousel-prev]' );
+		var nextBtn = media.querySelector( '[data-carousel-next]' );
+		if ( prevBtn ) {
+			prevBtn.addEventListener( 'click', function ( e ) {
+				e.preventDefault();
+				show( current - 1 );
+				start();
+			} );
+		}
+		if ( nextBtn ) {
+			nextBtn.addEventListener( 'click', function ( e ) {
+				e.preventDefault();
+				show( current + 1 );
+				start();
+			} );
+		}
+
+		media.addEventListener( 'mouseenter', stop );
+		media.addEventListener( 'mouseleave', start );
+
+		start();
 	} );
 } )();

@@ -2,6 +2,29 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Website Designs card overhaul: cart button, star rating, carousel, real price/rating sort+filter
+
+### Added
+- Square icon-only "Add to Cart" button (`.template-card__cart`) beside the existing equal-width "View Details"/"Live Demo" buttons — links to the same `/contact/?design=&plan=` selection workflow as the detail page's "Choose This Design". Square via `aspect-ratio: 1` on a stretched flex item (always matches the sibling buttons' real height, not a guessed pixel value).
+- `appiappi_render_star_rating()` — a standard 5-star gold/muted display (filled count = `round($rating)`) replacing a single static star icon + bare number, on both the grid card and the single design page.
+- Multi-image carousel for designs with more than one image: new `_appiappi_template_gallery` meta (newline-separated extra URLs, added to the Featured Image), `‹›` arrows, and an auto-advance timer — **Website Designs → Display Settings → Image Carousel Auto-Advance (ms)**, default 3000.
+- Category/sub-category subtitle under the card title, using the (already-hierarchical, previously unused) category taxonomy's parent/child relationship — no new field.
+- Real, server-side price range filter (sidebar Min/Max, bounds from a cached SQL aggregate across every design) and sort (`?sort=price-asc|price-desc|rating-desc`) on the `/templates/` archive — deliberately not client-side JS, so it works correctly across pagination at scale. New `_appiappi_template_price_value` meta (a real float, kept in sync with the display price string) makes numeric sorting/filtering possible at all.
+
+### Changed
+- `.template-card__media`'s aspect ratio fixed to `590/300` — the exact, confirmed-consistent dimensions of every downloaded source-marketplace preview image — so `object-fit: cover` never crops anything while the grid stays uniform.
+- `appiappi_render_template_showcase()`'s signature dropped `$styles`, added `$price_range` at the end; all call sites updated.
+
+### Removed
+- The style filter dimension entirely, per explicit request: the `appiappi_template_style` taxonomy, its sidebar checkboxes, `data-style` attributes, and the style-filtering JS.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `inc/enqueue.php`, `archive-appiappi_template.php`, `single-appiappi_template.php`, `template-parts/sections/templates-preview.php`, `assets/css/components.css`, `assets/js/main.js`
+- `wp-content/plugins/appiappi-template-showcase/includes/cpt.php`, `includes/shortcode.php`, `includes/meta-boxes.php`, `includes/settings.php`, `includes/price-sync.php`
+
+### Content
+- Backfilled `_appiappi_template_price_value` for all 13 existing designs; backfilled `_appiappi_template_gallery` for the 2 (of the original 10 Real Estate designs) that genuinely have more than one source image available (`Landor`, `TheNessVilla`).
+
 ## 2026-09-06 — Homepage spacing refinements + fix: final CTA unstyled off the homepage
 
 ### Fixed

@@ -32,6 +32,10 @@ function appiappi_showcase_settings_sanitize_rows( $value ) {
 	return max( 1, min( 10, (int) $value ) );
 }
 
+function appiappi_showcase_settings_sanitize_carousel_interval( $value ) {
+	return max( 1000, min( 15000, (int) $value ) );
+}
+
 function appiappi_showcase_settings_register() {
 	register_setting( 'appiappi_showcase_settings_group', 'appiappi_templates_columns', array(
 		'type'              => 'integer',
@@ -42,6 +46,11 @@ function appiappi_showcase_settings_register() {
 		'type'              => 'integer',
 		'sanitize_callback' => 'appiappi_showcase_settings_sanitize_rows',
 		'default'           => 4,
+	) );
+	register_setting( 'appiappi_showcase_settings_group', 'appiappi_templates_carousel_interval', array(
+		'type'              => 'integer',
+		'sanitize_callback' => 'appiappi_showcase_settings_sanitize_carousel_interval',
+		'default'           => 3000,
 	) );
 }
 add_action( 'admin_init', 'appiappi_showcase_settings_register' );
@@ -84,6 +93,13 @@ function appiappi_showcase_render_settings_page() {
 							);
 							?>
 						</p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="appiappi_templates_carousel_interval"><?php esc_html_e( 'Image Carousel Auto-Advance (ms)', 'appiappi-template-showcase' ); ?></label></th>
+					<td>
+						<input type="number" id="appiappi_templates_carousel_interval" name="appiappi_templates_carousel_interval" min="1000" max="15000" step="500" value="<?php echo esc_attr( (int) get_option( 'appiappi_templates_carousel_interval', 3000 ) ); ?>">
+						<p class="description"><?php esc_html_e( 'For designs with more than one gallery image, how often (in milliseconds) the card automatically advances to the next image. Default 3000 (3 seconds). Visitors can also click the arrows to move manually.', 'appiappi-template-showcase' ); ?></p>
 					</td>
 				</tr>
 			</table>

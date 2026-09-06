@@ -166,6 +166,7 @@ function appiappi_showcase_sync_one_item( $post_id, $token ) {
 
 	if ( null !== $parsed['price'] && $parsed['price'] !== $old_price ) {
 		update_post_meta( $post_id, '_appiappi_template_price', $parsed['price'] );
+		update_post_meta( $post_id, '_appiappi_template_price_value', appiappi_showcase_parse_price_value( $parsed['price'] ) );
 		$changes[] = sprintf( 'price %s → %s', $old_price ?: '—', $parsed['price'] );
 	}
 	if ( null !== $parsed['rating'] && (string) $parsed['rating'] !== (string) $old_rating ) {

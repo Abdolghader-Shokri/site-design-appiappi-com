@@ -19,24 +19,49 @@ defined( 'ABSPATH' ) || exit;
  */
 function appiappi_showcase_map_post( $post ) {
 	$categories  = get_the_terms( $post, 'appiappi_template_category' );
-	$styles      = get_the_terms( $post, 'appiappi_template_style' );
 	$category    = ( $categories && ! is_wp_error( $categories ) ) ? $categories[0] : null;
-	$style       = ( $styles && ! is_wp_error( $styles ) ) ? $styles[0] : null;
 	$details_url = get_post_meta( $post->ID, '_appiappi_template_details_url', true );
+
+	// A design's category can itself be a child term (a sub-category
+	// under a top-level one, e.g. Real Estate > Farmhouse Projects) —
+	// the taxonomy is hierarchical specifically to support this without
+	// a separate field. If it has a parent, that parent is "group" and
+	// the term itself is "subgroup"; otherwise it's just "group".
+	$group    = $category ? $category->name : __( 'Design', 'appiappi-template-showcase' );
+	$subgroup = '';
+	if ( $category && $category->parent ) {
+		$parent = get_term( $category->parent, 'appiappi_template_category' );
+		if ( $parent && ! is_wp_error( $parent ) ) {
+			$group    = $parent->name;
+			$subgroup = $category->name;
+		}
+	}
+
+	$price       = get_post_meta( $post->ID, '_appiappi_template_price', true );
+	$price_value = get_post_meta( $post->ID, '_appiappi_template_price_value', true );
+	if ( '' === $price_value && function_exists( 'appiappi_showcase_parse_price_value' ) ) {
+		$price_value = appiappi_showcase_parse_price_value( $price );
+	}
+
+	$gallery_raw = get_post_meta( $post->ID, '_appiappi_template_gallery', true );
+	$gallery     = $gallery_raw ? array_values( array_filter( array_map( 'trim', explode( "\n", $gallery_raw ) ) ) ) : array();
+	$image       = get_the_post_thumbnail_url( $post, 'appiappi-card' );
+	$images      = $image ? array_merge( array( $image ), $gallery ) : $gallery;
 
 	return array(
 		'id'           => $post->ID,
 		'name'         => get_the_title( $post ),
-		'category'     => $category ? $category->name : __( 'Design', 'appiappi-template-showcase' ),
+		'category'     => $group,
 		'category_slug'=> $category ? $category->slug : '',
-		'style'        => $style ? $style->name : '',
-		'style_slug'   => $style ? $style->slug : '',
+		'subgroup'     => $subgroup,
 		'desc'         => get_post_meta( $post->ID, '_appiappi_template_desc', true ),
-		'price'        => get_post_meta( $post->ID, '_appiappi_template_price', true ),
+		'price'        => $price,
+		'price_value'  => (float) $price_value,
 		'rating'       => get_post_meta( $post->ID, '_appiappi_template_rating', true ),
 		'rating_count' => get_post_meta( $post->ID, '_appiappi_template_rating_count', true ),
-		'image'        => get_the_post_thumbnail_url( $post, 'appiappi-card' ),
+		'image'        => $image,
 		'image_large'  => get_the_post_thumbnail_url( $post, 'appiappi-hero' ),
+		'images'       => $images,
 		'vendor'       => get_post_meta( $post->ID, '_appiappi_template_vendor', true ),
 		'source_url'   => get_post_meta( $post->ID, '_appiappi_template_source_url', true ),
 		'demo_url'     => get_post_meta( $post->ID, '_appiappi_template_demo_url', true ) ?: '#',
@@ -70,10 +95,18 @@ function appiappi_showcase_get_templates( $count = 3, $category_slug = '' ) {
 	return $templates;
 }
 
+/**
+ * Top-level category terms only (parent = 0) — a design assigned to a
+ * child term still shows up under its parent's filter link, but child
+ * terms themselves are sub-categories for the card subtitle
+ * (appiappi_showcase_map_post()'s group/subgroup), not separate
+ * sidebar filter options.
+ */
 function appiappi_showcase_get_categories( $active_slug = '' ) {
 	$terms = get_terms( array(
 		'taxonomy'   => 'appiappi_template_category',
 		'hide_empty' => false,
+		'parent'     => 0,
 	) );
 
 	if ( is_wp_error( $terms ) ) {
@@ -101,19 +134,6 @@ function appiappi_showcase_get_categories( $active_slug = '' ) {
 	return $categories;
 }
 
-function appiappi_showcase_get_styles() {
-	$terms = get_terms( array(
-		'taxonomy'   => 'appiappi_template_style',
-		'hide_empty' => false,
-	) );
-
-	if ( is_wp_error( $terms ) ) {
-		return array();
-	}
-
-	return wp_list_pluck( $terms, 'name' );
-}
-
 function appiappi_showcase_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
 		'count'        => 3,
@@ -123,11 +143,10 @@ function appiappi_showcase_shortcode( $atts ) {
 
 	$templates  = appiappi_showcase_get_templates( (int) $atts['count'], sanitize_title( $atts['category'] ) );
 	$categories = appiappi_showcase_get_categories( sanitize_title( $atts['category'] ) );
-	$styles     = appiappi_showcase_get_styles();
 	$show_sidebar = filter_var( $atts['show_sidebar'], FILTER_VALIDATE_BOOLEAN );
 
 	if ( function_exists( 'appiappi_render_template_showcase' ) ) {
-		return appiappi_render_template_showcase( $templates, $categories, $styles, $show_sidebar );
+		return appiappi_render_template_showcase( $templates, $categories, $show_sidebar );
 	}
 
 	// Minimal fallback if the Appiappi theme (which owns the showcase markup) isn't active.
