@@ -204,7 +204,10 @@ function appiappi_pricing_render_meta_box( $post ) {
 		</tr>
 		<tr>
 			<th><label for="appiappi_plan_cta_url"><?php esc_html_e( 'Button URL', 'appiappi-pricing-plans' ); ?></label></th>
-			<td><input type="url" id="appiappi_plan_cta_url" name="appiappi_plan_cta_url" value="<?php echo esc_attr( $cta_url ); ?>" class="regular-text"></td>
+			<td>
+				<input type="text" id="appiappi_plan_cta_url" name="appiappi_plan_cta_url" value="<?php echo esc_attr( $cta_url ); ?>" class="regular-text" placeholder="/pricing/#plan-growth">
+				<p class="description"><?php esc_html_e( 'A full URL (https://...) or a site-relative path starting with / — e.g. /pricing/#plan-growth, not pricing/#plan-growth, so it resolves correctly no matter which page it\'s clicked from.', 'appiappi-pricing-plans' ); ?></p>
+			</td>
 		</tr>
 		<tr>
 			<th><label for="appiappi_plan_includes_free_hosting"><?php esc_html_e( 'Includes Free Hosting', 'appiappi-pricing-plans' ); ?></label></th>
