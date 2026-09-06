@@ -260,6 +260,7 @@ function appiappi_get_featured_templates() {
 			'images'   => array(),
 			'demo_url'    => '#',
 			'details_url' => '#',
+			'permalink'   => '#',
 		),
 		array(
 			'name'     => __( 'Justice Law', 'appiappi' ),
@@ -274,6 +275,7 @@ function appiappi_get_featured_templates() {
 			'images'   => array(),
 			'demo_url'    => '#',
 			'details_url' => '#',
+			'permalink'   => '#',
 		),
 		array(
 			'name'     => __( 'Dental Clinic', 'appiappi' ),
@@ -288,6 +290,7 @@ function appiappi_get_featured_templates() {
 			'images'   => array(),
 			'demo_url'    => '#',
 			'details_url' => '#',
+			'permalink'   => '#',
 		),
 	);
 }
@@ -636,7 +639,7 @@ function appiappi_render_template_showcase( array $templates, array $categories,
 								<?php endif; ?>
 							</div>
 							<div class="template-card__body">
-								<h3 class="template-card__name"><?php echo esc_html( $template['name'] ); ?></h3>
+								<h3 class="template-card__name"><a href="<?php echo esc_url( $template['permalink'] ?? $template['details_url'] ); ?>"><?php echo esc_html( $template['name'] ); ?></a></h3>
 								<p class="template-card__group">
 									<?php echo esc_html( $template['category'] ); ?>
 									<?php if ( ! empty( $template['subgroup'] ) ) : ?>

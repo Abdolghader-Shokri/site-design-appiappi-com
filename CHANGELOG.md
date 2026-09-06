@@ -2,6 +2,20 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Page-header backgrounds go full-width + admin-uploadable; card titles link out; Back button fixed
+
+### Changed
+- Page-header backgrounds now `background-size: cover; background-position: center` — full-width and responsive at every viewport size, including mobile (the previous small right-aligned corner graphic, hidden below 768px, is gone) — per explicit request.
+- New Customizer section **Page Header Backgrounds**: one image upload per page (Services, How It Works, Portfolio, Pricing, About, Contact, Website Designs), each overriding that page's default isometric SVG via a `--page-header-bg-{key}` custom property when set.
+- Website Design card titles are now links to that design's own detail page (a new `permalink` field, separate from `details_url` which stays whatever it's configured to be — often an external marketplace URL).
+
+### Fixed
+- The single design page's "Back" button: swapped a `document.referrer`-based check for `window.history.length > 1`, which actually reflects whether `history.back()` will do anything. Also moved `.hero__actions` (the button row's flex/sizing styles) from `home.css` (front-page-only) to `components.css` — it had zero CSS on that page, which was the dominant cause of the reported "click does nothing," not the onclick logic itself. See DEVELOPMENT_LOG.md.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/customizer.php`, `inc/template-tags.php`, `inc/enqueue.php`, `assets/css/pages.css`, `assets/css/home.css`, `assets/css/components.css`, `single-appiappi_template.php`
+- `wp-content/plugins/appiappi-template-showcase/includes/shortcode.php`
+
 ## 2026-09-06 — Decorative page-header backgrounds; single design page sidebar/Back/padding
 
 ### Added

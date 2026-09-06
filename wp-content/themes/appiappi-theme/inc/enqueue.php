@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'APPIAPPI_VERSION', '0.1.4' );
+define( 'APPIAPPI_VERSION', '0.1.5' );
 
 function appiappi_enqueue_assets() {
 	$theme_uri = get_template_directory_uri();

@@ -1,11 +1,14 @@
 /**
  * Homepage-only sections: hero, trust bar. Section markup lives in
  * template-parts/sections/. Pricing card styles, the template-showcase
- * grid (.templates-layout/.template-grid/etc.) and .final-cta (found
- * 2026-09-06 to have the exact same bug — get_template_part()'d on
- * every page via final-cta.php, but its styles lived here) all moved
- * to components.css since they're shared across pages — this file is
- * only enqueued on the front page (see inc/enqueue.php).
+ * grid (.templates-layout/.template-grid/etc.), .final-cta and
+ * .hero__actions (found 2026-09-06 to have the exact same bug —
+ * reused on the Website Design detail page and homepage hero
+ * respectively, but styled here, front-page-only) all moved to
+ * components.css since they're shared across pages — this file is
+ * only enqueued on the front page (see inc/enqueue.php). Before
+ * putting a new rule here, confirm its markup is truly never rendered
+ * anywhere but the homepage — this mistake has now happened 4 times.
  */
 
 /* ---------- Hero ---------- */
@@ -46,17 +49,6 @@
 	font-size: var(--fs-lg);
 	max-width: 46ch;
 	margin-inline: auto;
-}
-
-.hero__actions {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--space-3);
-}
-
-.hero__actions .btn {
-	width: 100%;
 }
 
 /* ---------- Hero slider ---------- */
@@ -180,15 +172,6 @@
 		grid-template-columns: 1fr 1fr;
 		gap: var(--space-16);
 		padding-inline: var(--hero-pad-desktop);
-	}
-
-	.hero__actions {
-		flex-direction: row;
-		justify-content: center;
-	}
-
-	.hero__actions .btn {
-		width: auto;
 	}
 
 	.rating-card {

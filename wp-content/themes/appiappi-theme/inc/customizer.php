@@ -231,10 +231,41 @@ function appiappi_customize_register( $wp_customize ) {
 		) );
 	}
 
+	// ---- Page header backgrounds ----
+	// One optional image upload per page — overrides that page's
+	// default isometric SVG (assets/images/page-bg-{key}.svg) with the
+	// admin's own photo/graphic. Leaving any of these empty keeps the
+	// theme's default for that page; nothing here is required.
+	$wp_customize->add_section( 'appiappi_page_backgrounds', array(
+		'title'       => __( 'Page Header Backgrounds', 'appiappi' ),
+		'description' => __( 'Optional — upload your own image for any page\'s title background. Leave empty to keep the default illustration for that page.', 'appiappi' ),
+		'priority'    => 45,
+	) );
+
+	$page_background_fields = array(
+		'appiappi_pagebg_services'     => __( 'Services', 'appiappi' ),
+		'appiappi_pagebg_how_it_works' => __( 'How It Works', 'appiappi' ),
+		'appiappi_pagebg_portfolio'    => __( 'Portfolio', 'appiappi' ),
+		'appiappi_pagebg_pricing'      => __( 'Pricing', 'appiappi' ),
+		'appiappi_pagebg_about'        => __( 'About', 'appiappi' ),
+		'appiappi_pagebg_contact'      => __( 'Contact', 'appiappi' ),
+		'appiappi_pagebg_templates'    => __( 'Website Designs', 'appiappi' ),
+	);
+	foreach ( $page_background_fields as $id => $label ) {
+		$wp_customize->add_setting( $id, array(
+			'default'           => '',
+			'sanitize_callback' => 'esc_url_raw',
+		) );
+		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, $id, array(
+			'label'   => $label,
+			'section' => 'appiappi_page_backgrounds',
+		) ) );
+	}
+
 	// ---- Footer ----
 	$wp_customize->add_section( 'appiappi_footer', array(
 		'title'    => __( 'Footer', 'appiappi' ),
-		'priority' => 45,
+		'priority' => 46,
 	) );
 
 	$wp_customize->add_setting( 'appiappi_footer_tagline', array(
@@ -261,6 +292,19 @@ function appiappi_customizer_css_vars() {
 	$pricing_preview_pad  = (int) get_theme_mod( 'appiappi_pricing_preview_pad', 20 );
 	$templates_preview_pad = (int) get_theme_mod( 'appiappi_templates_preview_pad', 20 );
 	$footer_pad           = (int) get_theme_mod( 'appiappi_footer_pad', 50 );
+
+	// Only output a --page-header-bg-{key} line for pages where the
+	// admin actually uploaded something — pages.css's own var()
+	// fallback (the theme's default SVG) already handles the rest, so
+	// there's nothing to override for those.
+	$page_background_keys = array( 'services', 'how_it_works', 'portfolio', 'pricing', 'about', 'contact', 'templates' );
+	$page_background_overrides = array();
+	foreach ( $page_background_keys as $key ) {
+		$url = get_theme_mod( 'appiappi_pagebg_' . $key, '' );
+		if ( $url ) {
+			$page_background_overrides[ str_replace( '_', '-', $key ) ] = $url;
+		}
+	}
 	?>
 	<style id="appiappi-customizer-vars">
 		:root {
@@ -271,6 +315,9 @@ function appiappi_customizer_css_vars() {
 			--pricing-preview-pad-desktop: <?php echo esc_html( $pricing_preview_pad ); ?>px;
 			--templates-preview-pad-desktop: <?php echo esc_html( $templates_preview_pad ); ?>px;
 			--footer-pad-desktop: <?php echo esc_html( $footer_pad ); ?>px;
+			<?php foreach ( $page_background_overrides as $css_key => $url ) : ?>
+			--page-header-bg-<?php echo esc_html( $css_key ); ?>: url('<?php echo esc_url( $url ); ?>');
+			<?php endforeach; ?>
 		}
 	</style>
 	<?php

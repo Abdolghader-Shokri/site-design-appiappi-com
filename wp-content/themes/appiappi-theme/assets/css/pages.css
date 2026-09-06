@@ -36,33 +36,33 @@
 	margin-bottom: 0;
 }
 
-/* Decorative isometric SVG backgrounds (added 2026-09-06), one per
-   page topic — appiappi_page_header( $subtitle, $bg_key ) adds the
-   matching modifier class. background-size: auto 100% scales each
-   (640×220 viewBox) to the header's actual rendered height, right-
-   aligned with generous empty space on the left/centre so it never
-   sits behind the centred title text. Hidden below 768px entirely —
-   a decorative side graphic fighting centred text for space on a
-   narrow screen is exactly the clutter this was meant to avoid. */
+/* Full-width page-header background, one per page topic (added
+   2026-09-06, revised same day to be full-bleed instead of a
+   right-aligned corner graphic). appiappi_page_header( $subtitle,
+   $bg_key ) adds the matching modifier class. background-size: cover
+   fills the header's entire width and height and rescales with it
+   responsively at any viewport size — including mobile, deliberately,
+   per explicit request (an earlier version hid it below 768px; that's
+   been dropped). Each rule's var() fallback is the theme's own
+   isometric SVG (assets/images/page-bg-{key}.svg); admins can
+   override any of them with their own photo via Customizer → Page
+   Header Backgrounds (inc/customizer.php), which sets the matching
+   --page-header-bg-{key} custom property at :root — custom properties
+   inherit down to these class rules regardless of selector specificity,
+   so a :root-level override here correctly beats the SVG fallback
+   without needing to touch this file per upload. */
+.page-header--services { background-image: var(--page-header-bg-services, url('../images/page-bg-services.svg')); }
+.page-header--how-it-works { background-image: var(--page-header-bg-how-it-works, url('../images/page-bg-how-it-works.svg')); }
+.page-header--portfolio { background-image: var(--page-header-bg-portfolio, url('../images/page-bg-portfolio.svg')); }
+.page-header--pricing { background-image: var(--page-header-bg-pricing, url('../images/page-bg-pricing.svg')); }
+.page-header--about { background-image: var(--page-header-bg-about, url('../images/page-bg-about.svg')); }
+.page-header--contact { background-image: var(--page-header-bg-contact, url('../images/page-bg-contact.svg')); }
+.page-header--templates { background-image: var(--page-header-bg-templates, url('../images/page-bg-templates.svg')); }
+
 .page-header[class*="page-header--"] {
-	background-image: var(--page-header-bg);
 	background-repeat: no-repeat;
-	background-position: right center;
-	background-size: auto 100%;
-}
-
-.page-header--services { --page-header-bg: url('../images/page-bg-services.svg'); }
-.page-header--how-it-works { --page-header-bg: url('../images/page-bg-how-it-works.svg'); }
-.page-header--portfolio { --page-header-bg: url('../images/page-bg-portfolio.svg'); }
-.page-header--pricing { --page-header-bg: url('../images/page-bg-pricing.svg'); }
-.page-header--about { --page-header-bg: url('../images/page-bg-about.svg'); }
-.page-header--contact { --page-header-bg: url('../images/page-bg-contact.svg'); }
-.page-header--templates { --page-header-bg: url('../images/page-bg-templates.svg'); }
-
-@media (max-width: 767px) {
-	.page-header[class*="page-header--"] {
-		background-image: none;
-	}
+	background-position: center;
+	background-size: cover;
 }
 
 /* ---------- Services ---------- */

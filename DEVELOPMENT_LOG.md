@@ -12,6 +12,14 @@ update `CHANGELOG.md`. A significant technical decision must be logged
 here. A change to scope/business rules must update `MASTER_PROMPT.md`.
 Documentation is part of the deliverable, not optional cleanup.
 
+## 2026-09-06 — "Back button doesn't respond to clicks": the JS logic was a red herring
+
+The user reported the new single-design-page "Back" button showed a real link (hovering revealed the href) but clicking did nothing. First fix attempt targeted the `onclick` handler's logic — it gated `history.back()` on `document.referrer` being same-origin, which is a real, if narrower, way for that call to be a silent no-op (referrer being set doesn't guarantee there's session history to go back *to*). Swapped it for `window.history.length > 1`, which checks the thing that actually determines whether `history.back()` does anything.
+
+That fix was worth making, but investigating further turned up the real, dominant cause: `.hero__actions` (the flex row wrapping the button) had **zero CSS** on that page. Its styles lived in `home.css`, which only loads on `is_front_page()` — and the single design page isn't the front page. Without that CSS, three `<a>` tags (Back, Live Demo, Choose This Design) rendered as bare inline elements with no flex layout, no explicit sizing, no `gap` — exactly the kind of broken box model that produces overlapping or oddly-positioned clickable areas, which reads to a user as "I can see the button but clicking doesn't work." This is the fourth time this exact mistake has hit this project (pricing cards, template showcase, final CTA, now this) — see PROJECT_MASTER.md §10's now-emphatic warning at the components.css/home.css split point.
+
+**Lesson restated because it clearly bears repeating:** a bug report that sounds like broken JavaScript is not evidence the bug *is* in the JavaScript. The onclick logic fix was real and worth keeping, but it would not have fixed the reported symptom on its own — the CSS gap was doing the actual damage. Check whether the element even has its intended styles loaded on that specific page before debugging the interaction logic layered on top of it.
+
 ## 2026-09-06 — add_query_arg()'s "current URL" default breaks when reused off its original page
 
 Reusing `appiappi_showcase_get_categories()` on the new single design detail page (to show the same Categories sidebar as the `/templates/` archive) initially produced category links that pointed back at *that design's own permalink* with `?appiappi_category=slug` appended — a real, working-but-wrong link that would 404-adjacent (no tax_query runs against a single post's own query) rather than filtering the archive as intended.

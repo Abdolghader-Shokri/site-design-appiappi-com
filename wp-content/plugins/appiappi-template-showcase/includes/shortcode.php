@@ -66,6 +66,12 @@ function appiappi_showcase_map_post( $post ) {
 		'source_url'   => get_post_meta( $post->ID, '_appiappi_template_source_url', true ),
 		'demo_url'     => get_post_meta( $post->ID, '_appiappi_template_demo_url', true ) ?: '#',
 		'details_url'  => $details_url ?: get_permalink( $post ),
+		// Always the real internal single-design page — distinct from
+		// details_url above, which for a third-party-sourced design
+		// often points to that vendor's own marketplace listing
+		// instead (deliberately, for the "View Details" button). The
+		// card title links here so it's always a working internal page.
+		'permalink'    => get_permalink( $post ),
 	);
 }
 

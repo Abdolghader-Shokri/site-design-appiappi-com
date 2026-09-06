@@ -109,7 +109,7 @@ while ( have_posts() ) :
 							</div>
 
 							<div class="hero__actions" style="margin-top: var(--space-8);">
-								<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary" onclick="if (document.referrer &amp;&amp; document.referrer.indexOf(window.location.host) !== -1) { history.back(); return false; }"><?php esc_html_e( 'Back', 'appiappi' ); ?></a>
+								<a href="<?php echo esc_url( home_url( '/templates/' ) ); ?>" class="btn btn-secondary" onclick="if (window.history.length > 1) { window.history.back(); return false; }"><?php esc_html_e( 'Back', 'appiappi' ); ?></a>
 								<?php if ( $template && $template['demo_url'] && '#' !== $template['demo_url'] ) : ?>
 									<a href="<?php echo esc_url( $template['demo_url'] ); ?>" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Live Demo', 'appiappi' ); ?></a>
 								<?php endif; ?>

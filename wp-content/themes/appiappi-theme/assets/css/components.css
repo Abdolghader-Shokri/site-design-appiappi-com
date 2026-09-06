@@ -692,6 +692,16 @@
 	margin-bottom: 0;
 }
 
+.template-card__name a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.template-card__name a:hover {
+	color: var(--color-primary);
+	text-decoration: underline;
+}
+
 .template-card__group {
 	font-size: var(--fs-xs);
 	font-style: italic;
@@ -860,5 +870,35 @@
 @media (min-width: 768px) {
 	.final-cta {
 		padding-inline: var(--footer-pad-desktop);
+	}
+}
+
+/* ---------- Action button rows (get_template_part()'d/reused off the homepage) ---------- */
+
+/* Same bug as .final-cta and .template-card__* before it: this class
+   is used by the homepage hero AND the Website Design detail page's
+   button row, but its styles lived in home.css (front-page-only) —
+   without them the row degrades to unstyled stacked/overlapping
+   inline links, which is almost certainly why the single design
+   page's "Back" button reportedly didn't respond to clicks reliably. */
+.hero__actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-3);
+}
+
+.hero__actions .btn {
+	width: 100%;
+}
+
+@media (min-width: 1024px) {
+	.hero__actions {
+		flex-direction: row;
+		justify-content: center;
+	}
+
+	.hero__actions .btn {
+		width: auto;
 	}
 }

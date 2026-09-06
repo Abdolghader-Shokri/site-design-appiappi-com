@@ -179,6 +179,7 @@ Implemented now via the native Customizer (`inc/customizer.php`):
 | **Contact Page Info Box** (added 2026-09-06) | Google Maps Embed URL, Address label/value, Phone label/value/"links to" type (Call/SMS/WhatsApp/None), Support Email — drives the info card next to the form on the Contact page (`page-contact.php`) **and** the footer's Contact column (map excluded there) sitewide, §11. Each row is independently optional; the Contact page's card is omitted entirely (form goes full width) if every field is empty, and the footer's Contact column falls back to General Public Email (Settings → Appiappi Settings) or is omitted too. |
 | Social Links | Facebook, LinkedIn, Instagram, YouTube — used in footer |
 | **Layout Spacing** (added 2026-09-06) | Hero/Pricing preview/Website Designs preview/Footer desktop side padding (px, range sliders) — see §9 |
+| **Page Header Backgrounds** (added 2026-09-06) | One optional image upload per page (Services, How It Works, Portfolio, Pricing, About, Contact, Website Designs) overriding that page's default isometric SVG — see §9 |
 | Footer | Footer tagline text |
 
 Logo/favicon use core's built-in `custom-logo` theme support and Site Icon —
@@ -223,7 +224,7 @@ The admin-chosen primary colour (Customizer) overrides `--color-primary` at
 runtime via an inline `<style>` block injected in `wp_head` — see
 `appiappi_customizer_css_vars()` in `inc/customizer.php`.
 
-**Page-header decorative backgrounds (added 2026-09-06):** `appiappi_page_header( $subtitle = '', $bg_key = '' )` (`inc/template-tags.php`) takes an optional second argument that adds a `.page-header--{key}` modifier class. Seven hand-authored isometric SVGs (`assets/images/page-bg-{key}.svg` — Services, How It Works, Portfolio, Pricing, About, Contact, Templates) sit behind the title on their respective pages via `.page-header[class*="page-header--"] { background-image: var(--page-header-bg); ... }` in `pages.css`, one `--page-header-bg` custom property per key. Each SVG shares one visual language (a small cluster of isometric 3D cube blocks — light top face, mid/dark side faces — carrying a simple line-icon relevant to that page, floating accent dots, soft ground shadows) so the seven feel like one system rather than seven unrelated illustrations; "How It Works" varies it slightly — three cubes ascending in a staircase, each with a checkmark, visually reading as "step 1 → step 2 → step 3" rather than a generic icon cluster. `background-size: auto 100%` scales each to the header's actual rendered height (which varies with subtitle length) and `background-position: right center` keeps the centred `<h1>`/`<p>` text clear — the graphic occupies the right portion of the band only. Hidden entirely below 768px (a side graphic competing with centred text on a narrow screen was exactly the clutter this was meant to avoid). `single-appiappi_template.php` reuses the same `page-header--templates` key as the `/templates/` archive, since it's the same content type.
+**Page-header decorative backgrounds (added 2026-09-06, revised same day):** `appiappi_page_header( $subtitle = '', $bg_key = '' )` (`inc/template-tags.php`) takes an optional second argument that adds a `.page-header--{key}` modifier class. Seven hand-authored isometric SVGs (`assets/images/page-bg-{key}.svg` — Services, How It Works, Portfolio, Pricing, About, Contact, Templates) are the *default* background for their respective pages, each sharing one visual language (a small cluster of isometric 3D cube blocks carrying a relevant line icon, floating accents, soft shadows — "How It Works" varies it as three cubes ascending in a checkmarked staircase, reading as "step 1 → 2 → 3"). Full-bleed: `background-size: cover; background-position: center;` fills the header's entire width/height at any viewport size (an earlier version was a small right-aligned corner graphic hidden below 768px — replaced per explicit request for something that "takes the full width and scales down with the page, staying as a background" at every size, including mobile). **Admin-overridable per page** — Customizer → **Page Header Backgrounds** has one `WP_Customize_Image_Control` upload per page; each sets a `--page-header-bg-{key}` custom property at `:root` (`appiappi_customizer_css_vars()`) only when something's actually been uploaded, which the matching `.page-header--{key}` rule's `var(--page-header-bg-{key}, url(default.svg))` picks up ahead of its own SVG fallback — a `:root`-level custom property inherits down regardless of the consuming selector's specificity, so this needed no `!important` or cascade trickery. `single-appiappi_template.php` reuses the same `page-header--templates` key (and its Customizer upload) as the `/templates/` archive, since it's the same content type.
 
 ## 10. Components
 
@@ -232,15 +233,19 @@ Generic, reusable pieces live in `assets/css/components.css`: `.btn` (+
 `.chip` (hero feature chips), `.icon-tile` (trust-bar items, centred
 2026-09-06), `.card`, `.final-cta` (moved here 2026-09-06 — it's
 rendered on every page via `get_template_part()`, not just the
-homepage; see §11), and form field styles. Section-specific layout that
-is genuinely homepage-only (hero, trust bar grid) lives in
+homepage; see §11), `.hero__actions` (moved here 2026-09-06 — reused
+by the Website Design detail page's button row, §13; its missing
+styles there degraded the row to unstyled stacked/overlapping links,
+the real cause behind a reported "Back button doesn't respond to
+clicks"), and form field styles. Section-specific layout that is
+genuinely homepage-only (hero, trust bar grid) lives in
 `assets/css/home.css` — **before adding anything there, confirm the
 markup is truly only ever rendered on the front page**; this file is
 only enqueued when `is_front_page()` is true (`inc/enqueue.php`), and
-three separate bugs this project has already hit (pricing cards,
-template showcase, final CTA) were exactly this mistake — shared markup
-styled in a page-conditional file, rendering completely unstyled
-everywhere else.
+**four separate times now** (pricing cards, template showcase, final
+CTA, hero actions) this project has hit exactly this mistake — shared
+markup styled in a page-conditional file, rendering completely
+unstyled (or in the last case, unclickable-looking) everywhere else.
 
 Icons are inline SVG only (no icon font, no external CDN) via
 `appiappi_icon( $name, $class = '' )` in `inc/template-tags.php`. Add new
@@ -440,10 +445,16 @@ a shortcode embedded in a static Page.
   parameter, since `add_query_arg()` with no base builds links against
   *the current URL*, which on this page is the design's own permalink,
   not the archive (a real bug caught during testing, not a hypothetical
-  — see DEVELOPMENT_LOG.md). Also gained a **"Back"** button (tries
-  `history.back()` when `document.referrer` is same-origin, falling
-  back to a plain `/templates/` link otherwise — e.g. direct navigation
-  or JS disabled) and its own fixed 30px desktop side padding
+  — see DEVELOPMENT_LOG.md). Also gained a **"Back"** button — tries
+  `window.history.back()` when `window.history.length > 1` (there's
+  actually somewhere to go back to), falling back to a plain
+  `/templates/` link otherwise (e.g. arriving via direct navigation).
+  **Revised same day:** an earlier version gated on `document.referrer`
+  being same-origin instead, which doesn't actually guarantee
+  `history.back()` will land anywhere — reported as "the button shows
+  a link but clicking does nothing," which was really the *button row
+  itself* being unstyled (next bug down) compounding a genuine no-op
+  in the click handler. Its own fixed 30px desktop side padding
   (`.single-template-detail`, not tied to any Customizer setting — not
   requested to be configurable, unlike the Layout Spacing group above).
 - `appiappi_showcase_map_post( $post )` (in the plugin's `includes/shortcode.php`)
@@ -537,6 +548,7 @@ Envato API** (`api.envato.com/v3/market/catalog/item`) directly:
 
 - **Style dimension removed entirely.** No filterable style checkboxes ("style لازم نیست باشه"); the `appiappi_template_style` taxonomy, `appiappi_get_template_styles()`/`appiappi_showcase_get_styles()`, `data-style` attributes and the style-filter JS are all gone. `appiappi_render_template_showcase()`'s signature dropped its `$styles` parameter (now `( $templates, $categories, $show_sidebar = true, $columns = null, $total = null, $price_range = null )` — every call site updated).
 - **Three action buttons per card:** "View Details" and "Live Demo" (equal width, unchanged) plus a new square, icon-only "Add to Cart" button (`.template-card__cart`, the `shopping-bag` icon) — square via `aspect-ratio: 1` on a flex item under the row's default `align-items: stretch`, so it's always exactly as tall (and therefore wide) as its two siblings rather than a guessed fixed pixel size. It links to the same `/contact/?design=&plan=` selection-workflow entry point as the detail page's "Choose This Design" (§14c/single-appiappi_template.php) — there's no real cart/checkout system yet, so this reuses the one real, working conversion path rather than being an inert placeholder.
+- **Card title links to the design's own detail page (added 2026-09-06):** a new `permalink` field on the render-ready shape (`appiappi_showcase_map_post()`'s `get_permalink( $post )`) — deliberately separate from `details_url`, which for a third-party-sourced design is often overridden to point at that vendor's own marketplace listing instead (the "View Details" button's target). The title always links internally; `details_url` stays whatever it's configured to be.
 - **Standard gold star rating:** `appiappi_render_star_rating( $rating )` (new shared helper) renders 5 stars, filled count = `round( $rating )`, gold (`--color-warning`) vs muted grey — replacing a single static star icon + bare number. A 0 rating (a genuinely brand-new, unreviewed design) correctly shows zero gold stars rather than a fixed always-full display. Used on both the grid card and the single design page.
 - **Media box aspect ratio fixed to `590 / 300`** — confirmed via `wp_get_attachment_metadata()` to be the exact, consistent dimensions of every downloaded source-marketplace preview image so far. `object-fit: cover` inside that exact ratio never crops anything, while every card's media box still comes out the same height for a uniform grid (the two goals — "show the image correctly" and "keep the grid orderly" — aren't in tension once the box ratio matches the source images exactly).
 - **Multi-image carousel:** designs with more than one image (Featured Image + a new `_appiappi_template_gallery` meta field — a plain "one URL per line" textarea, matching the Features/Breakdown-Items convention elsewhere in this project rather than a `wp.media()` picker) get `‹›` arrow buttons and an auto-advance timer (**Website Designs → Display Settings → Image Carousel Auto-Advance**, default 3000ms) — `assets/js/main.js`'s new carousel IIFE, skipped under `prefers-reduced-motion` (same convention as the hero slider). `appiappi_showcase_map_post()`'s `images` array is `[featured_image, ...gallery]`; cards with only one image render no arrows/interval at all.
@@ -774,7 +786,7 @@ than duplicated here — grep for `TODO` to find them all.
 | Base reset/typography | `assets/css/base.css` | Global element defaults | Edit for site-wide type/element changes |
 | Header/footer/site shell layout | `assets/css/layout.css` | `.site-header`, `.mobile-nav`, `.site-footer`, `.container`, `.section` | Edit for structural/shell changes |
 | Buttons, badges, chips, cards, forms, **pricing cards** | `assets/css/components.css` | Reusable UI pieces used on more than one page — loaded on *every* page, unlike `home.css`/`pages.css` | Edit for a component used on multiple pages. Pricing card styles live here specifically because the homepage teaser and the dedicated Pricing page share `appiappi_render_pricing_cards()` — see DEVELOPMENT_LOG.md 2026-09-06 for why this matters (a component styled only in a conditionally-loaded file can silently have no effect on a page that doesn't load it) |
-| Homepage-only section styling | `assets/css/home.css` | Hero, trust bar (only enqueued on `is_front_page()`) | Edit for homepage-specific visual changes. **Do not** put styles here for anything rendered outside the homepage (pricing cards, template showcase, and final CTA all made this exact mistake already) — it silently won't apply on other pages |
+| Homepage-only section styling | `assets/css/home.css` | Hero, trust bar (only enqueued on `is_front_page()`) | Edit for homepage-specific visual changes. **Do not** put styles here for anything rendered outside the homepage (pricing cards, template showcase, final CTA, and `.hero__actions` all made this exact mistake already) — it silently won't apply on other pages |
 | Theme supports / nav locations / image sizes | `inc/setup.php` | `add_theme_support`, `register_nav_menus` | Add new image sizes or theme features here |
 | Asset loading | `inc/enqueue.php` | Registers/enqueues all CSS/JS, Google Fonts | Add new stylesheets/scripts here, respecting dependency order |
 | Global settings | `inc/customizer.php` | Brand colour, header CTA, contact info, social links, footer tagline | Add new Customizer sections/settings here |
