@@ -2,6 +2,18 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-06 — Page-header backgrounds: independent colour + image per page, animated geometric overlay
+
+### Added
+- Customizer → **Page Header Backgrounds**: each of the 8 pages (the previous 7, plus the Website Design **single-design** page as its own new entry, no longer tied to the archive's setting) now gets a background colour picker and an "Animated Geometric Overlay" checkbox alongside the existing image upload — all three independent per page.
+- Animated overlay (`assets/js/page-header-network.js`, appended to `main.js`): a canvas-drawn network of drifting nodes connected by lines, both cycling through a shifting multi-hue palette (colourful and randomised, not monochrome-white), inspired by a reference image the user supplied. Only rendered into the DOM on pages where the toggle is on; skips the animation loop under `prefers-reduced-motion` and pauses while the tab is hidden.
+
+### Changed
+- The single design page (`single-appiappi_template.php`) now uses its own `page-header--template-single` class/Customizer entry instead of reusing the archive's `page-header--templates` one, so its background can be set independently.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/customizer.php`, `inc/template-tags.php`, `inc/enqueue.php`, `assets/css/pages.css`, `assets/js/main.js`, `single-appiappi_template.php`
+
 ## 2026-09-06 — Page-header backgrounds go full-width + admin-uploadable; card titles link out; Back button fixed
 
 ### Changed

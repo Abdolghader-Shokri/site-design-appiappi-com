@@ -16,6 +16,10 @@ function appiappi_contact_sanitize_phone_type( $value ) {
 	return in_array( $value, $allowed, true ) ? $value : 'call';
 }
 
+function appiappi_sanitize_checkbox( $value ) {
+	return (bool) $value;
+}
+
 function appiappi_customize_register( $wp_customize ) {
 
 	// ---- Brand colour ----
@@ -232,34 +236,61 @@ function appiappi_customize_register( $wp_customize ) {
 	}
 
 	// ---- Page header backgrounds ----
-	// One optional image upload per page — overrides that page's
-	// default isometric SVG (assets/images/page-bg-{key}.svg) with the
-	// admin's own photo/graphic. Leaving any of these empty keeps the
-	// theme's default for that page; nothing here is required.
+	// Per page: an optional background image, an optional background
+	// colour, and a toggle for the animated geometric network overlay
+	// (assets/js/page-header-network.js — slowly drifting, multi-colour
+	// connected nodes drawn on top of whichever image/colour is set).
+	// All three are independent per page and all optional; leaving
+	// everything empty/off keeps that page's default isometric SVG on
+	// --color-bg-subtle, with no overlay.
 	$wp_customize->add_section( 'appiappi_page_backgrounds', array(
 		'title'       => __( 'Page Header Backgrounds', 'appiappi' ),
-		'description' => __( 'Optional — upload your own image for any page\'s title background. Leave empty to keep the default illustration for that page.', 'appiappi' ),
+		'description' => __( 'Per page: pick a background image and/or a background colour, and optionally switch on an animated geometric overlay. Leave a field empty/off to keep that page\'s default.', 'appiappi' ),
 		'priority'    => 45,
 	) );
 
-	$page_background_fields = array(
-		'appiappi_pagebg_services'     => __( 'Services', 'appiappi' ),
-		'appiappi_pagebg_how_it_works' => __( 'How It Works', 'appiappi' ),
-		'appiappi_pagebg_portfolio'    => __( 'Portfolio', 'appiappi' ),
-		'appiappi_pagebg_pricing'      => __( 'Pricing', 'appiappi' ),
-		'appiappi_pagebg_about'        => __( 'About', 'appiappi' ),
-		'appiappi_pagebg_contact'      => __( 'Contact', 'appiappi' ),
-		'appiappi_pagebg_templates'    => __( 'Website Designs', 'appiappi' ),
+	$page_background_pages = array(
+		'services'        => __( 'Services', 'appiappi' ),
+		'how_it_works'    => __( 'How It Works', 'appiappi' ),
+		'portfolio'       => __( 'Portfolio', 'appiappi' ),
+		'pricing'         => __( 'Pricing', 'appiappi' ),
+		'about'           => __( 'About', 'appiappi' ),
+		'contact'         => __( 'Contact', 'appiappi' ),
+		'templates'       => __( 'Website Designs', 'appiappi' ),
+		'template_single' => __( 'Website Design — Single Design Page', 'appiappi' ),
 	);
-	foreach ( $page_background_fields as $id => $label ) {
-		$wp_customize->add_setting( $id, array(
+
+	foreach ( $page_background_pages as $key => $label ) {
+		$wp_customize->add_setting( 'appiappi_pagebg_' . $key, array(
 			'default'           => '',
 			'sanitize_callback' => 'esc_url_raw',
 		) );
-		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, $id, array(
-			'label'   => $label,
+		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'appiappi_pagebg_' . $key, array(
+			/* translators: %s: page name */
+			'label'   => sprintf( __( '%s — Background Image', 'appiappi' ), $label ),
 			'section' => 'appiappi_page_backgrounds',
 		) ) );
+
+		$wp_customize->add_setting( 'appiappi_pagebg_color_' . $key, array(
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_hex_color',
+		) );
+		$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'appiappi_pagebg_color_' . $key, array(
+			/* translators: %s: page name */
+			'label'   => sprintf( __( '%s — Background Colour', 'appiappi' ), $label ),
+			'section' => 'appiappi_page_backgrounds',
+		) ) );
+
+		$wp_customize->add_setting( 'appiappi_pagebg_animated_' . $key, array(
+			'default'           => false,
+			'sanitize_callback' => 'appiappi_sanitize_checkbox',
+		) );
+		$wp_customize->add_control( 'appiappi_pagebg_animated_' . $key, array(
+			/* translators: %s: page name */
+			'label'   => sprintf( __( '%s — Animated Geometric Overlay', 'appiappi' ), $label ),
+			'section' => 'appiappi_page_backgrounds',
+			'type'    => 'checkbox',
+		) );
 	}
 
 	// ---- Footer ----
@@ -293,16 +324,24 @@ function appiappi_customizer_css_vars() {
 	$templates_preview_pad = (int) get_theme_mod( 'appiappi_templates_preview_pad', 20 );
 	$footer_pad           = (int) get_theme_mod( 'appiappi_footer_pad', 50 );
 
-	// Only output a --page-header-bg-{key} line for pages where the
-	// admin actually uploaded something — pages.css's own var()
-	// fallback (the theme's default SVG) already handles the rest, so
-	// there's nothing to override for those.
-	$page_background_keys = array( 'services', 'how_it_works', 'portfolio', 'pricing', 'about', 'contact', 'templates' );
-	$page_background_overrides = array();
+	// Only output a --page-header-bg-{key}/-color-{key} line for pages
+	// where the admin actually set something — pages.css's own var()
+	// fallbacks (the theme's default SVG, --color-bg-subtle) already
+	// handle the rest, so there's nothing to override for those.
+	$page_background_keys = array( 'services', 'how_it_works', 'portfolio', 'pricing', 'about', 'contact', 'templates', 'template_single' );
+	$page_background_image_overrides = array();
+	$page_background_color_overrides = array();
 	foreach ( $page_background_keys as $key ) {
+		$css_key = str_replace( '_', '-', $key );
+
 		$url = get_theme_mod( 'appiappi_pagebg_' . $key, '' );
 		if ( $url ) {
-			$page_background_overrides[ str_replace( '_', '-', $key ) ] = $url;
+			$page_background_image_overrides[ $css_key ] = $url;
+		}
+
+		$color = get_theme_mod( 'appiappi_pagebg_color_' . $key, '' );
+		if ( $color ) {
+			$page_background_color_overrides[ $css_key ] = $color;
 		}
 	}
 	?>
@@ -315,8 +354,11 @@ function appiappi_customizer_css_vars() {
 			--pricing-preview-pad-desktop: <?php echo esc_html( $pricing_preview_pad ); ?>px;
 			--templates-preview-pad-desktop: <?php echo esc_html( $templates_preview_pad ); ?>px;
 			--footer-pad-desktop: <?php echo esc_html( $footer_pad ); ?>px;
-			<?php foreach ( $page_background_overrides as $css_key => $url ) : ?>
+			<?php foreach ( $page_background_image_overrides as $css_key => $url ) : ?>
 			--page-header-bg-<?php echo esc_html( $css_key ); ?>: url('<?php echo esc_url( $url ); ?>');
+			<?php endforeach; ?>
+			<?php foreach ( $page_background_color_overrides as $css_key => $color ) : ?>
+			--page-header-bg-color-<?php echo esc_html( $css_key ); ?>: <?php echo esc_html( $color ); ?>;
 			<?php endforeach; ?>
 		}
 	</style>

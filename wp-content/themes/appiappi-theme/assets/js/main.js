@@ -244,3 +244,142 @@
 		start();
 	} );
 } )();
+
+/**
+ * Animated geometric network overlay for page-title header
+ * backgrounds (Customizer → Page Header Backgrounds → per-page
+ * "Animated Geometric Overlay"). Only pages where that toggle is on
+ * actually have a .page-header__network canvas in the DOM
+ * (appiappi_page_header_network_canvas() in inc/template-tags.php),
+ * so this no-ops everywhere else. Nodes drift slowly and connect
+ * with lines to nearby nodes; both cycle through a shifting
+ * multi-hue palette so it never reads as a static, single-colour
+ * grid — deliberately colourful, not just white. Draws one static
+ * frame (no loop) under prefers-reduced-motion, and pauses while
+ * the tab is hidden so it doesn't burn CPU in the background.
+ */
+( function () {
+	'use strict';
+
+	var canvases = document.querySelectorAll( '.page-header__network' );
+	if ( ! canvases.length ) {
+		return;
+	}
+
+	var prefersReducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+	canvases.forEach( function ( canvas ) {
+		var header = canvas.closest( '.page-header' );
+		if ( ! header ) {
+			return;
+		}
+
+		var ctx = canvas.getContext( '2d' );
+		var dpr = Math.min( window.devicePixelRatio || 1, 2 );
+		var width = 0;
+		var height = 0;
+		var nodes = [];
+		var raf = null;
+
+		function buildNodes() {
+			var count = Math.max( 18, Math.min( 55, Math.round( ( width * height ) / 16000 ) ) );
+			nodes = [];
+			for ( var i = 0; i < count; i++ ) {
+				nodes.push( {
+					x: Math.random() * width,
+					y: Math.random() * height,
+					vx: ( Math.random() - 0.5 ) * 0.18,
+					vy: ( Math.random() - 0.5 ) * 0.18,
+					hue: Math.random() * 360,
+					hueSpeed: ( Math.random() - 0.5 ) * 6
+				} );
+			}
+		}
+
+		function resize() {
+			var rect = header.getBoundingClientRect();
+			width = rect.width;
+			height = rect.height;
+			canvas.width = width * dpr;
+			canvas.height = height * dpr;
+			canvas.style.width = width + 'px';
+			canvas.style.height = height + 'px';
+			ctx.setTransform( dpr, 0, 0, dpr, 0, 0 );
+			buildNodes();
+		}
+
+		function draw() {
+			ctx.clearRect( 0, 0, width, height );
+
+			nodes.forEach( function ( node ) {
+				node.x += node.vx;
+				node.y += node.vy;
+				node.hue = ( node.hue + node.hueSpeed * 0.016 + 360 ) % 360;
+
+				if ( node.x < 0 || node.x > width ) {
+					node.vx *= -1;
+					node.x = Math.max( 0, Math.min( width, node.x ) );
+				}
+				if ( node.y < 0 || node.y > height ) {
+					node.vy *= -1;
+					node.y = Math.max( 0, Math.min( height, node.y ) );
+				}
+			} );
+
+			var maxDist = Math.max( 90, Math.min( width, height ) * 0.22 );
+
+			for ( var i = 0; i < nodes.length; i++ ) {
+				for ( var j = i + 1; j < nodes.length; j++ ) {
+					var a = nodes[ i ];
+					var b = nodes[ j ];
+					var dx = a.x - b.x;
+					var dy = a.y - b.y;
+					var dist = Math.sqrt( dx * dx + dy * dy );
+					if ( dist < maxDist ) {
+						var opacity = ( 1 - dist / maxDist ) * 0.35;
+						ctx.strokeStyle = 'hsla(' + ( ( a.hue + b.hue ) / 2 ) + ', 85%, 70%, ' + opacity + ')';
+						ctx.lineWidth = 1;
+						ctx.beginPath();
+						ctx.moveTo( a.x, a.y );
+						ctx.lineTo( b.x, b.y );
+						ctx.stroke();
+					}
+				}
+			}
+
+			nodes.forEach( function ( node ) {
+				ctx.beginPath();
+				ctx.fillStyle = 'hsla(' + node.hue + ', 90%, 70%, 0.9)';
+				ctx.shadowColor = 'hsla(' + node.hue + ', 90%, 65%, 0.8)';
+				ctx.shadowBlur = 6;
+				ctx.arc( node.x, node.y, 2.2, 0, Math.PI * 2 );
+				ctx.fill();
+			} );
+			ctx.shadowBlur = 0;
+		}
+
+		function step() {
+			draw();
+			if ( ! prefersReducedMotion ) {
+				raf = window.requestAnimationFrame( step );
+			}
+		}
+
+		function handleVisibility() {
+			if ( document.hidden ) {
+				if ( raf ) {
+					window.cancelAnimationFrame( raf );
+					raf = null;
+				}
+			} else if ( ! prefersReducedMotion && ! raf ) {
+				step();
+			}
+		}
+
+		resize();
+		step();
+
+		window.addEventListener( 'resize', resize, { passive: true } );
+		document.addEventListener( 'visibilitychange', handleVisibility );
+	} );
+} )();

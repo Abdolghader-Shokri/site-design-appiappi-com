@@ -793,6 +793,34 @@ function appiappi_render_hero_slides( array $slides ) {
 }
 
 /**
+ * Whether the animated geometric network overlay (page-header-network.js,
+ * an <canvas> of slowly drifting, multi-colour connected nodes drawn on
+ * top of the header's image/colour) is turned on for a given $bg_key.
+ * $bg_key uses hyphens ('how-it-works') while its Customizer setting ID
+ * uses underscores (appiappi_pagebg_animated_how_it_works) — same
+ * translation the background-image/colour overrides already use.
+ */
+function appiappi_page_header_is_animated( $bg_key ) {
+	if ( ! $bg_key ) {
+		return false;
+	}
+	return (bool) get_theme_mod( 'appiappi_pagebg_animated_' . str_replace( '-', '_', $bg_key ), false );
+}
+
+/**
+ * Echoes the <canvas> the animation attaches to, only when that page's
+ * "Animated Geometric Overlay" toggle (Customizer → Page Header
+ * Backgrounds) is on. Shared by appiappi_page_header() and the single
+ * design template, which builds its own header markup by hand.
+ */
+function appiappi_page_header_network_canvas( $bg_key ) {
+	if ( ! appiappi_page_header_is_animated( $bg_key ) ) {
+		return;
+	}
+	echo '<canvas class="page-header__network" aria-hidden="true"></canvas>';
+}
+
+/**
  * Consistent inner-page header band (title + optional subtitle). Used by
  * every non-homepage page template. Title comes from the_title() so the
  * H1 stays admin-editable per page.
@@ -803,14 +831,18 @@ function appiappi_render_hero_slides( array $slides ) {
  *                          styled via .page-header--{key} in pages.css) —
  *                          added 2026-09-06 for Services/How It
  *                          Works/Portfolio/Pricing/About/Contact/
- *                          Website Designs. Hidden on mobile (see CSS)
- *                          so it never competes with the centred title
- *                          text on narrow screens. Empty = the plain
- *                          subtle-background band, as before.
+ *                          Website Designs. Per page, admins can
+ *                          independently override the background image
+ *                          and/or background colour, and switch on the
+ *                          animated geometric overlay, all via
+ *                          Customizer → Page Header Backgrounds. Empty
+ *                          $bg_key = the plain subtle-background band,
+ *                          as before, with no overlay.
  */
 function appiappi_page_header( $subtitle = '', $bg_key = '' ) {
 	?>
 	<header class="page-header <?php echo $bg_key ? 'page-header--' . esc_attr( $bg_key ) : ''; ?>">
+		<?php appiappi_page_header_network_canvas( $bg_key ); ?>
 		<div class="container">
 			<h1><?php echo esc_html( single_post_title( '', false ) ); ?></h1>
 			<?php if ( $subtitle ) : ?>

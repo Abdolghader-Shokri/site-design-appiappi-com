@@ -24,6 +24,8 @@
 /* ---------- Page header ---------- */
 
 .page-header {
+	position: relative;
+	overflow: hidden;
 	padding-block: var(--space-12) var(--space-10);
 	text-align: center;
 	background: var(--color-bg-subtle);
@@ -36,6 +38,27 @@
 	margin-bottom: 0;
 }
 
+/* Content sits above the animated overlay canvas below (and above the
+   header's own background-image, which paints beneath both regardless
+   since it belongs to the header box itself, not a stacked child). */
+.page-header > .container {
+	position: relative;
+	z-index: 2;
+}
+
+/* Animated geometric network overlay (assets/js/page-header-network.js):
+   only printed into the DOM at all when a page's "Animated Geometric
+   Overlay" Customizer toggle is on (appiappi_page_header_network_canvas()
+   in inc/template-tags.php), so pages without it pay zero JS/CSS cost. */
+.page-header__network {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	pointer-events: none;
+}
+
 /* Full-width page-header background, one per page topic (added
    2026-09-06, revised same day to be full-bleed instead of a
    right-aligned corner graphic). appiappi_page_header( $subtitle,
@@ -43,21 +66,25 @@
    fills the header's entire width and height and rescales with it
    responsively at any viewport size — including mobile, deliberately,
    per explicit request (an earlier version hid it below 768px; that's
-   been dropped). Each rule's var() fallback is the theme's own
-   isometric SVG (assets/images/page-bg-{key}.svg); admins can
-   override any of them with their own photo via Customizer → Page
-   Header Backgrounds (inc/customizer.php), which sets the matching
-   --page-header-bg-{key} custom property at :root — custom properties
-   inherit down to these class rules regardless of selector specificity,
-   so a :root-level override here correctly beats the SVG fallback
-   without needing to touch this file per upload. */
-.page-header--services { background-image: var(--page-header-bg-services, url('../images/page-bg-services.svg')); }
-.page-header--how-it-works { background-image: var(--page-header-bg-how-it-works, url('../images/page-bg-how-it-works.svg')); }
-.page-header--portfolio { background-image: var(--page-header-bg-portfolio, url('../images/page-bg-portfolio.svg')); }
-.page-header--pricing { background-image: var(--page-header-bg-pricing, url('../images/page-bg-pricing.svg')); }
-.page-header--about { background-image: var(--page-header-bg-about, url('../images/page-bg-about.svg')); }
-.page-header--contact { background-image: var(--page-header-bg-contact, url('../images/page-bg-contact.svg')); }
-.page-header--templates { background-image: var(--page-header-bg-templates, url('../images/page-bg-templates.svg')); }
+   been dropped). Each rule's var() fallbacks are the theme's own
+   isometric SVG (assets/images/page-bg-{key}.svg) and --color-bg-subtle;
+   admins can override the image and/or the colour independently per
+   page via Customizer → Page Header Backgrounds (inc/customizer.php),
+   which sets the matching --page-header-bg-{key}/--page-header-bg-color-{key}
+   custom properties at :root — custom properties inherit down to these
+   class rules regardless of selector specificity, so a :root-level
+   override here correctly beats the fallback without needing to touch
+   this file per change. template-single (the single design detail page)
+   reuses the Website Designs SVG as its own fallback but is configured
+   completely separately from the archive. */
+.page-header--services { background-image: var(--page-header-bg-services, url('../images/page-bg-services.svg')); background-color: var(--page-header-bg-color-services, var(--color-bg-subtle)); }
+.page-header--how-it-works { background-image: var(--page-header-bg-how-it-works, url('../images/page-bg-how-it-works.svg')); background-color: var(--page-header-bg-color-how-it-works, var(--color-bg-subtle)); }
+.page-header--portfolio { background-image: var(--page-header-bg-portfolio, url('../images/page-bg-portfolio.svg')); background-color: var(--page-header-bg-color-portfolio, var(--color-bg-subtle)); }
+.page-header--pricing { background-image: var(--page-header-bg-pricing, url('../images/page-bg-pricing.svg')); background-color: var(--page-header-bg-color-pricing, var(--color-bg-subtle)); }
+.page-header--about { background-image: var(--page-header-bg-about, url('../images/page-bg-about.svg')); background-color: var(--page-header-bg-color-about, var(--color-bg-subtle)); }
+.page-header--contact { background-image: var(--page-header-bg-contact, url('../images/page-bg-contact.svg')); background-color: var(--page-header-bg-color-contact, var(--color-bg-subtle)); }
+.page-header--templates { background-image: var(--page-header-bg-templates, url('../images/page-bg-templates.svg')); background-color: var(--page-header-bg-color-templates, var(--color-bg-subtle)); }
+.page-header--template-single { background-image: var(--page-header-bg-template-single, url('../images/page-bg-templates.svg')); background-color: var(--page-header-bg-color-template-single, var(--color-bg-subtle)); }
 
 .page-header[class*="page-header--"] {
 	background-repeat: no-repeat;

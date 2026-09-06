@@ -18,8 +18,10 @@
  * identical, current design's category marked active), a "Back" button
  * (tries history.back() when the visitor actually came from this site,
  * falling back to a plain link to /templates/ otherwise — e.g. if they
- * arrived directly or JS is off), and the same decorative
- * page-header--templates background as the archive.
+ * arrived directly or JS is off), and its own decorative page-header
+ * background (page-header--template-single, configured separately from
+ * the archive's under Customizer → Page Header Backgrounds — "Website
+ * Design — Single Design Page").
  */
 
 get_header();
@@ -33,7 +35,8 @@ while ( have_posts() ) :
 	?>
 	<main id="main-content">
 		<?php appiappi_breadcrumbs(); ?>
-		<header class="page-header page-header--templates">
+		<header class="page-header page-header--template-single">
+			<?php appiappi_page_header_network_canvas( 'template-single' ); ?>
 			<div class="container">
 				<?php if ( $template && $template['category'] ) : ?>
 					<span class="badge badge-primary" style="margin-bottom: var(--space-3);"><?php echo esc_html( $template['category'] ); ?></span>
