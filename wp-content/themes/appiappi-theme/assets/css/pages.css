@@ -47,17 +47,26 @@
 }
 
 /* Page title colour/stroke/background box (Customizer → Page Title
-   Styling, added 2026-09-07) — one shared style for every page header's
-   H1, not set per page. Colour and the background box are optional
-   overrides (var() falls back to the existing look when unset); the
-   stroke only ever applies under .page-header--title-stroke, which
-   inc/template-tags.php only adds when that toggle is actually on, so
-   switching it off doesn't discard the saved colour/width. */
+   Styling, added 2026-09-07, extended to the subtitle the same day) —
+   one shared style for every page header's H1 *and* subtitle, not set
+   per page. Colour and the background box are optional overrides
+   (var() falls back to each element's existing look when unset — the
+   subtitle keeps its own muted colour by default rather than inheriting
+   the H1's default, so nothing changes until an admin actually sets a
+   colour, at which point both adopt it together); the stroke only ever
+   applies under .page-header--title-stroke, which inc/template-tags.php
+   only adds when that toggle is actually on, so switching it off
+   doesn't discard the saved colour/width. */
 .page-header h1 {
 	color: var(--page-title-color, var(--color-neutral-900));
 }
 
-.page-header--title-stroke h1 {
+.page-header p {
+	color: var(--page-title-color, var(--color-text-muted));
+}
+
+.page-header--title-stroke h1,
+.page-header--title-stroke p {
 	-webkit-text-stroke-width: var(--page-title-stroke-width, 1.5px);
 	-webkit-text-stroke-color: var(--page-title-stroke-color, #000);
 	paint-order: stroke fill;
@@ -674,6 +683,14 @@
 @media (min-width: 768px) {
 	.single-template-detail {
 		padding-inline: 30px;
+	}
+}
+
+/* About page's own desktop side padding — the sitewide 10px gutter read
+   as too tight for this much long-form editorial copy. */
+@media (min-width: 768px) {
+	.about-page-content {
+		padding-inline: 50px;
 	}
 }
 

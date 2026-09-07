@@ -170,6 +170,36 @@
 	margin: 0;
 }
 
+/* ---------- Trust bar (moved here from home.css 2026-09-07 — used by
+   the homepage AND the About page, but this file was front-page-only,
+   so the About page's 4 icons had zero layout CSS and rendered stacked
+   on top of each other instead of in a row. Same "shared markup styled
+   in a page-conditional file" mistake this project has hit before;
+   components.css loads on every page, so this fixes it at the root
+   instead of duplicating the rule per page.) ---------- */
+
+.trust-bar {
+	background: var(--color-bg-subtle);
+}
+
+.trust-bar__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-6);
+}
+
+@media (min-width: 640px) {
+	.trust-bar__grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 1024px) {
+	.trust-bar__grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
 /* ---------- Card base ---------- */
 
 .card {

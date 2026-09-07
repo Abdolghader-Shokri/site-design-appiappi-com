@@ -2,6 +2,18 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-07 (even later) — About page: wider padding, fixed trust-bar icons, header subtitle; title styling now covers the subtitle too
+
+### Fixed
+- Trust bar (`template-parts/sections/trust-bar.php`, the 4-icon strip): its layout rules (`.trust-bar`, `.trust-bar__grid`) lived only in `home.css`, which only loads on the front page — the About page (which also uses this section) had zero layout CSS for it, so the 4 icons stacked on top of each other instead of showing in a row. Moved both rules to `components.css` (loaded on every page) — the fifth time this project has hit the exact "shared markup styled in a front-page-only file" mistake; see PROJECT_MASTER.md §10.
+
+### Changed
+- About page content now has its own 50px desktop side padding (`.about-page-content`, ≥768px) instead of the sitewide 10px gutter, and gained a real header subtitle (it previously passed an empty one, unlike every other main page).
+- Page Title Styling (colour + stroke) now also applies to the header subtitle, not just the H1 — previously only the H1 picked up the admin-set colour/stroke.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/page-about.php`, `assets/css/{components,home,pages}.css`, `inc/enqueue.php`
+
 ## 2026-09-07 (latest) — Page title colour, stroke and background box
 
 ### Added

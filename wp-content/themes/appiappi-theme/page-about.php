@@ -12,10 +12,10 @@ get_header();
 
 <main id="main-content">
 	<?php appiappi_breadcrumbs(); ?>
-	<?php appiappi_page_header( '', 'about' ); ?>
+	<?php appiappi_page_header( __( 'Get to know Appiappi — who we are, what we do, and why Canadian businesses trust us to manage their website long after launch.', 'appiappi' ), 'about' ); ?>
 
 	<article class="section">
-		<div class="container single-post">
+		<div class="container single-post about-page-content">
 			<div class="single-post__content">
 				<?php
 				if ( have_posts() ) {

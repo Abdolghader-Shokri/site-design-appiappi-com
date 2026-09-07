@@ -197,27 +197,6 @@
 	}
 }
 
-/* ---------- Trust bar ---------- */
-
-.trust-bar {
-	background: var(--color-bg-subtle);
-}
-
-.trust-bar__grid {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--space-6);
-}
-
-@media (min-width: 640px) {
-	.trust-bar__grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
-@media (min-width: 1024px) {
-	.trust-bar__grid {
-		grid-template-columns: repeat(4, 1fr);
-	}
-}
+/* Trust bar: moved to components.css 2026-09-07 (shared with the About
+   page, which this front-page-only file never reached). */
 
