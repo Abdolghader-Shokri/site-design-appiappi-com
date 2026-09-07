@@ -20,6 +20,7 @@
 !/wp-content/plugins/appiappi-contact/
 !/wp-content/plugins/appiappi-services/
 !/wp-content/plugins/appiappi-checkout/
+!/wp-content/plugins/appiappi-client-login/
 /wp-content/mu-plugins/*
 !/wp-content/mu-plugins/.gitkeep
 /wp-content/themes/*

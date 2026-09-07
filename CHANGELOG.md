@@ -2,6 +2,19 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-07 (latest) — Client Login: "Sign in with Google", no separate registration
+
+### Added
+- New companion plugin `appiappi-client-login`: customers sign in with Google only — there's no separate registration form; a successful first sign-in auto-creates the account. Built as plain REST calls (`wp_remote_request()`), matching the Stripe checkout integration's style (no SDK, no Composer).
+- A dedicated, low-privilege **Client** role (`read` capability only), auto-assigned on account creation; client accounts are redirected away from `/wp-admin/` to their own Dashboard page instead.
+- Two new pages created automatically: **Dashboard** (`/account/`) and **Profile** (`/account/profile/`), each showing a "Sign in with Google" prompt when logged out or a minimal placeholder when logged in — real dashboard/profile features are an explicitly deferred next phase.
+- Header's "Client Login" link is now dynamic: logged out, it's a Google-branded "Sign in with Google" button; logged in, it becomes the customer's email + a person-icon avatar with a click-to-toggle dropdown (Profile, Dashboard, Log Out) that works identically on touch, not just hover. Log Out uses WordPress's own `wp_logout_url()` and returns to the homepage.
+- Settings → Client Login: Google Client ID/Secret fields plus a read-only Redirect URI to paste into Google Cloud Console — the one unavoidable manual step, same as the Stripe webhook registration.
+
+### Files Modified
+- New plugin: `wp-content/plugins/appiappi-client-login/` (bootstrap, `includes/{settings,user,pages,oauth,header-widget}.php`, `templates/page-{dashboard,profile}.php`, `assets/{client-login.js,client-login.css}`)
+- `wp-content/themes/appiappi-theme/template-parts/header/site-header.php` (function_exists() guard replacing the static link), `inc/template-tags.php` (added `user`, `log-out`, `chevron-down` icons)
+
 ## 2026-09-07 (even later) — About page: wider padding, fixed trust-bar icons, header subtitle; title styling now covers the subtitle too
 
 ### Fixed

@@ -1,9 +1,12 @@
 <?php
 /**
  * Sticky site header: logo, primary nav, header CTA + client login,
- * mobile nav toggle. The "Client Login" link is a placeholder target
- * for the future customer portal (see PROJECT_MASTER.md, Phase 5) —
- * it is a secondary/ghost action, not the primary CTA.
+ * mobile nav toggle. "Client Login" itself is rendered by the
+ * appiappi-client-login plugin (function_exists() guard below, same
+ * pattern as the checkout plugin's pricing-card integration) — a
+ * "Sign in with Google" link when logged out, or an email + avatar
+ * dropdown when logged in; the plain link here is only a fallback for
+ * when that plugin is inactive.
  */
 
 $cta_text = get_theme_mod( 'appiappi_cta_text', __( 'Get Started', 'appiappi' ) );
@@ -35,7 +38,11 @@ $cta_url  = get_theme_mod( 'appiappi_cta_url', '#pricing' );
 		</nav>
 
 		<div class="header-actions">
-			<a href="<?php echo esc_url( home_url( '/account/' ) ); ?>" class="btn btn-link"><?php esc_html_e( 'Client Login', 'appiappi' ); ?></a>
+			<?php if ( function_exists( 'appiappi_client_login_render_header_widget' ) ) : ?>
+				<?php appiappi_client_login_render_header_widget( 'btn btn-link' ); ?>
+			<?php else : ?>
+				<a href="<?php echo esc_url( home_url( '/account/' ) ); ?>" class="btn btn-link"><?php esc_html_e( 'Client Login', 'appiappi' ); ?></a>
+			<?php endif; ?>
 			<a href="<?php echo esc_url( $cta_url ); ?>" class="btn btn-primary"><?php echo esc_html( $cta_text ); ?></a>
 			<button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="<?php esc_attr_e( 'Open menu', 'appiappi' ); ?>">
 				<?php echo appiappi_icon( 'menu' ); ?>
@@ -55,7 +62,11 @@ $cta_url  = get_theme_mod( 'appiappi_cta_url', '#pricing' );
 			?>
 		</nav>
 		<div class="mobile-nav__actions">
-			<a href="<?php echo esc_url( home_url( '/account/' ) ); ?>" class="btn btn-secondary btn-block"><?php esc_html_e( 'Client Login', 'appiappi' ); ?></a>
+			<?php if ( function_exists( 'appiappi_client_login_render_header_widget' ) ) : ?>
+				<?php appiappi_client_login_render_header_widget( 'btn btn-secondary btn-block' ); ?>
+			<?php else : ?>
+				<a href="<?php echo esc_url( home_url( '/account/' ) ); ?>" class="btn btn-secondary btn-block"><?php esc_html_e( 'Client Login', 'appiappi' ); ?></a>
+			<?php endif; ?>
 			<a href="<?php echo esc_url( $cta_url ); ?>" class="btn btn-primary btn-block"><?php echo esc_html( $cta_text ); ?></a>
 		</div>
 	</div>
