@@ -174,7 +174,7 @@ Implemented now via the native Customizer (`inc/customizer.php`):
 | Section | Settings |
 |---|---|
 | Brand Colour | Primary colour (hex) — cascades to `--color-primary`, `--color-primary-dark`, `--color-primary-50` via inline `wp_head` CSS |
-| Header Call to Action | Button text + URL (used in header and mobile nav) |
+| Header Call to Action | Button text (default "Get Started") + an **optional** URL override (used in header and mobile nav). Left empty, `appiappi_header_cta_url()` (`inc/template-tags.php`) applies a smart default instead of a hard-coded one — see below. |
 | Contact Information | Phone, email, address — used only by `inc/seo.php`'s LocalBusiness schema now (the footer's Contact column was switched to read the Contact Page Info Box fields instead, 2026-09-06 — see below and §11) |
 | **Contact Page Info Box** (added 2026-09-06) | Google Maps Embed URL, Address label/value, Phone label/value/"links to" type (Call/SMS/WhatsApp/None), Support Email — drives the info card next to the form on the Contact page (`page-contact.php`) **and** the footer's Contact column (map excluded there) sitewide, §11. Each row is independently optional; the Contact page's card is omitted entirely (form goes full width) if every field is empty, and the footer's Contact column falls back to General Public Email (Settings → Appiappi Settings) or is omitted too. |
 | Social Links | Facebook, LinkedIn, Instagram, YouTube — used in footer |
@@ -185,6 +185,8 @@ Implemented now via the native Customizer (`inc/customizer.php`):
 Logo/favicon use core's built-in `custom-logo` theme support and Site Icon —
 no custom code needed; set both under **Appearance → Customize → Site
 Identity**.
+
+**Header CTA's smart default URL (revised 2026-09-07):** the user had no strong opinion on where "Get Started" should point on each page and asked for a world-standard default. The button is the same persistent header element on every page, so — matching standard SaaS/agency-site practice — it now always leads to one consistent place: this business's self-serve funnel, the Pricing page. Previously the Customizer field's registered default was the bare fragment `#pricing`, which only ever did anything on the two pages that actually contain a `#pricing` element (the homepage's pricing preview and the Pricing page itself, `page-pricing.php`) — every other page's button was a dead click. `appiappi_header_cta_url()` (`inc/template-tags.php`) now returns `#pricing` (smooth-scrolls in place; `scroll-behavior: smooth` is set globally in `base.css`) only on those two pages, and `home_url('/pricing/#pricing')` everywhere else. An admin-set URL in Customizer always wins outright — the field's registered default was changed from `#pricing` to empty specifically so "the admin never touched this field" and "the admin explicitly wants #pricing" are distinguishable again (they weren't before, since the old default and a legitimate explicit choice were the identical stored string). The field's input type was also changed from `url` to `text`, since HTML5's native `type="url"` validation rejects relative paths/fragments client-side before the value ever reaches WordPress — the exact same bug already found and fixed for the pricing plans' own Button URL field.
 
 **Advanced/technical settings (Phase 4)** live on a separate native
 Settings API page — **Settings → Appiappi Settings**

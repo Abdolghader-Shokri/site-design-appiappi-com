@@ -70,6 +70,37 @@ function appiappi_icon( $name, $class = '' ) {
 }
 
 /**
+ * Where the header's primary CTA (default label "Get Started",
+ * Customizer → Header Call to Action) points when the admin hasn't set
+ * an explicit override — the header is the same persistent element on
+ * every page, so per standard SaaS/agency-site practice it should
+ * always lead to one consistent place: the start of this business's
+ * self-serve funnel, the Pricing page, where a visitor picks a plan and
+ * checks out.
+ *
+ * The old hard-coded default ('#pricing') only ever worked on the two
+ * pages that actually contain a #pricing element — the homepage
+ * (template-parts/sections/pricing-preview.php) and the Pricing page
+ * itself (page-pricing.php) — everywhere else the click did nothing at
+ * all (revised 2026-09-07). This keeps the same in-page smooth-scroll
+ * on those two pages (scroll-behavior: smooth is set globally in
+ * base.css) and sends every other page straight to the Pricing page's
+ * own #pricing section instead of nowhere.
+ */
+function appiappi_header_cta_url() {
+	$configured = get_theme_mod( 'appiappi_cta_url', '' );
+	if ( $configured ) {
+		return $configured;
+	}
+
+	if ( is_front_page() || is_page_template( 'page-pricing.php' ) || is_page( 'pricing' ) ) {
+		return '#pricing';
+	}
+
+	return home_url( '/pricing/#pricing' );
+}
+
+/**
  * Primary nav fallback, shown until a real menu is assigned in
  * Appearance > Menus. Targets are best-guess slugs for pages that
  * Phase 2/3 will create.

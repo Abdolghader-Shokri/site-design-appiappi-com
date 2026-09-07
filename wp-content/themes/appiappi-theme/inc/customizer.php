@@ -67,13 +67,15 @@ function appiappi_customize_register( $wp_customize ) {
 	) );
 
 	$wp_customize->add_setting( 'appiappi_cta_url', array(
-		'default'           => '#pricing',
+		'default'           => '',
 		'sanitize_callback' => 'esc_url_raw',
 	) );
 	$wp_customize->add_control( 'appiappi_cta_url', array(
-		'label'   => __( 'Button URL', 'appiappi' ),
-		'section' => 'appiappi_header_cta',
-		'type'    => 'url',
+		'label'       => __( 'Button URL (optional override)', 'appiappi' ),
+		'description' => __( 'Leave empty to use the smart default: scrolls to Pricing on the homepage/Pricing page, links straight to the Pricing page everywhere else. A full URL (https://...) or a site-relative path starting with / — e.g. /pricing/, not pricing/.', 'appiappi' ),
+		'section'     => 'appiappi_header_cta',
+		'type'        => 'text',
+		'input_attrs' => array( 'placeholder' => '/pricing/' ),
 	) );
 
 	// ---- Contact info ----

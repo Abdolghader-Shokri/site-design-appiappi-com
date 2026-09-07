@@ -2,7 +2,19 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
-## 2026-09-07 (latest) — Client Login: "Sign in with Google", no separate registration
+## 2026-09-07 (latest) — Header "Get Started" button: smart default destination
+
+### Fixed
+- The header's "Get Started" button linked to `#pricing` on every page by default, but that element only exists on the homepage and the Pricing page — everywhere else (About, Services, Contact, Portfolio, Website Designs, blog, single design pages...) the click did nothing at all.
+
+### Changed
+- `appiappi_header_cta_url()` (new, `inc/template-tags.php`) now returns `#pricing` (smooth in-page scroll) only on the homepage/Pricing page, and links straight to `/pricing/#pricing` everywhere else — matching standard practice for a persistent header CTA (always leads to the self-serve funnel start) since the user had no specific per-page preference and asked for the current world-standard default.
+- Customizer → Header Call to Action → Button URL is now an optional override (was pre-filled with `#pricing` as its stored default, which made "never touched" and "explicitly wants #pricing" indistinguishable); also switched its input from `type="url"` to `type="text"` since HTML5 rejects relative paths/fragments client-side — the same bug already fixed for the pricing plans' Button URL field.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/template-tags.php`, `inc/customizer.php`, `template-parts/header/site-header.php`, `inc/enqueue.php`
+
+## 2026-09-07 (client login) — "Sign in with Google", no separate registration
 
 ### Added
 - New companion plugin `appiappi-client-login`: customers sign in with Google only — there's no separate registration form; a successful first sign-in auto-creates the account. Built as plain REST calls (`wp_remote_request()`), matching the Stripe checkout integration's style (no SDK, no Composer).

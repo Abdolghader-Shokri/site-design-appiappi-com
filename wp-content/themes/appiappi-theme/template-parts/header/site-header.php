@@ -10,7 +10,7 @@
  */
 
 $cta_text = get_theme_mod( 'appiappi_cta_text', __( 'Get Started', 'appiappi' ) );
-$cta_url  = get_theme_mod( 'appiappi_cta_url', '#pricing' );
+$cta_url  = appiappi_header_cta_url();
 ?>
 <header class="site-header">
 	<div class="container site-header__inner">
