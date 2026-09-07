@@ -2,6 +2,14 @@
 
 All notable changes to this project. Dated by day; most recent first.
 
+## 2026-09-07 (latest) — Page title colour, stroke and background box
+
+### Added
+- New Customizer section **Page Title Styling**, applying to the H1 (+ subtitle) on every page header at once (not per page): admin-set **Title Text Colour**, an on/off **Text Stroke** with its own colour and width (0.5–5px), and an admin-set **Title Background Box** (colour + 0–100% opacity) — a rounded, shadowed badge behind the title. All three are optional and off/unset by default, so nothing changes until an admin actually configures them; the stroke's own toggle stays independent of its saved colour/width, and the background box only ever appears once a colour is chosen for it.
+
+### Files Modified
+- `wp-content/themes/appiappi-theme/inc/customizer.php`, `inc/template-tags.php`, `inc/enqueue.php`, `assets/css/pages.css`, `single-appiappi_template.php`
+
 ## 2026-09-07 (later still) — Page-header overlay: global speed/density controls, animated connection lines, perf pass
 
 ### Added

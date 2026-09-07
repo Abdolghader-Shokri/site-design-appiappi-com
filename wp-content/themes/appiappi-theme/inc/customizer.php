@@ -21,10 +21,11 @@ function appiappi_sanitize_checkbox( $value ) {
 }
 
 /**
- * Clamps a decimal range-control value (e.g. the network overlay's speed
- * and density multipliers) to a sane [0.1, 5] window so a stray/tampered
- * value can never send the animation calculations into something absurd
- * (zero, negative, or runaway node counts).
+ * Clamps a decimal range-control value (the network overlay's speed and
+ * density multipliers, the title stroke width) to a sane [0.1, 5] window
+ * so a stray/tampered value can never send the underlying calculation
+ * somewhere absurd (zero, negative, a runaway node count, an unreadable
+ * stroke).
  */
 function appiappi_sanitize_decimal_multiplier( $value ) {
 	$value = (float) $value;
@@ -348,6 +349,90 @@ function appiappi_customize_register( $wp_customize ) {
 		) );
 	}
 
+	// ---- Page title styling ----
+	// The H1 (+ optional subtitle) inside every one of the same 8 page
+	// headers above — one shared style, not per page (added 2026-09-07,
+	// same "no need for this to be per page" preference as the overlay
+	// speed/density controls). Text colour and the stroke/background box
+	// are all independently optional: colour falls back to the theme's
+	// existing dark heading colour, the stroke only ever renders once its
+	// own toggle is on (so switching it off doesn't lose the saved colour/
+	// width), and the background box only appears once a colour is chosen
+	// for it — no box, no shadow, until then.
+	$wp_customize->add_section( 'appiappi_page_title_style', array(
+		'title'       => __( 'Page Title Styling', 'appiappi' ),
+		'description' => __( 'Applies to the H1 (and subtitle) on every page header above — one shared style, not set per page.', 'appiappi' ),
+		'priority'    => 45,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_pagetitle_color', array(
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'appiappi_pagetitle_color', array(
+		'label'       => __( 'Title Text Colour', 'appiappi' ),
+		'description' => __( 'Leave unset to keep the theme\'s default heading colour.', 'appiappi' ),
+		'section'     => 'appiappi_page_title_style',
+		'priority'    => 1,
+	) ) );
+
+	$wp_customize->add_setting( 'appiappi_pagetitle_stroke_enabled', array(
+		'default'           => false,
+		'sanitize_callback' => 'appiappi_sanitize_checkbox',
+	) );
+	$wp_customize->add_control( 'appiappi_pagetitle_stroke_enabled', array(
+		'label'    => __( 'Enable Text Stroke (Outline)', 'appiappi' ),
+		'section'  => 'appiappi_page_title_style',
+		'type'     => 'checkbox',
+		'priority' => 2,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_pagetitle_stroke_color', array(
+		'default'           => '#000000',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'appiappi_pagetitle_stroke_color', array(
+		'label'    => __( 'Stroke Colour', 'appiappi' ),
+		'section'  => 'appiappi_page_title_style',
+		'priority' => 3,
+	) ) );
+
+	$wp_customize->add_setting( 'appiappi_pagetitle_stroke_width', array(
+		'default'           => 1.5,
+		'sanitize_callback' => 'appiappi_sanitize_decimal_multiplier',
+	) );
+	$wp_customize->add_control( 'appiappi_pagetitle_stroke_width', array(
+		'label'       => __( 'Stroke Width (px)', 'appiappi' ),
+		'section'     => 'appiappi_page_title_style',
+		'type'        => 'range',
+		'input_attrs' => array( 'min' => 0.5, 'max' => 5, 'step' => 0.5 ),
+		'priority'    => 4,
+	) );
+
+	$wp_customize->add_setting( 'appiappi_pagetitle_bg_color', array(
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'appiappi_pagetitle_bg_color', array(
+		'label'       => __( 'Title Background Box Colour', 'appiappi' ),
+		'description' => __( 'A rounded, shadowed box behind the title (and subtitle). Leave unset to show no box at all.', 'appiappi' ),
+		'section'     => 'appiappi_page_title_style',
+		'priority'    => 5,
+	) ) );
+
+	$wp_customize->add_setting( 'appiappi_pagetitle_bg_opacity', array(
+		'default'           => 70,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'appiappi_pagetitle_bg_opacity', array(
+		'label'       => __( 'Title Background Opacity (%)', 'appiappi' ),
+		'description' => __( 'Only matters once a background colour is set above — 0 is fully see-through, 100 is fully solid.', 'appiappi' ),
+		'section'     => 'appiappi_page_title_style',
+		'type'        => 'range',
+		'input_attrs' => array( 'min' => 0, 'max' => 100, 'step' => 5 ),
+		'priority'    => 6,
+	) );
+
 	// ---- Website Design — single page ----
 	// The "can't find your design? contact us" note shown in the summary
 	// box on every design's single page (single-appiappi_template.php) —
@@ -420,6 +505,12 @@ function appiappi_customizer_css_vars() {
 			$page_background_color_overrides[ $css_key ] = $color;
 		}
 	}
+
+	$title_color        = get_theme_mod( 'appiappi_pagetitle_color', '' );
+	$title_stroke_color = get_theme_mod( 'appiappi_pagetitle_stroke_color', '#000000' );
+	$title_stroke_width = (float) get_theme_mod( 'appiappi_pagetitle_stroke_width', 1.5 );
+	$title_bg_color     = get_theme_mod( 'appiappi_pagetitle_bg_color', '' );
+	$title_bg_opacity   = (int) get_theme_mod( 'appiappi_pagetitle_bg_opacity', 70 );
 	?>
 	<style id="appiappi-customizer-vars">
 		:root {
@@ -436,6 +527,15 @@ function appiappi_customizer_css_vars() {
 			<?php foreach ( $page_background_color_overrides as $css_key => $color ) : ?>
 			--page-header-bg-color-<?php echo esc_html( $css_key ); ?>: <?php echo esc_html( $color ); ?>;
 			<?php endforeach; ?>
+			<?php if ( $title_color ) : ?>
+			--page-title-color: <?php echo esc_html( $title_color ); ?>;
+			<?php endif; ?>
+			--page-title-stroke-color: <?php echo esc_html( $title_stroke_color ); ?>;
+			--page-title-stroke-width: <?php echo esc_html( $title_stroke_width ); ?>px;
+			<?php if ( $title_bg_color ) : ?>
+			--page-title-bg-color: <?php echo esc_html( $title_bg_color ); ?>;
+			<?php endif; ?>
+			--page-title-bg-opacity: <?php echo esc_html( $title_bg_opacity ); ?>%;
 		}
 	</style>
 	<?php

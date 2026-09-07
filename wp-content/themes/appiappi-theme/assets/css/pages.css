@@ -46,6 +46,46 @@
 	z-index: 2;
 }
 
+/* Page title colour/stroke/background box (Customizer → Page Title
+   Styling, added 2026-09-07) — one shared style for every page header's
+   H1, not set per page. Colour and the background box are optional
+   overrides (var() falls back to the existing look when unset); the
+   stroke only ever applies under .page-header--title-stroke, which
+   inc/template-tags.php only adds when that toggle is actually on, so
+   switching it off doesn't discard the saved colour/width. */
+.page-header h1 {
+	color: var(--page-title-color, var(--color-neutral-900));
+}
+
+.page-header--title-stroke h1 {
+	-webkit-text-stroke-width: var(--page-title-stroke-width, 1.5px);
+	-webkit-text-stroke-color: var(--page-title-stroke-color, #000);
+	paint-order: stroke fill;
+}
+
+/* Only printed into the DOM at all once a background colour is chosen
+   (appiappi_page_title_bg_is_enabled()) — an inline-block "badge" sized
+   to the text rather than a full-width bar, so it reads as a deliberate
+   accent rather than a stray box. Opacity is layered onto the chosen
+   colour via color-mix() rather than baked into the colour itself, so
+   the two Customizer controls stay independent. */
+.page-header__title-box {
+	display: inline-block;
+	background: color-mix(in srgb, var(--page-title-bg-color, #000) var(--page-title-bg-opacity, 70%), transparent);
+	border-radius: var(--radius-lg);
+	padding: var(--space-4) var(--space-8);
+	box-shadow: var(--shadow-lg);
+}
+
+.page-header__title-box h1,
+.page-header__title-box p {
+	margin-bottom: 0;
+}
+
+.page-header__title-box p {
+	margin-top: var(--space-2);
+}
+
 /* Animated geometric network overlay (assets/js/page-header-network.js):
    only printed into the DOM at all when a page's "Animated Geometric
    Overlay" Customizer toggle is on (appiappi_page_header_network_canvas()

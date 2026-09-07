@@ -52,13 +52,15 @@ while ( have_posts() ) :
 	?>
 	<main id="main-content">
 		<?php appiappi_breadcrumbs(); ?>
-		<header class="page-header page-header--template-single">
+		<header class="page-header page-header--template-single<?php echo appiappi_page_title_stroke_is_enabled() ? ' page-header--title-stroke' : ''; ?>">
 			<?php appiappi_page_header_network_canvas( 'template-single' ); ?>
 			<div class="container">
 				<?php if ( $template && $template['category'] ) : ?>
 					<span class="badge badge-primary" style="margin-bottom: var(--space-3);"><?php echo esc_html( $template['category'] ); ?></span>
 				<?php endif; ?>
+				<?php appiappi_page_title_box_open(); ?>
 				<h1><?php the_title(); ?></h1>
+				<?php appiappi_page_title_box_close(); ?>
 			</div>
 		</header>
 

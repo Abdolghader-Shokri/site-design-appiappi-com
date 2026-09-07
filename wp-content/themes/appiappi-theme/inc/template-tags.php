@@ -859,6 +859,44 @@ function appiappi_default_missing_design_note() {
 }
 
 /**
+ * Whether the page-title text stroke (Customizer → Page Title Styling)
+ * is switched on. Kept as its own boolean, separate from the saved
+ * colour/width, so turning it off doesn't lose those values for later.
+ */
+function appiappi_page_title_stroke_is_enabled() {
+	return (bool) get_theme_mod( 'appiappi_pagetitle_stroke_enabled', false );
+}
+
+/**
+ * Whether the page-title background box (Customizer → Page Title
+ * Styling) should render at all — tied to whether an admin has actually
+ * picked a colour for it, same "no default, opt in" pattern as the page
+ * header background images: no colour chosen means no box, no shadow,
+ * nothing to accidentally show up half-configured.
+ */
+function appiappi_page_title_bg_is_enabled() {
+	return (bool) get_theme_mod( 'appiappi_pagetitle_bg_color', '' );
+}
+
+/**
+ * Echoes the opening/closing tags of the page-title background box only
+ * when it's actually enabled — shared by appiappi_page_header() and the
+ * single design template so both wrap their H1 (and, where present,
+ * subtitle) identically.
+ */
+function appiappi_page_title_box_open() {
+	if ( appiappi_page_title_bg_is_enabled() ) {
+		echo '<div class="page-header__title-box">';
+	}
+}
+
+function appiappi_page_title_box_close() {
+	if ( appiappi_page_title_bg_is_enabled() ) {
+		echo '</div>';
+	}
+}
+
+/**
  * Consistent inner-page header band (title + optional subtitle). Used by
  * every non-homepage page template. Title comes from the_title() so the
  * H1 stays admin-editable per page.
@@ -875,17 +913,29 @@ function appiappi_default_missing_design_note() {
  *                          animated geometric overlay, all via
  *                          Customizer → Page Header Backgrounds. Empty
  *                          $bg_key = the plain subtle-background band,
- *                          as before, with no overlay.
+ *                          as before, with no overlay. Title colour,
+ *                          stroke and background box (Customizer → Page
+ *                          Title Styling, added 2026-09-07) are shared
+ *                          by every page rather than set per $bg_key.
  */
 function appiappi_page_header( $subtitle = '', $bg_key = '' ) {
+	$header_classes = array( 'page-header' );
+	if ( $bg_key ) {
+		$header_classes[] = 'page-header--' . $bg_key;
+	}
+	if ( appiappi_page_title_stroke_is_enabled() ) {
+		$header_classes[] = 'page-header--title-stroke';
+	}
 	?>
-	<header class="page-header <?php echo $bg_key ? 'page-header--' . esc_attr( $bg_key ) : ''; ?>">
+	<header class="<?php echo esc_attr( implode( ' ', $header_classes ) ); ?>">
 		<?php appiappi_page_header_network_canvas( $bg_key ); ?>
 		<div class="container">
+			<?php appiappi_page_title_box_open(); ?>
 			<h1><?php echo esc_html( single_post_title( '', false ) ); ?></h1>
 			<?php if ( $subtitle ) : ?>
 				<p><?php echo esc_html( $subtitle ); ?></p>
 			<?php endif; ?>
+			<?php appiappi_page_title_box_close(); ?>
 		</div>
 	</header>
 	<?php
